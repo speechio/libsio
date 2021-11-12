@@ -10,7 +10,6 @@
 #include "absl/strings/str_cat.h"
 #include "absl/strings/str_replace.h"
 #include "absl/strings/str_format.h"
-#include "absl/meta/type_traits.h"
 
 namespace sio {
 using str = std::string;
