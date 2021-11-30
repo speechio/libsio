@@ -25,14 +25,14 @@ But notes these types:
     - work seamlessly with C API/ABI
 */
 
-template <typename PtrT, typename = typename absl::enable_if_t<std::is_pointer<PtrT>::value>>
-using owner = PtrT;
+template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
+using owner = T;
 
-template <typename PtrT, typename = typename absl::enable_if_t<std::is_pointer<PtrT>::value>>
-using nullable = PtrT;
+template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
+using nullable = T;
 
-template <typename PtrT, typename = typename absl::enable_if_t<std::is_pointer<PtrT>::value>>
-using ref = PtrT;
+template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
+using ref = T;
 
 };
 
