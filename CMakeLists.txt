@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # add third-party dependencies
-add_subdirectory(deps)
+add_subdirectory(deps/abseil-cpp)
 
 # sio
 include_directories(include src)
