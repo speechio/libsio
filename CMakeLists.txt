@@ -8,9 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 add_subdirectory(deps/abseil-cpp)
 
 # sio
-include_directories(include src)
-
-add_subdirectory(src)
+include_directories(.)
+add_subdirectory(sio)
 
 add_executable(stt stt.cc)
 target_link_libraries(stt absl::strings absl::str_format absl::type_traits absl::flat_hash_map)
