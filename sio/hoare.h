@@ -11,18 +11,18 @@
 #    define UNLIKELY(x) (!!(x))
 #endif
 
-#define SIO_CHECK_EXPR(expr, info) do {                        \
+#define SIO_CHECK(expr, info) do {                             \
     if (UNLIKELY( !(expr) )) {                                 \
         fprintf(stderr,                                        \
-            "%s -> { %s } failed @ %s:%s:%d\n",               \
+            "%s -> { %s } failed @ %s:%s:%d\n",                \
             (info) , (#expr), __FILE__, __FUNCTION__, __LINE__ \
         );                                                     \
         abort();                                               \
     }                                                          \
 } while(0)
 
-#define P_COND(cond)    SIO_CHECK_EXPR(cond, "Precondition")
-#define Q_COND(cond)    SIO_CHECK_EXPR(cond, "Postcondition")
-#define INVARIANT(cond) SIO_CHECK_EXPR(cond, "Invariant")
+#define P_COND(cond)    SIO_CHECK(cond, "Precondition")
+#define Q_COND(cond)    SIO_CHECK(cond, "Postcondition")
+#define INVARIANT(cond) SIO_CHECK(cond, "Invariant")
 
 #endif
