@@ -11,11 +11,11 @@
 #    define UNLIKELY(x) (!!(x))
 #endif
 
-#define SIO_CHECK(expr, info) do {                             \
+#define SIO_CHECK(expr, message) do {                             \
     if (UNLIKELY( !(expr) )) {                                 \
         fprintf(stderr,                                        \
             "%s -> { %s } failed @ %s:%s:%d\n",                \
-            (info) , (#expr), __FILE__, __FUNCTION__, __LINE__ \
+            (message) , (#expr), __FILE__, __FUNCTION__, __LINE__ \
         );                                                     \
         abort();                                               \
     }                                                          \
