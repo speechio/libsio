@@ -9,7 +9,7 @@ struct Person {
 
 template<typename T>
 struct Slice {
-    Ref<T*> items = nullptr;
+    Ref<T*> items = SIO_UNDEFINED;
     i64 len = 0;
     i64 cap = 0;
 };

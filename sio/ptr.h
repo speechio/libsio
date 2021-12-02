@@ -34,6 +34,8 @@ using Optional = T;
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Ref = T;
 
+#define SIO_UNDEFINED nullptr
+
 };
 
 #endif
