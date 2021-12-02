@@ -12,8 +12,8 @@
 #include "absl/strings/str_format.h"
 
 namespace sio {
-using str = std::string;
-using str_view = absl::string_view;
+using Str = std::string;
+using StrView = absl::string_view;
 };
 
 #endif

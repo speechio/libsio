@@ -13,7 +13,7 @@ template <
     class Eq = std::equal_to<K>,
     class Allocator = std::allocator<std::pair<const K, V>>
 >
-using map = std::unordered_map<K, V, Hash, Eq, Allocator>;
+using Map = std::unordered_map<K, V, Hash, Eq, Allocator>;
 
 template <
     class K,
@@ -22,7 +22,7 @@ template <
     class Eq = absl::container_internal::hash_default_eq<K>,
     class Allocator = std::allocator<std::pair<const K, V>>
 >
-using gmap = absl::flat_hash_map<K, V, Hash, Eq, Allocator>;
+using GMap = absl::flat_hash_map<K, V, Hash, Eq, Allocator>;
 
 };
 

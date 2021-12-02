@@ -4,12 +4,12 @@
 using namespace sio;
 struct Person {
     i32 age = 0;
-    str name = "";
+    Str name = "";
 };
 
 template<typename T>
 struct Slice {
-    ref<T*> items = nullptr;
+    Ref<T*> items = nullptr;
     i64 len = 0;
     i64 cap = 0;
 };
@@ -18,18 +18,18 @@ int main() {
     Person x;
     Slice<int> y;
     P_COND(true);
-    vec<str> v;
-    vec<vec<str>> k;
-    str s = absl::StrJoin(v, "-");
-    str_view sv = s;
+    Vec<Str> v;
+    Vec<Vec<Str>> k;
+    Str s = absl::StrJoin(v, "-");
+    StrView sv = s;
     INVARIANT(true);
   
-    std::cout << "Joined string: " << sv << "\n";
+    std::cout << "Joined String: " << sv << "\n";
     i32 i = 10;
-    ref<i32*> p = &i;
+    Ref<i32*> p = &i;
     std::cout << absl::StrFormat("%d\n", *p);
 
-    gmap<int, str> m = {{1, "aaa"}, {2, "bbb"}, {3, "ccc"}};
+    Map<i64, Str> m = {{1, "aaa"}, {2, "bbb"}, {3, "ccc"}};
     m[123] = "abcd";
 
     for (auto& kv : m) {
