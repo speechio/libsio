@@ -12,13 +12,13 @@
 #endif
 
 #define SIO_CHECK(expr, message) do {                             \
-    if (UNLIKELY( !(expr) )) {                                 \
-        fprintf(stderr,                                        \
-            "%s -> { %s } failed @ %s:%s:%d\n",                \
+    if (UNLIKELY( !(expr) )) {                                    \
+        fprintf(stderr,                                           \
+            "%s -> { %s } failed @ %s:%s:%d\n",                   \
             (message) , (#expr), __FILE__, __FUNCTION__, __LINE__ \
-        );                                                     \
-        abort();                                               \
-    }                                                          \
+        );                                                        \
+        abort();                                                  \
+    }                                                             \
 } while(0)
 
 #define P_COND(cond)    SIO_CHECK(cond, "Precondition")
