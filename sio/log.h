@@ -4,10 +4,21 @@
 #include <cstdlib>
 #include <iostream>
 #include <sstream>
-#include "absl/base/internal/pretty_function.h"
+#include <cstdio>
+
+#include "absl/base/optimization.h"
 
 namespace sio {
 
+#if defined(_MSC_VER)
+#define SIO_FUNC_REPR __FUNCSIG__
+#elif defined(__clang__) || defined(__GNUC__) || defined(__GNUG__) || defined(__PRETTY_FUNCTION__)
+#define SIO_FUNC_REPR __PRETTY_FUNCTION__
+#else
+#define SIO_FUNC_REPR __func__
+#endif
+
+/* Logger */
 enum class LogSeverity : int {
   kDebug = -1,
   kInfo = 0,
@@ -56,16 +67,29 @@ class Logger {
   std::ostringstream buf_;
 };
 
+
 #define SIO_DEBUG \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kDebug, std::cerr)
+  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kDebug,   std::cerr)
 #define SIO_INFO \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kInfo, std::cerr)
+  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kInfo,    std::cerr)
 #define SIO_WARNING \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kWarning, std::cerr)
+  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kWarning, std::cerr)
 #define SIO_ERROR \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kError, std::cerr)
+  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kError,   std::cerr)
 #define SIO_FATAL \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kFatal, std::cerr)
+  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kFatal,   std::cerr)
+
+
+#define SIO_CHECK(expr, message) do {                               \
+    if (ABSL_PREDICT_FALSE(!(expr))) {                              \
+      SIO_FATAL << "{" << (#expr) << "}" << " failed: " << message; \
+    }                                                               \
+} while(0)
+
+/* Hoare logic checking utils */
+#define P_COND(cond)    SIO_CHECK(cond, "Precondition")
+#define Q_COND(cond)    SIO_CHECK(cond, "Postcondition")
+#define INVARIANT(cond) SIO_CHECK(cond, "Invariant")
 
 } // namespace sio
 #endif

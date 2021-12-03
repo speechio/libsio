@@ -22,7 +22,7 @@ template <
     class Eq = absl::container_internal::hash_default_eq<K>,
     class Allocator = std::allocator<std::pair<const K, V>>
 >
-using GMap = absl::flat_hash_map<K, V, Hash, Eq, Allocator>;
+using FastMap = absl::flat_hash_map<K, V, Hash, Eq, Allocator>;
 
 };
 
