@@ -58,7 +58,7 @@ class Logger {
 
   ~Logger() {
     os_ << buf_.str() << "\n";
-    if (severity_ >= LogSeverity::kError) abort();
+    if (severity_ >= LogSeverity::kFatal) abort();
   }
 
  private:
