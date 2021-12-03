@@ -43,4 +43,13 @@ int main() {
     index_t j = 0;
 
     Q_COND(true);
+
+    i32 a = 10;
+    i64 b = 20;
+    SIO_INFO("a=%d, b=%d\n", a, b);
+    SIO_DEBUG("a=%d, b=%d\n", a, b);
+    SIO_WARNING("a=%d, b=%d\n", a, b);
+    //SIO_ERROR("a=%d, b=%d\n", a, b);
+    //SIO_FATAL("a=%d, b=%d\n", a, b);
+
 }

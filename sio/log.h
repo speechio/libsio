@@ -5,11 +5,13 @@
 #include <iostream>
 #include <sstream>
 #include <cstdio>
+#include <mutex>
 
 #include "absl/base/optimization.h"
 
 namespace sio {
 
+/* SIO_FUNC_REPR */
 #if defined(_MSC_VER)
 #define SIO_FUNC_REPR __FUNCSIG__
 #elif defined(__clang__) || defined(__GNUC__) || defined(__GNUG__) || defined(__PRETTY_FUNCTION__)
@@ -18,7 +20,15 @@ namespace sio {
 #define SIO_FUNC_REPR __func__
 #endif
 
-/* Logger */
+/* SIO_FILE_REPR */
+constexpr const char* Basename(const char* fname, int offset) {
+  return offset == 0 || fname[offset - 1] == '/' || fname[offset - 1] == '\\'
+             ? fname + offset
+             : Basename(fname, offset - 1);
+}
+#define SIO_FILE_REPR  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
+
+/* Log severity levels */
 enum class LogSeverity : int {
   kDebug = -1,
   kInfo = 0,
@@ -28,62 +38,75 @@ enum class LogSeverity : int {
 };
 
 constexpr const char* LogSeverityRepr(LogSeverity s) {
-  return s == sio::LogSeverity::kDebug
-         ? ":[D] "
-         : s == sio::LogSeverity::kInfo
-           ? ":[I] "
-           : s == sio::LogSeverity::kWarning
-             ? ":[WARN] "
-             : s == sio::LogSeverity::kError
-               ? ":[ERROR] "
-               : s == sio::LogSeverity::kFatal 
-                 ? ":[FATAL] " 
-                 : ":[UNKNOWN] ";
+  return s == LogSeverity::kDebug
+         ? "[D]"
+         : s == LogSeverity::kInfo
+           ? "[I]"
+           : s == LogSeverity::kWarning
+             ? "[W]"
+             : s == LogSeverity::kError
+               ? "[ERROR]"
+               : s == LogSeverity::kFatal 
+                 ? "[FATAL]" 
+                 : "[UNKNOWN]";
 }
 
-class Logger {
- public:
-  Logger(const char *file, const char *func, uint32_t line, LogSeverity severity, std::ostream& os) :
-    severity_(severity),
-    os_(os)
-  {
-    buf_ << file << ":" << func << ":" << line << LogSeverityRepr(severity_);
-  }
-
-  template <typename T>
-  Logger &operator<<(const T &val) {
-    buf_ << val;
-    return *this;
-  }
-
-  ~Logger() {
-    os_ << buf_.str() << "\n";
-    if (severity_ >= LogSeverity::kFatal) abort();
-  }
-
- private:
-  LogSeverity severity_;
-  std::ostream& os_;
-  std::ostringstream buf_;
-};
-
-
-#define SIO_DEBUG \
-  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kDebug,   std::cerr)
-#define SIO_INFO \
-  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kInfo,    std::cerr)
-#define SIO_WARNING \
-  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kWarning, std::cerr)
-#define SIO_ERROR \
-  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kError,   std::cerr)
-#define SIO_FATAL \
-  sio::Logger(__FILE__, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kFatal,   std::cerr)
+inline LogSeverity CurrentLogLevel() {
+  static LogSeverity level = LogSeverity::kInfo;
+  static std::once_flag init_flag;
+  std::call_once(init_flag, [](){
+    const char* env_log_level = std::getenv("SIO_LOG_LEVEL");
+    if (env_log_level == nullptr) return;
+    std::string s = env_log_level;
+    if (s == "DEBUG")
+      level = LogSeverity::kDebug;
+    else if (s == "INFO")
+      level = LogSeverity::kInfo;
+    else if (s == "WARNING")
+      level = LogSeverity::kWarning;
+    else if (s == "ERROR")
+      level = LogSeverity::kError;
+    else if (s == "FATAL")
+      level = LogSeverity::kFatal;
+    else
+      fprintf(stderr,
+        "Unknown SIO_LOG_LEVEL: %s"
+        "\nSupported values are: "
+        "TRACE, DEBUG, INFO, WARNING, ERROR, FATAL",
+        s.c_str()
+      );
+  });
+  return level;
+}
 
 
-#define SIO_CHECK(expr, message) do {                               \
-    if (ABSL_PREDICT_FALSE(!(expr))) {                              \
-      SIO_FATAL << "{" << (#expr) << "}" << " failed: " << message; \
-    }                                                               \
+#define SIO_LOG(ostream, severity, message_format, ...)            \
+  do {                                                             \
+    if (severity >= CurrentLogLevel()) {                           \
+      fprintf(ostream,                                             \
+        "%s:%d:%s %s " message_format,                             \
+        SIO_FILE_REPR, __LINE__,                                   \
+        SIO_FUNC_REPR,                                             \
+        sio::LogSeverityRepr(severity),                            \
+        __VA_ARGS__                                                \
+      );                                                           \
+      fflush(stderr);                                              \
+    }                                                              \
+    if (ABSL_PREDICT_FALSE(severity >= sio::LogSeverity::kError))  \
+      abort();                                                     \
+  } while(0)
+
+#define SIO_DEBUG(...)   SIO_LOG(stderr, sio::LogSeverity::kDebug,   __VA_ARGS__)
+#define SIO_INFO(...)    SIO_LOG(stderr, sio::LogSeverity::kInfo,    __VA_ARGS__)
+#define SIO_WARNING(...) SIO_LOG(stderr, sio::LogSeverity::kWarning, __VA_ARGS__)
+#define SIO_ERROR(...)   SIO_LOG(stderr, sio::LogSeverity::kError,   __VA_ARGS__)
+#define SIO_FATAL(...)   SIO_LOG(stderr, sio::LogSeverity::kFatal,   __VA_ARGS__)
+
+
+#define SIO_CHECK(expr, message) do {                       \
+    if (ABSL_PREDICT_FALSE(!(expr))) {                      \
+      SIO_ERROR("Check {%s} failed: %s\n", #expr, message); \
+    }                                                       \
 } while(0)
 
 /* Hoare logic checking utils */
