@@ -2,23 +2,17 @@
 #define SIO_HOARE_H
 
 #include <stdio.h>
+#include "absl/base/internal/pretty_function.h"
+#include "absl/base/optimization.h"
 
-#if defined(__clang__) || defined(__GNUC__)
-#    define LIKELY(x)   __builtin_expect(!!(x), 1)
-#    define UNLIKELY(x) __builtin_expect(!!(x), 0)
-#else
-#    define LIKELY(x)   (!!(x))
-#    define UNLIKELY(x) (!!(x))
-#endif
-
-#define SIO_CHECK(expr, message) do {                             \
-    if (UNLIKELY( !(expr) )) {                                    \
-        fprintf(stderr,                                           \
-            "%s -> { %s } failed @ %s:%s:%d\n",                   \
-            (message) , (#expr), __FILE__, __FUNCTION__, __LINE__ \
-        );                                                        \
-        abort();                                                  \
-    }                                                             \
+#define SIO_CHECK(expr, message) do {                                     \
+    if (ABSL_PREDICT_FALSE(!(expr))) {                                    \
+        fprintf(stderr,                                                   \
+            "%s -> Check { %s } failed @ %s:%s:%d\n",                     \
+            (message) , (#expr), __FILE__, ABSL_PRETTY_FUNCTION, __LINE__ \
+        );                                                                \
+        abort();                                                          \
+    }                                                                     \
 } while(0)
 
 #define P_COND(cond)    SIO_CHECK(cond, "Precondition")
