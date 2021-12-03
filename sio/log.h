@@ -110,9 +110,9 @@ inline LogSeverity CurrentLogLevel() {
 } while(0)
 
 /* Hoare logic checking utils */
-#define P_COND(cond)    SIO_CHECK(cond, "Precondition")
-#define Q_COND(cond)    SIO_CHECK(cond, "Postcondition")
-#define INVARIANT(cond) SIO_CHECK(cond, "Invariant")
+#define P_COND(cond) SIO_CHECK(cond, "Precondition")
+#define Q_COND(cond) SIO_CHECK(cond, "Postcondition")
+#define INVAR(cond)  SIO_CHECK(cond, "Invariant")
 
 } // namespace sio
 #endif

@@ -22,7 +22,7 @@ int main() {
     Vec<Vec<Str>> k;
     Str s = absl::StrJoin(v, "-");
     StrView sv = s;
-    INVARIANT(true);
+    INVAR(true);
   
     std::cout << "Joined String: " << sv << "\n";
     i32 i = 10;
