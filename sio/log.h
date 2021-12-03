@@ -33,9 +33,6 @@ constexpr const char* LogSeverityRepr(LogSeverity s) {
 class Logger {
  public:
   Logger(const char *file, const char *func, uint32_t line, LogSeverity severity, std::ostream& os) :
-    file_(file),
-    func_(func),
-    line_(line),
     severity_(severity),
     os_(os)
   {
@@ -54,9 +51,6 @@ class Logger {
   }
 
  private:
-  const char *file_;
-  const char *func_;
-  uint32_t line_;
   LogSeverity severity_;
   std::ostream& os_;
   std::ostringstream buf_;
