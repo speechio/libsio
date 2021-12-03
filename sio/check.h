@@ -1,5 +1,5 @@
-#ifndef SIO_HOARE_H
-#define SIO_HOARE_H
+#ifndef SIO_CHECK_H
+#define SIO_CHECK_H
 
 #include <stdio.h>
 #include "absl/base/internal/pretty_function.h"
