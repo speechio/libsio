@@ -32,7 +32,7 @@ constexpr const char* LogSeverityName(LogSeverity s) {
 
 class Logger {
  public:
-  Logger(const char *file, const char *func, uint32_t line, LogSeverity severity, std::ostream& os = std::cerr) :
+  Logger(const char *file, const char *func, uint32_t line, LogSeverity severity, std::ostream& os) :
     file_(file),
     func_(func),
     line_(line),
@@ -54,24 +54,24 @@ class Logger {
   }
 
  private:
-  std::ostream& os_;
-  std::ostringstream buf_;
   const char *file_;
   const char *func_;
   uint32_t line_;
   LogSeverity severity_;
+  std::ostream& os_;
+  std::ostringstream buf_;
 };
 
 #define SIO_DEBUG \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kDebug)
+  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kDebug, std::cerr)
 #define SIO_INFO \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kInfo)
+  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kInfo, std::cerr)
 #define SIO_WARNING \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kWarning)
+  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kWarning, std::cerr)
 #define SIO_ERROR \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kError)
+  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kError, std::cerr)
 #define SIO_FATAL \
-  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kFatal)
+  sio::Logger(__FILE__, ABSL_PRETTY_FUNCTION, __LINE__, sio::LogSeverity::kFatal, std::cerr)
 
 } // namespace sio
 #endif
