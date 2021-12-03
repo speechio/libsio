@@ -16,7 +16,7 @@ enum class LogSeverity : int {
   kFatal = 3,
 };
 
-constexpr const char* LogSeverityName(LogSeverity s) {
+constexpr const char* LogSeverityRepr(LogSeverity s) {
   return s == sio::LogSeverity::kDebug
          ? ":[D] "
          : s == sio::LogSeverity::kInfo
@@ -39,7 +39,7 @@ class Logger {
     severity_(severity),
     os_(os)
   {
-    buf_ << file << ":" << func << ":" << line << LogSeverityName(severity_);
+    buf_ << file << ":" << func << ":" << line << LogSeverityRepr(severity_);
   }
 
   template <typename T>
