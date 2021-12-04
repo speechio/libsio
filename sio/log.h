@@ -66,7 +66,7 @@ inline LogSeverity CurrentLogVerbosity() {
     else if (v == "WARNING") res = LogSeverity::kWarning;
     else if (v == "ERROR")   res = LogSeverity::kError;
     else if (v == "FATAL")   res = LogSeverity::kFatal;
-    else fprintf(stderr, "Unknown SIO_VERBOSITY: %s", v.c_str());
+    else    fprintf(stderr, "Unknown SIO_VERBOSITY: %s", v.c_str());
   });
   return res;
 }
@@ -110,3 +110,4 @@ inline LogSeverity CurrentLogVerbosity() {
 
 } // namespace sio
 #endif
+
