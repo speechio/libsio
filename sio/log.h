@@ -53,49 +53,39 @@ constexpr const char* LogSeverityRepr(LogSeverity s) {
                  : "[UNKNOWN]";
 }
 
-inline LogSeverity CurrentLogLevel() {
-  static LogSeverity level = LogSeverity::kInfo;
-  static std::once_flag init_flag;
-  std::call_once(init_flag, [](){
-    const char* env_log_level = std::getenv("SIO_LOG_LEVEL");
-    if (env_log_level == nullptr) return;
-    std::string s = env_log_level;
-    if (s == "DEBUG")
-      level = LogSeverity::kDebug;
-    else if (s == "INFO")
-      level = LogSeverity::kInfo;
-    else if (s == "WARNING")
-      level = LogSeverity::kWarning;
-    else if (s == "ERROR")
-      level = LogSeverity::kError;
-    else if (s == "FATAL")
-      level = LogSeverity::kFatal;
-    else
-      fprintf(stderr,
-        "Unknown SIO_LOG_LEVEL: %s"
-        "\nSupported values are: "
-        "TRACE, DEBUG, INFO, WARNING, ERROR, FATAL",
-        s.c_str()
-      );
+inline LogSeverity CurrentLogVerbosity() {
+  static LogSeverity res = LogSeverity::kInfo; // default: kInfo
+  static std::once_flag flag;
+  std::call_once(flag, [](){
+    const char* verbosity = std::getenv("SIO_VERBOSITY");
+    if (verbosity == nullptr) return;
+
+    std::string v = verbosity;
+    if      (v == "DEBUG")   res = LogSeverity::kDebug;
+    else if (v == "INFO")    res = LogSeverity::kInfo;
+    else if (v == "WARNING") res = LogSeverity::kWarning;
+    else if (v == "ERROR")   res = LogSeverity::kError;
+    else if (v == "FATAL")   res = LogSeverity::kFatal;
+    else fprintf(stderr, "Unknown SIO_VERBOSITY: %s", v.c_str());
   });
-  return level;
+  return res;
 }
 
 
-#define SIO_LOG(severity, ostream, message_format, ...)            \
-  do {                                                             \
-    if (severity >= CurrentLogLevel()) {                           \
-      fprintf(ostream,                                             \
-        "%s:%d:%s %s " message_format,                             \
-        SIO_FILE_REPR, __LINE__,                                   \
-        SIO_FUNC_REPR,                                             \
-        sio::LogSeverityRepr(severity),                            \
-        __VA_ARGS__                                                \
-      );                                                           \
-      fflush(stderr);                                              \
-    }                                                              \
-    if (ABSL_PREDICT_FALSE(severity >= sio::LogSeverity::kError))  \
-      abort();                                                     \
+#define SIO_LOG(severity, ostream, message_format, ...)           \
+  do {                                                            \
+    if (severity >= sio::CurrentLogVerbosity()) {                 \
+      fprintf(ostream,                                            \
+        "%s:%d:%s %s " message_format,                            \
+        SIO_FILE_REPR, __LINE__,                                  \
+        SIO_FUNC_REPR,                                            \
+        sio::LogSeverityRepr(severity),                           \
+        __VA_ARGS__                                               \
+      );                                                          \
+      fflush(stderr);                                             \
+    }                                                             \
+    if (ABSL_PREDICT_FALSE(severity >= sio::LogSeverity::kError)) \
+      abort();                                                    \
   } while(0)
 
 
