@@ -20,6 +20,7 @@ namespace sio {
 #define SIO_FUNC_REPR __func__
 #endif
 
+
 /* SIO_FILE_REPR */
 constexpr const char* Basename(const char* fname, int offset) {
   return offset == 0 || fname[offset - 1] == '/' || fname[offset - 1] == '\\'
@@ -27,6 +28,7 @@ constexpr const char* Basename(const char* fname, int offset) {
              : Basename(fname, offset - 1);
 }
 #define SIO_FILE_REPR  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
+
 
 /* Log severity levels */
 enum class LogSeverity : int {
@@ -80,7 +82,7 @@ inline LogSeverity CurrentLogLevel() {
 }
 
 
-#define SIO_LOG(ostream, severity, message_format, ...)            \
+#define SIO_LOG(severity, ostream, message_format, ...)            \
   do {                                                             \
     if (severity >= CurrentLogLevel()) {                           \
       fprintf(ostream,                                             \
@@ -96,11 +98,12 @@ inline LogSeverity CurrentLogLevel() {
       abort();                                                     \
   } while(0)
 
-#define SIO_DEBUG(...)   SIO_LOG(stderr, sio::LogSeverity::kDebug,   __VA_ARGS__)
-#define SIO_INFO(...)    SIO_LOG(stderr, sio::LogSeverity::kInfo,    __VA_ARGS__)
-#define SIO_WARNING(...) SIO_LOG(stderr, sio::LogSeverity::kWarning, __VA_ARGS__)
-#define SIO_ERROR(...)   SIO_LOG(stderr, sio::LogSeverity::kError,   __VA_ARGS__)
-#define SIO_FATAL(...)   SIO_LOG(stderr, sio::LogSeverity::kFatal,   __VA_ARGS__)
+
+#define SIO_DEBUG(...)   SIO_LOG(sio::LogSeverity::kDebug,   stderr, __VA_ARGS__)
+#define SIO_INFO(...)    SIO_LOG(sio::LogSeverity::kInfo,    stderr, __VA_ARGS__)
+#define SIO_WARNING(...) SIO_LOG(sio::LogSeverity::kWarning, stderr, __VA_ARGS__)
+#define SIO_ERROR(...)   SIO_LOG(sio::LogSeverity::kError,   stderr, __VA_ARGS__)
+#define SIO_FATAL(...)   SIO_LOG(sio::LogSeverity::kFatal,   stderr, __VA_ARGS__)
 
 
 #define SIO_CHECK(expr, message) do {                       \
@@ -108,6 +111,7 @@ inline LogSeverity CurrentLogLevel() {
       SIO_ERROR("Check {%s} failed: %s\n", #expr, message); \
     }                                                       \
 } while(0)
+
 
 /* Hoare logic checking utils */
 #define P_COND(cond) SIO_CHECK(cond, "Precondition")

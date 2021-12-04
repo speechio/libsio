@@ -49,6 +49,7 @@ int main() {
     SIO_INFO("a=%d, b=%d\n", a, b);
     SIO_DEBUG("a=%d, b=%d\n", a, b);
     SIO_WARNING("a=%d, b=%d\n", a, b);
+    INVAR(2 >= 2);
     //SIO_ERROR("a=%d, b=%d\n", a, b);
     //SIO_FATAL("a=%d, b=%d\n", a, b);
 
