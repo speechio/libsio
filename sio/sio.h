@@ -7,5 +7,6 @@
 #include "sio/str.h"
 #include "sio/vec.h"
 #include "sio/map.h"
+#include "sio/link.h"
 
 #endif

@@ -1,5 +1,4 @@
-export SIO_LOG_LEVEL=INFO
-mkdir -p build && cd build
-cmake .. -DBUILD_TESTING=OFF
-cmake --build . --target stt
-./stt
+export SIO_VERBOSITY=INFO
+cmake -S . -B build
+cmake --build build
+build/sio/unittest
