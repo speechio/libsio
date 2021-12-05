@@ -8,11 +8,11 @@ public:
   Link();
   ~Link();
 
+  bool  IsLinked();
   Link* Prev();
   Link* Next();
   void  InsertBefore(Link* ref);
   void  InsertAfter(Link* ref);
-  int   Linked();
   void  Unlink();
 
 private:

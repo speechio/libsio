@@ -35,7 +35,7 @@ void Link::InsertAfter(Link* ref) {
   next_->prev_ = this;
 }
 
-int Link::Linked() {
+bool Link::IsLinked() {
   return (prev_ != this || next_ != this);
 } 
 
