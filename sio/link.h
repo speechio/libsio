@@ -1,10 +1,11 @@
 #ifndef SIO_LINK_H
 #define SIO_LINK_H
+
 #include "sio/ptr.h"
+
 namespace sio {
 class Link {
 public:
-  Link();
   ~Link();
 
   bool  IsLinked();
@@ -15,8 +16,8 @@ public:
   void  Unlink();
 
 private:
-  Ref<Link*> prev_;
-  Ref<Link*> next_;
+  Ref<Link*> prev_ = this;
+  Ref<Link*> next_ = this;
 };
 
 } // namespace sio

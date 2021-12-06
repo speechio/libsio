@@ -1,11 +1,6 @@
 #include "sio/link.h"
 namespace sio {
 
-Link::Link() :
-  prev_(this),
-  next_(this)
-{ }
-
 Link::~Link() {
   Unlink();
 }
