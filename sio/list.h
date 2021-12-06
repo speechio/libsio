@@ -23,34 +23,34 @@ public:
     return n;
   }
 
-  Optional<T*> Head() { return GetNodeFromLink(origin_.Next()); }
-  Optional<T*> Tail() { return GetNodeFromLink(origin_.Prev()); }
+  Optional<T*> Head() { return NodeOf(origin_.Next()); }
+  Optional<T*> Tail() { return NodeOf(origin_.Prev()); }
 
-  Optional<T*> Prev(Ref<T*> node) { return GetNodeFromLink(GetLinkFromNode(node)->Prev()); }
-  Optional<T*> Next(Ref<T*> node) { return GetNodeFromLink(GetLinkFromNode(node)->Next()); }
+  Optional<T*> Prev(Ref<T*> node) { return NodeOf(LinkOf(node)->Prev()); }
+  Optional<T*> Next(Ref<T*> node) { return NodeOf(LinkOf(node)->Next()); }
 
   void InsertHead(Ref<T*> node) { 
     UnlinkNode(node);
-    GetLinkFromNode(node)->InsertAfter(&origin_);
+    LinkOf(node)->InsertAfter(&origin_);
   }
 
   void InsertTail(Ref<T*> node) {
     UnlinkNode(node);
-    GetLinkFromNode(node)->InsertBefore(&origin_);
+    LinkOf(node)->InsertBefore(&origin_);
   }
 
   void InsertBefore(Ref<T*> node, Ref<T*> ref) {
     UnlinkNode(node);
-    GetLinkFromNode(node)->InsertBefore(GetLinkFromNode(ref));
+    LinkOf(node)->InsertBefore(LinkOf(ref));
   }
 
   void InsertAfter(Ref<T*> node, Ref<T*> ref) {
     UnlinkNode(node);
-    GetLinkFromNode(node)->InsertAfter(GetLinkFromNode(ref));
+    LinkOf(node)->InsertAfter(LinkOf(ref));
   }
 
   void UnlinkNode(Ref<T*> node) {
-    Ref<Link*> link = GetLinkFromNode(node);
+    Ref<Link*> link = LinkOf(node);
     if (link->IsLinked()) {
       link->Unlink();
     }
@@ -63,11 +63,11 @@ public:
   }
 
 private:
-  Ref<Link*> GetLinkFromNode(Ref<T*> node) {
+  Ref<Link*> LinkOf(Ref<T*> node) {
       return Ref<Link*>((size_t)node + offset_);
   }
 
-  Optional<T*> GetNodeFromLink(Ref<Link*> link) {
+  Optional<T*> NodeOf(Ref<Link*> link) {
       return (link == &origin_) ? nullptr : Ref<T*>((size_t)link - offset_);
   }
 
