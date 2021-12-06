@@ -4,7 +4,7 @@
 #include "sio/str.h"
 #include "sio/vec.h"
 
-TEST(SIOTest, Log) {
+TEST(Log, Basic) {
   using namespace sio;
 
   Str msg = "This is a log message.";

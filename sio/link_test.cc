@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include "sio/link.h"
 
-TEST(SIOTest, Link) {
+TEST(Link, Basic) {
   using namespace sio;
 
   Link *l1 = new Link;

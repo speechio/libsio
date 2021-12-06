@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "sio/list.h"
 
-TEST(SIOTest, List) {
+TEST(List, Basic) {
   using namespace sio;
   struct A {
     Link link;
