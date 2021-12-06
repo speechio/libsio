@@ -63,8 +63,13 @@ public:
   }
 
 private:
-  Ref<Link*> GetLinkFromNode(Ref<T*> node) { return Ref<Link*> ((size_t)node + offset_); }
-  Optional<T*> GetNodeFromLink(Ref<Link*> link) { return (link == &origin_) ? nullptr : Ref<T*> ((size_t)link - offset_); }
+  Ref<Link*> GetLinkFromNode(Ref<T*> node) {
+      return Ref<Link*>((size_t)node + offset_);
+  }
+
+  Optional<T*> GetNodeFromLink(Ref<Link*> link) {
+      return (link == &origin_) ? nullptr : Ref<T*>((size_t)link - offset_);
+  }
 
   Link   origin_;
   size_t offset_;
