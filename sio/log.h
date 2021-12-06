@@ -75,12 +75,11 @@ inline LogSeverity CurrentLogVerbosity() {
 /* Logging utils */
 class Logger {
  public:
-  Logger(const char *file, const char *func, uint32_t line, LogSeverity severity, std::ostream& os) :
-    severity_(severity),
-    os_(os)
+  Logger(const char *file, const char *func, size_t line, LogSeverity severity, std::ostream& os)
+  : file_(file), func_(func), line_(line), severity_(severity), os_(os)
   {
-    if (severity_ >= sio::CurrentLogVerbosity()) {
-      buf_ << file << ":" << func << ":" << line << LogSeverityRepr(severity_) << " ";
+    if (severity_ >= CurrentLogVerbosity()) {
+      buf_ << LogSeverityRepr(severity_) << " ";
     }
   }
 
@@ -91,23 +90,30 @@ class Logger {
   }
 
   ~Logger() {
-    if (severity_ >= sio::CurrentLogVerbosity()) {
+    if (severity_ >= CurrentLogVerbosity()) {
+      if (severity_ >= LogSeverity::kWarning) {
+        buf_ << " [" << file_ << ":" << line_ << ":" << func_ << "]";
+      }
       os_ << buf_.str() << "\n";
     }
     if (severity_ >= LogSeverity::kFatal) abort();
   }
 
  private:
+  const char* file_;
+  const char* func_;
+  size_t line_;
   LogSeverity severity_;
   std::ostream& os_;
+
   std::ostringstream buf_;
 };
 
 #define SIO_DEBUG   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kDebug,   std::cerr)
-#define SIO_INFO    sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kInfo,    std::cerr)
-#define SIO_WARNING sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kWarning, std::cerr)
-#define SIO_ERROR   sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kError,   std::cerr)
-#define SIO_FATAL   sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kFatal,   std::cerr)
+#define SIO_INFO    sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kInfo,    std::cerr)
+#define SIO_WARNING sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kWarning, std::cerr)
+#define SIO_ERROR   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kError,   std::cerr)
+#define SIO_FATAL   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kFatal,   std::cerr)
 
 
 /* Checking utils */
