@@ -7,6 +7,7 @@ enable_testing()
 
 add_executable(unittest 
   log_test.cc
+  check_test.cc
   link_test.cc
   list_test.cc
 )

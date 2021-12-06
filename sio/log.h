@@ -115,21 +115,6 @@ class Logger {
 #define SIO_ERROR   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kError,   std::cerr)
 #define SIO_FATAL   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kFatal,   std::cerr)
 
-
-/* Checking utils */
-#define SIO_LIKELY   ABSL_PREDICT_TRUE
-#define SIO_UNLIKELY ABSL_PREDICT_FALSE
-
-#define SIO_CHECK(expr, message) do {                           \
-  if SIO_UNLIKELY(!(expr)) {                                    \
-    SIO_ERROR << "Check {" << #expr << "} failed: " << message; \
-  }                                                             \
-} while(0)
-
-#define P_COND(cond) SIO_CHECK(cond, "Precondition")
-#define Q_COND(cond) SIO_CHECK(cond, "Postcondition")
-#define INVAR(cond)  SIO_CHECK(cond, "Invariant")
-
 } // namespace sio
 #endif
 

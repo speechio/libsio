@@ -3,6 +3,7 @@
 
 #include "sio/type.h"
 #include "sio/log.h"
+#include "sio/check.h"
 #include "sio/ptr.h"
 #include "sio/str.h"
 #include "sio/vec.h"
