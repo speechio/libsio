@@ -72,6 +72,7 @@ inline LogSeverity CurrentLogVerbosity() {
 }
 
 
+/* Logging utils */
 class Logger {
  public:
   Logger(const char *file, const char *func, uint32_t line, LogSeverity severity, std::ostream& os) :
@@ -102,21 +103,20 @@ class Logger {
   std::ostringstream buf_;
 };
 
-
 #define SIO_DEBUG   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kDebug,   std::cerr)
 #define SIO_INFO    sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kInfo,    std::cerr)
 #define SIO_WARNING sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kWarning, std::cerr)
 #define SIO_ERROR   sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kError,   std::cerr)
 #define SIO_FATAL   sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kFatal,   std::cerr)
 
+
+/* Checking utils */
 #define SIO_CHECK(expr, message) do {                           \
   if (ABSL_PREDICT_FALSE(!(expr))) {                            \
     SIO_ERROR << "Check {" << #expr << "} failed: " << message; \
   }                                                             \
 } while(0)
 
-
-/* Hoare logic checking utils */
 #define P_COND(cond) SIO_CHECK(cond, "Precondition")
 #define Q_COND(cond) SIO_CHECK(cond, "Postcondition")
 #define INVAR(cond)  SIO_CHECK(cond, "Invariant")
