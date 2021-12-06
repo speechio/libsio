@@ -12,6 +12,9 @@ TEST(SIOTest, Log) {
   SIO_ERROR << msg;
   //SIO_FATAL << msg;
 
+  StrView msg_view = msg;
+  SIO_INFO << Str(msg_view); // need to convert string_view to string explicitly
+
   Vec<i32> v = {1,2};
 
   index_t i = 0;

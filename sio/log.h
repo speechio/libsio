@@ -45,7 +45,7 @@ constexpr const char* LogSeverityRepr(LogSeverity s) {
          : s == LogSeverity::kInfo
            ? "[I]"
            : s == LogSeverity::kWarning
-             ? "[W]"
+             ? "[WARNING]"
              : s == LogSeverity::kError
                ? "[ERROR]"
                : s == LogSeverity::kFatal 
