@@ -14,11 +14,11 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
 
+include_directories(.)
+include_directories(deps/abseil-cpp)
+
 # abseil
 add_subdirectory(deps/abseil-cpp)
-
-# LIBRARY
-include_directories(.)
 add_subdirectory(sio)
 
 # BINARY

@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "sio/sio.h"
+#include "sio/link.h"
 
 TEST(SIOTest, Link) {
   using namespace sio;

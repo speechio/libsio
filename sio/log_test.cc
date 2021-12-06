@@ -1,5 +1,8 @@
 #include <gtest/gtest.h>
-#include "sio/sio.h"
+#include "sio/log.h"
+#include "sio/type.h"
+#include "sio/str.h"
+#include "sio/vec.h"
 
 TEST(SIOTest, Log) {
   using namespace sio;
@@ -12,12 +15,8 @@ TEST(SIOTest, Log) {
   SIO_ERROR << msg;
   //SIO_FATAL << msg;
 
-  StrView msg_view = msg;
-  SIO_INFO << Str(msg_view); // need to convert string_view to string explicitly
-
-  Vec<i32> v = {1,2};
-
-  index_t i = 0;
+  Vec<int> v = {1,2};
+  i32 i = 0;
   i32 sum = 0;
   INVAR("sum = sum of v[0,i)");
   P_COND(i == 0);

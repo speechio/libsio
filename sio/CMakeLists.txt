@@ -8,6 +8,7 @@ enable_testing()
 add_executable(unittest 
   log_test.cc
   link_test.cc
+  list_test.cc
 )
 target_link_libraries(unittest
   gtest_main

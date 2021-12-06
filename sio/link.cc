@@ -1,5 +1,4 @@
 #include "sio/link.h"
-
 namespace sio {
 
 Link::Link() :
@@ -11,15 +10,15 @@ Link::~Link() {
   Unlink();
 }
 
-Link* Link::Prev() { 
+Ref<Link*> Link::Prev() { 
   return prev_;
 }
 
-Link* Link::Next() { 
+Ref<Link*> Link::Next() { 
   return next_;
 }
   
-void Link::InsertBefore(Link* ref) {
+void Link::InsertBefore(Ref<Link*> ref) {
   prev_ = ref->prev_;
   next_ = ref;
 
@@ -27,7 +26,7 @@ void Link::InsertBefore(Link* ref) {
   ref->prev_  = this;
 }
 
-void Link::InsertAfter(Link* ref) {
+void Link::InsertAfter(Ref<Link*> ref) {
   prev_ = ref;
   next_ = ref->next_;
 

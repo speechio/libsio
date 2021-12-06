@@ -1,23 +1,22 @@
 #ifndef SIO_LINK_H
 #define SIO_LINK_H
-
+#include "sio/ptr.h"
 namespace sio {
-
 class Link {
 public:
   Link();
   ~Link();
 
   bool  IsLinked();
-  Link* Prev();
-  Link* Next();
-  void  InsertBefore(Link* ref);
-  void  InsertAfter(Link* ref);
+  Ref<Link*> Prev();
+  Ref<Link*> Next();
+  void  InsertBefore(Ref<Link*> ref);
+  void  InsertAfter(Ref<Link*> ref);
   void  Unlink();
 
 private:
-  Link *prev_;
-  Link *next_;
+  Ref<Link*> prev_;
+  Ref<Link*> next_;
 };
 
 } // namespace sio
