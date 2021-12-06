@@ -9,5 +9,6 @@
 #include "sio/vec.h"
 #include "sio/map.h"
 #include "sio/link.h"
+#include "sio/list.h"
 
 #endif
