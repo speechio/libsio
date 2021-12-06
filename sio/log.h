@@ -32,11 +32,11 @@ constexpr const char* Basename(const char* fname, int offset) {
 
 /* Log severity levels */
 enum class LogSeverity : int {
-  kDebug = -1,
-  kInfo = 0,
-  kWarning = 1,
-  kError = 2,
-  kFatal = 3,
+  kDebug = 0,
+  kInfo = 1,
+  kWarning = 2,
+  kError = 3,
+  kFatal = 4,
 };
 
 constexpr const char* LogSeverityRepr(LogSeverity s) {
@@ -72,34 +72,47 @@ inline LogSeverity CurrentLogVerbosity() {
 }
 
 
-#define SIO_LOG(severity, ostream, message_format, ...)           \
-  do {                                                            \
-    if (severity >= sio::CurrentLogVerbosity()) {                 \
-      fprintf(ostream,                                            \
-        "%s:%d:%s %s " message_format,                            \
-        SIO_FILE_REPR, __LINE__,                                  \
-        SIO_FUNC_REPR,                                            \
-        sio::LogSeverityRepr(severity),                           \
-        __VA_ARGS__                                               \
-      );                                                          \
-      fflush(stderr);                                             \
-    }                                                             \
-    if (ABSL_PREDICT_FALSE(severity >= sio::LogSeverity::kError)) \
-      abort();                                                    \
-  } while(0)
+class Logger {
+ public:
+  Logger(const char *file, const char *func, uint32_t line, LogSeverity severity, std::ostream& os) :
+    severity_(severity),
+    os_(os)
+  {
+    if (severity_ >= sio::CurrentLogVerbosity()) {
+      buf_ << file << ":" << func << ":" << line << LogSeverityRepr(severity_) << " ";
+    }
+  }
+
+  template <typename T>
+  Logger &operator<<(const T &val) {
+    buf_ << val;
+    return *this;
+  }
+
+  ~Logger() {
+    if (severity_ >= sio::CurrentLogVerbosity()) {
+      os_ << buf_.str() << "\n";
+    }
+    if (severity_ >= LogSeverity::kFatal) abort();
+  }
+
+ private:
+  LogSeverity severity_;
+  std::ostream& os_;
+  std::ostringstream buf_;
+};
 
 
-#define SIO_DEBUG(...)   SIO_LOG(sio::LogSeverity::kDebug,   stderr, __VA_ARGS__)
-#define SIO_INFO(...)    SIO_LOG(sio::LogSeverity::kInfo,    stderr, __VA_ARGS__)
-#define SIO_WARNING(...) SIO_LOG(sio::LogSeverity::kWarning, stderr, __VA_ARGS__)
-#define SIO_ERROR(...)   SIO_LOG(sio::LogSeverity::kError,   stderr, __VA_ARGS__)
-#define SIO_FATAL(...)   SIO_LOG(sio::LogSeverity::kFatal,   stderr, __VA_ARGS__)
+#define SIO_DEBUG   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kDebug,   std::cerr)
+#define SIO_INFO    sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kInfo,    std::cerr)
+#define SIO_WARNING sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kWarning, std::cerr)
+#define SIO_ERROR   sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kError,   std::cerr)
+#define SIO_FATAL   sio::Logger(SIO_FILE_REPR, __func__,      __LINE__, sio::LogSeverity::kFatal,   std::cerr)
 
-
-#define SIO_CHECK(expr, message) do {                       \
-    if (ABSL_PREDICT_FALSE(!(expr))) {                      \
-      SIO_ERROR("Check {%s} failed: %s\n", #expr, message); \
-    }                                                       \
+#define SIO_CHECK(expr, message) do {                           \
+  if (ABSL_PREDICT_FALSE(!(expr))) {                            \
+    SIO_ERROR << "Check {" << #expr << "} failed: " << message; \
+  }                                                             \
 } while(0)
 
 
