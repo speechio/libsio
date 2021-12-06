@@ -117,8 +117,11 @@ class Logger {
 
 
 /* Checking utils */
+#define SIO_LIKELY   ABSL_PREDICT_TRUE
+#define SIO_UNLIKELY ABSL_PREDICT_FALSE
+
 #define SIO_CHECK(expr, message) do {                           \
-  if (ABSL_PREDICT_FALSE(!(expr))) {                            \
+  if SIO_UNLIKELY(!(expr)) {                                    \
     SIO_ERROR << "Check {" << #expr << "} failed: " << message; \
   }                                                             \
 } while(0)
