@@ -9,11 +9,11 @@ namespace sio {
 template <typename T>
 class ArenaAllocator {
  public:
-  ArenaAllocator(size_t num_elems_per_slab) {
+  ArenaAllocator(size_t elems_per_slab) {
     static_assert(sizeof(T) >= sizeof(FreeNode*) && "element size should be larger than a pointer");
-    SIO_P_COND(num_elems_per_slab >= 1);
+    SIO_P_COND(elems_per_slab >= 1);
     elem_bytes_ = sizeof(T);
-    num_elems_per_slab_ = num_elems_per_slab;
+    elems_per_slab_ = elems_per_slab;
     num_used_ = 0;
   }
 
@@ -25,10 +25,10 @@ class ArenaAllocator {
 
   inline Ref<T*> Alloc() {
     if (free_list_.IsEmpty()) {
-      Ref<char*> p = new char[elem_bytes_ * num_elems_per_slab_];
+      Ref<char*> p = new char[elem_bytes_ * elems_per_slab_];
       // C++ standard guarentees the return of "new" is non-null, no need to check
       slabs_.push_back((Owner<char*>)p);
-      for (int i = 0; i < num_elems_per_slab_; i++) {
+      for (int i = 0; i < elems_per_slab_; i++) {
         free_list_.Push((Ref<FreeNode*>)(p + i * elem_bytes_));
       }
     }
@@ -80,7 +80,7 @@ class ArenaAllocator {
 
  private:
   size_t elem_bytes_;
-  size_t num_elems_per_slab_;
+  size_t elems_per_slab_;
   std::vector<Owner<char*>> slabs_;
 
   FreeList free_list_;
