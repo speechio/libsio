@@ -17,12 +17,12 @@ struct Slice {
 int main() {
     Person x;
     Slice<int> y;
-    P_COND(true);
+    SIO_P_COND(true);
     Vec<Str> v;
     Vec<Vec<Str>> k;
     Str s = absl::StrJoin(v, "-");
     StrView sv = s;
-    INVAR(true);
+    SIO_INVAR(true);
   
     std::cout << "Joined String: " << sv << "\n";
     i32 i = 10;

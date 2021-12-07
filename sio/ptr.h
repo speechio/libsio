@@ -11,10 +11,10 @@ C pointers are great at pointing "things", but they failed expressing:
     - nullness
 
 Pointer annotations are introduced here:
-    - T* or Ref<T*>       denotes pointers without ownership & cannot be nullptr
-    - Owner<T*>           denotes pointers with    ownership & cannot be nullptr
-    - Optional<T*>        denotes pointers without ownership & can    be nullptr
-    - Optional<Owner<T*>> denotes pointers with    ownership & can    be nullptr
+    - T* or Ref<T*>  denotes pointers without ownership & cannot be nullptr
+    - Owner<T*>      denotes pointers with    ownership & cannot be nullptr
+    - Opt<T*>        denotes pointers without ownership & can    be nullptr
+    - Opt<Owner<T*>> denotes pointers with    ownership & can    be nullptr
 
 Explicit and consistent use of these types provides extra semantics that are missing in C pointers.
 And throughout this codebase, any C pointer(i.e. T*) should be converted to one of these. 
@@ -29,7 +29,7 @@ template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::
 using Owner = T;
 
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
-using Optional = T;
+using Opt = T;
 
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Ref = T;

@@ -10,6 +10,7 @@ add_executable(unittest
   check_test.cc
   link_test.cc
   list_test.cc
+  heap_test.cc
 )
 target_link_libraries(unittest
   gtest_main

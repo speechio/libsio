@@ -10,5 +10,6 @@
 #include "sio/map.h"
 #include "sio/link.h"
 #include "sio/list.h"
+#include "sio/heap.h"
 
 #endif

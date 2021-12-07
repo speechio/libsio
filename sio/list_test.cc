@@ -9,10 +9,10 @@ TEST(List, Basic) {
     int i;
   };
 
-  A *a1 = new A;
-  A *a2 = new A;
+  Owner<A*> a1 = new A;
+  Owner<A*> a2 = new A;
 
-  List<A> *l = new List<A>(offsetof(A, link));
+  Owner<List<A>*> l = new List<A>(offsetof(A, link));
   EXPECT_TRUE(l->IsEmpty());
   
   l->InsertHead(a1);

@@ -12,9 +12,9 @@
   }                                                             \
 } while(0)
 
-#define P_COND(cond) SIO_CHECK(cond, "Precondition")
-#define Q_COND(cond) SIO_CHECK(cond, "Postcondition")
-#define INVAR(cond)  SIO_CHECK(cond, "Invariant")
+#define SIO_P_COND(cond) SIO_CHECK(cond, "Precondition")
+#define SIO_Q_COND(cond) SIO_CHECK(cond, "Postcondition")
+#define SIO_INVAR(cond)  SIO_CHECK(cond, "Invariant")
 
 #endif
 
