@@ -10,7 +10,7 @@ template <typename T>
 class ArenaAllocator {
  public:
   ArenaAllocator(size_t num_elems_per_slab) {
-    static_assert(sizeof(T) >= sizeof(FreeListNode*) && "element size should be larger than a pointer");
+    static_assert(sizeof(T) >= sizeof(FreeNode*) && "element size should be larger than a pointer");
     SIO_P_COND(num_elems_per_slab >= 1);
     elem_bytes_ = sizeof(T);
     num_elems_per_slab_ = num_elems_per_slab;
@@ -29,7 +29,7 @@ class ArenaAllocator {
       // C++ standard guarentees the return of "new" is non-null, no need to check
       slabs_.push_back((Owner<char*>)p);
       for (int i = 0; i < num_elems_per_slab_; i++) {
-        free_list_.Push((Ref<FreeListNode*>)(p + i * elem_bytes_));
+        free_list_.Push((Ref<FreeNode*>)(p + i * elem_bytes_));
       }
     }
     num_used_++;
@@ -38,7 +38,7 @@ class ArenaAllocator {
 
   inline void Free(Ref<T*> p) {
     num_used_--;
-    free_list_.Push(Ref<FreeListNode*>(p));
+    free_list_.Push(Ref<FreeNode*>(p));
   }
 
   size_t NumUsed() {
@@ -47,32 +47,32 @@ class ArenaAllocator {
 
   size_t NumFree() {
     size_t n = 0;
-    for (Opt<FreeListNode*> p = free_list_.head; p != nullptr; p = p->next) {
+    for (Opt<FreeNode*> p = free_list_.head; p != nullptr; p = p->next) {
       n++;
     }
     return n;
   }
 
  private:
-  struct FreeListNode {
-    Opt<FreeListNode*> next = nullptr;
+  struct FreeNode {
+    Opt<FreeNode*> next = nullptr;
   };
 
   struct FreeList {
-    Opt<FreeListNode*> head = nullptr;
+    Opt<FreeNode*> head = nullptr;
 
     inline bool IsEmpty() {
       return (head == nullptr);
     }
 
-    inline void Push(Ref<FreeListNode*> p) {
+    inline void Push(Ref<FreeNode*> p) {
       p->next = head;
       head = p;
     }
 
-    inline Ref<FreeListNode*> Pop() {
+    inline Ref<FreeNode*> Pop() {
       SIO_P_COND(!IsEmpty()); // Exhausted arena should grow in Alloc()
-      Ref<FreeListNode*> p = head;
+      Ref<FreeNode*> p = head;
       head = head->next;
       return p;
     }
