@@ -1,8 +1,6 @@
 #include <gtest/gtest.h>
 #include "sio/log.h"
-#include "sio/type.h"
 #include "sio/str.h"
-#include "sio/vec.h"
 
 TEST(Log, Basic) {
   using namespace sio;
