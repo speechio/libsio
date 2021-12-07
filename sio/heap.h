@@ -26,8 +26,7 @@ class ArenaAllocator {
   inline Ref<T*> Alloc() {
     if (free_list_.IsEmpty()) {
       Ref<char*> p = new char[elem_bytes_ * elems_per_slab_];
-      // C++ standard guarentees the return of "new" is non-null, no need to check
-      slabs_.push_back((Owner<char*>)p);
+      slabs_.push_back( (Owner<char*>)p );
       for (int i = 0; i < elems_per_slab_; i++) {
         free_list_.Push((Ref<FreeNode*>)(p + i * elem_bytes_));
       }
