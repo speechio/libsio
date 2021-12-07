@@ -109,11 +109,16 @@ class Logger {
   std::ostringstream buf_;
 };
 
-#define SIO_DEBUG   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kDebug,   std::cerr)
-#define SIO_INFO    sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kInfo,    std::cerr)
-#define SIO_WARNING sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kWarning, std::cerr)
-#define SIO_ERROR   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kError,   std::cerr)
-#define SIO_FATAL   sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kFatal,   std::cerr)
+#define SIO_DEBUG \
+    sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kDebug,   std::cerr)
+#define SIO_INFO \
+    sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kInfo,    std::cerr)
+#define SIO_WARNING \
+    sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kWarning, std::cerr)
+#define SIO_ERROR \
+    sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kError,   std::cerr)
+#define SIO_FATAL \
+    sio::Logger(SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kFatal,   std::cerr)
 
 } // namespace sio
 #endif
