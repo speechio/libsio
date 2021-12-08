@@ -1,7 +1,9 @@
+# libsio
 add_library(sio STATIC
   link.cc
 )
 
+# libsio unittest
 add_executable(unittest 
   log_test.cc
   check_test.cc
