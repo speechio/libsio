@@ -1,49 +1,72 @@
+
 #include <iostream>
-#include "sio/sio.h"
+#include "feat/wave-reader.h"
+#include "util/common-utils.h"
+#include "base/kaldi-error.h"
+#include "itf/online-feature-itf.h"
+#include "online2/online-nnet2-feature-pipeline.h"
+#include "hmm/transition-model.h"
+#include "nnet3/nnet-utils.h"
+#include "nnet3/decodable-online-looped.h"
+#include "lat/lattice-functions.h"
+#include "lat/determinize-lattice-pruned.h"
 #include "online2/online-timing.h"
 
-using namespace sio;
-struct Person {
-    i32 age = 0;
-    Str name = "";
-};
-
-template<typename T>
-struct Slice {
-    T* items = SIO_UNDEFINED;
-    i64 len = 0;
-    i64 cap = 0;
-};
+#include "sio/sio.h"
 
 int main() {
-    kaldi::BaseFloat asdf = 0.0f;
-    kaldi::OnlineTimingStats timing_stats;
-    timing_stats.Print(true);
-    Person x;
-    Slice<int> y;
-    SIO_P_COND(true);
-    Vec<Str> v;
-    Vec<Vec<Str>> k;
-    Str s = absl::StrJoin(v, "-");
-    StrView sv = s;
-    SIO_INVAR(true);
-  
-    std::cout << "Joined String: " << sv << "\n";
-    i32 i = 10;
-    i32* p = &i;
-    std::cout << absl::StrFormat("%d\n", *p);
+    using namespace kaldi;
+    using namespace sio;
 
-    Map<i64, Str> m = {{1, "aaa"}, {2, "bbb"}, {3, "ccc"}};
-    m[123] = "abcd";
+    float chunk_length = 0.2;
 
-    for (auto& kv : m) {
-        std::cout << kv.first << ":" << kv.second << "\n";
+    i32 num_err = 0;
+
+    std::ifstream scp("testdata/MINI/wav.scp");
+    std::string line;
+    while (getline(scp, line)) {
+        std::vector<std::string> cols = absl::StrSplit(line, "\t");
+        if (cols.size() != 2) continue;
+
+        std::string audio_key  = cols[0];
+        std::string audio_path = cols[1];
+        SIO_DEBUG << audio_key << " " << audio_path;
+
+        WaveData wave_data;
+        std::ifstream stream(audio_path, std::ifstream::binary);
+        wave_data.Read(stream);
+        SubVector<BaseFloat> audio(wave_data.Data(), 0); // only use channel 0
+        float sample_rate = wave_data.SampFreq();
+
+        SIO_CHECK(sample_rate == 16000, "sample rate is not 16k.");
+
+        int chunk_samples;
+        if (chunk_length > 0) {
+          chunk_samples = int(sample_rate * chunk_length);
+          if (chunk_samples == 0) chunk_samples = 1;
+        } else {
+          chunk_samples = std::numeric_limits<int>::max();
+        }
+
+        OnlineTimer decoding_timer(audio_key);
+        int samples_done = 0;
+        while (samples_done < audio.Dim()) {
+            int samples_remaining = audio.Dim() - samples_done;
+            int n = chunk_samples < samples_remaining ? chunk_samples : samples_remaining;
+    
+            SubVector<BaseFloat> audio_chunk(audio, samples_done, n);
+            //recognizer->AcceptAudioChunk(audio_chunk.Data(), audio_chunk.SizeInBytes(), audio_format);
+    
+            samples_done += n;
+            decoding_timer.WaitUntil(samples_done / sample_rate);
+    
+            //if (opts.do_endpointing && recognizer->EndOfSentenceDetected()) {
+            //    break;
+            //}
+            SIO_DEBUG << audio_key << ": " << samples_done << " samples decoded.";
+        }
+        SIO_INFO << "Decoded " << samples_done << " samples for " << audio_key;
     }
 
-    for (auto it = m.begin(); it != m.end(); ++it) {
-        std::cout << it->first << ":" << it->second << "\n";
-    }
-
-    index_t j = 0;
-
+    return 0;
 }
