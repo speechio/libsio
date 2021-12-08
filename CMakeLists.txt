@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 enable_testing()
 
-## ADD THIRD-PARTY DEPENDENCIES
 # gtest
 include(FetchContent)
 FetchContent_Declare(
@@ -15,7 +14,6 @@ FetchContent_Declare(
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
-
 
 # abseil
 include_directories(deps/abseil-cpp)
@@ -67,5 +65,4 @@ add_subdirectory(sio)
 # bin
 add_executable(stt stt.cc)
 target_link_libraries(stt sio ${KALDI_LIBS} absl::strings absl::str_format absl::type_traits absl::flat_hash_map)
-
 
