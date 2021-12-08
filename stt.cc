@@ -22,10 +22,10 @@ int main() {
 
     i32 num_err = 0;
 
-    std::ifstream scp("testdata/MINI/wav.scp");
+    std::ifstream wav_scp("testdata/MINI/wav.scp");
     std::string line;
-    while (getline(scp, line)) {
-        std::vector<std::string> cols = absl::StrSplit(line, "\t");
+    while (getline(wav_scp, line)) {
+        std::vector<std::string> cols = absl::StrSplit(line, absl::ByAnyChar(" \t,:;"));
         if (cols.size() != 2) continue;
 
         std::string audio_key  = cols[0];
