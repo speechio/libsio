@@ -9,7 +9,7 @@ struct Person {
 
 template<typename T>
 struct Slice {
-    Ref<T*> items = SIO_UNDEFINED;
+    T* items = SIO_UNDEFINED;
     i64 len = 0;
     i64 cap = 0;
 };
@@ -26,7 +26,7 @@ int main() {
   
     std::cout << "Joined String: " << sv << "\n";
     i32 i = 10;
-    Ref<i32*> p = &i;
+    i32* p = &i;
     std::cout << absl::StrFormat("%d\n", *p);
 
     Map<i64, Str> m = {{1, "aaa"}, {2, "bbb"}, {3, "ccc"}};

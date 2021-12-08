@@ -26,31 +26,31 @@ public:
   Opt<T*> Head() { return NodeOf(origin_.Next()); }
   Opt<T*> Tail() { return NodeOf(origin_.Prev()); }
 
-  Opt<T*> Prev(Ref<T*> node) { return NodeOf(LinkOf(node)->Prev()); }
-  Opt<T*> Next(Ref<T*> node) { return NodeOf(LinkOf(node)->Next()); }
+  Opt<T*> Prev(T* node) { return NodeOf(LinkOf(node)->Prev()); }
+  Opt<T*> Next(T* node) { return NodeOf(LinkOf(node)->Next()); }
 
-  void InsertHead(Ref<T*> node) { 
+  void InsertHead(T* node) { 
     UnlinkNode(node);
     LinkOf(node)->InsertAfter(&origin_);
   }
 
-  void InsertTail(Ref<T*> node) {
+  void InsertTail(T* node) {
     UnlinkNode(node);
     LinkOf(node)->InsertBefore(&origin_);
   }
 
-  void InsertBefore(Ref<T*> node, Ref<T*> ref) {
+  void InsertBefore(T* node, T* ref) {
     UnlinkNode(node);
     LinkOf(node)->InsertBefore(LinkOf(ref));
   }
 
-  void InsertAfter(Ref<T*> node, Ref<T*> ref) {
+  void InsertAfter(T* node, T* ref) {
     UnlinkNode(node);
     LinkOf(node)->InsertAfter(LinkOf(ref));
   }
 
-  void UnlinkNode(Ref<T*> node) {
-    Ref<Link*> link = LinkOf(node);
+  void UnlinkNode(T* node) {
+    Link* link = LinkOf(node);
     if (link->IsLinked()) {
       link->Unlink();
     }
@@ -63,12 +63,12 @@ public:
   }
 
 private:
-  Ref<Link*> LinkOf(Ref<T*> node) {
-      return Ref<Link*>((size_t)node + offset_);
+  Link* LinkOf(T* node) {
+      return (Link*) ((size_t)node + offset_);
   }
 
-  Opt<T*> NodeOf(Ref<Link*> link) {
-      return (link == &origin_) ? nullptr : Ref<T*>((size_t)link - offset_);
+  Opt<T*> NodeOf(Link* link) {
+      return (link == &origin_) ? nullptr : (T*) ((size_t)link - offset_);
   }
 
   Link   origin_;

@@ -23,21 +23,21 @@ class ArenaAllocator {
     }
   }
 
-  inline Ref<T*> Alloc() {
+  inline T* Alloc() {
     if (free_list_.IsEmpty()) {
-      Ref<char*> p = new char[elem_bytes_ * elems_per_slab_];
+      char* p = new char[elem_bytes_ * elems_per_slab_];
       slabs_.push_back( (Owner<char*>)p );
       for (int i = 0; i < elems_per_slab_; i++) {
-        free_list_.Push((Ref<FreeNode*>)(p + i * elem_bytes_));
+        free_list_.Push((FreeNode*)(p + i * elem_bytes_));
       }
     }
     num_used_++;
-    return (Ref<T*>) free_list_.Pop();
+    return (T*)free_list_.Pop();
   }
 
-  inline void Free(Ref<T*> p) {
+  inline void Free(T* p) {
     num_used_--;
-    free_list_.Push(Ref<FreeNode*>(p));
+    free_list_.Push( (FreeNode*)p );
   }
 
   size_t NumUsed() {
@@ -64,14 +64,14 @@ class ArenaAllocator {
       return (head == nullptr);
     }
 
-    inline void Push(Ref<FreeNode*> p) {
+    inline void Push(FreeNode* p) {
       p->next = head;
       head = p;
     }
 
-    inline Ref<FreeNode*> Pop() {
+    inline FreeNode* Pop() {
       SIO_P_COND(!IsEmpty()); // Exhausted arena should grow in Alloc()
-      Ref<FreeNode*> p = head;
+      FreeNode* p = head;
       head = head->next;
       return p;
     }

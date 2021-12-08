@@ -5,15 +5,15 @@ Link::~Link() {
   Unlink();
 }
 
-Ref<Link*> Link::Prev() { 
+Link* Link::Prev() { 
   return prev_;
 }
 
-Ref<Link*> Link::Next() { 
+Link* Link::Next() { 
   return next_;
 }
   
-void Link::InsertBefore(Ref<Link*> ref) {
+void Link::InsertBefore(Link* ref) {
   prev_ = ref->prev_;
   next_ = ref;
 
@@ -21,7 +21,7 @@ void Link::InsertBefore(Ref<Link*> ref) {
   ref->prev_  = this;
 }
 
-void Link::InsertAfter(Ref<Link*> ref) {
+void Link::InsertAfter(Link* ref) {
   prev_ = ref;
   next_ = ref->next_;
 

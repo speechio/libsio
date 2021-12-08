@@ -9,15 +9,15 @@ public:
   ~Link();
 
   bool  IsLinked();
-  Ref<Link*> Prev();
-  Ref<Link*> Next();
-  void  InsertBefore(Ref<Link*> ref);
-  void  InsertAfter(Ref<Link*> ref);
+  Link* Prev();
+  Link* Next();
+  void  InsertBefore(Link* ref);
+  void  InsertAfter(Link* ref);
   void  Unlink();
 
 private:
-  Ref<Link*> prev_ = this;
-  Ref<Link*> next_ = this;
+  Link* prev_ = this;
+  Link* next_ = this;
 };
 
 } // namespace sio
