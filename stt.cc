@@ -49,6 +49,7 @@ int main() {
         }
 
         OnlineTimer decoding_timer(audio_key);
+        //recognizer->StartSession(audio_key.c_str());
         int samples_done = 0;
         while (samples_done < audio.Dim()) {
             int samples_remaining = audio.Dim() - samples_done;
@@ -66,6 +67,7 @@ int main() {
             SIO_DEBUG << audio_key << ": " << samples_done << " samples decoded.";
         }
         SIO_INFO << "Decoded " << samples_done << " samples for " << audio_key;
+        //recognizer->StopSession();
     }
 
     return 0;
