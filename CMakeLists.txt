@@ -14,13 +14,53 @@ FetchContent_Declare(
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
 
-include_directories(.)
-include_directories(deps/abseil-cpp)
 
 # abseil
+include_directories(deps/abseil-cpp)
 add_subdirectory(deps/abseil-cpp)
+
+# kaldi
+set(KALDI_CMAKE_DIST "${CMAKE_SOURCE_DIR}/deps/kaldi_dist")
+include_directories(${KALDI_CMAKE_DIST}/include)       # OpenFst
+include_directories(${KALDI_CMAKE_DIST}/include/kaldi) # Kaldi
+
+set(KALDI_LIBS
+    fst
+    kaldi-base
+    kaldi-matrix
+    kaldi-util
+    kaldi-cudamatrix
+    kaldi-tree
+    kaldi-gmm
+    kaldi-hmm
+    kaldi-transform
+    kaldi-ivector
+    kaldi-feat
+    kaldi-fstext
+    kaldi-lm
+    kaldi-lat
+    kaldi-decoder
+    kaldi-cudadecoder
+    kaldi-cudafeat
+    kaldi-chain
+    kaldi-kws
+    kaldi-nnet
+    kaldi-nnet2
+    kaldi-nnet3
+    kaldi-rnnlm
+    kaldi-online
+    kaldi-online2
+)
+
+foreach(x ${KALDI_LIBS})
+    add_library(${x} SHARED IMPORTED GLOBAL)
+    set_target_properties(${x} PROPERTIES IMPORTED_LOCATION ${KALDI_CMAKE_DIST}/lib64/lib${x}.so)
+endforeach()
+
+# libsio
+include_directories(${CMAKE_SOURCE_DIR})
 add_subdirectory(sio)
 
-# BINARY
+# bin
 add_executable(stt stt.cc)
-target_link_libraries(stt sio absl::strings absl::str_format absl::type_traits absl::flat_hash_map)
+target_link_libraries(stt sio ${KALDI_LIBS} absl::strings absl::str_format absl::type_traits absl::flat_hash_map)

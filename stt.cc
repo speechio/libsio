@@ -1,5 +1,6 @@
 #include <iostream>
 #include "sio/sio.h"
+#include "online2/online-timing.h"
 
 using namespace sio;
 struct Person {
@@ -15,6 +16,9 @@ struct Slice {
 };
 
 int main() {
+    kaldi::BaseFloat asdf = 0.0f;
+    kaldi::OnlineTimingStats timing_stats;
+    timing_stats.Print(true);
     Person x;
     Slice<int> y;
     SIO_P_COND(true);
