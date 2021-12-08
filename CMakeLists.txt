@@ -4,6 +4,8 @@ project(sio LANGUAGES CXX VERSION 0.1)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+enable_testing()
+
 ## ADD THIRD-PARTY DEPENDENCIES
 # gtest
 include(FetchContent)
@@ -34,6 +36,7 @@ set(KALDI_LIBS
     kaldi-gmm
     kaldi-hmm
     kaldi-transform
+    kaldi-sgmm2
     kaldi-ivector
     kaldi-feat
     kaldi-fstext
@@ -64,3 +67,5 @@ add_subdirectory(sio)
 # bin
 add_executable(stt stt.cc)
 target_link_libraries(stt sio ${KALDI_LIBS} absl::strings absl::str_format absl::type_traits absl::flat_hash_map)
+
+

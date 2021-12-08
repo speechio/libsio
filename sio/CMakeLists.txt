@@ -2,9 +2,6 @@ add_library(sio STATIC
   link.cc
 )
 
-# UNITTEST
-enable_testing()
-
 add_executable(unittest 
   log_test.cc
   check_test.cc
@@ -12,10 +9,12 @@ add_executable(unittest
   list_test.cc
   heap_test.cc
 )
+
 target_link_libraries(unittest
   gtest_main
   sio
   absl::base
+  ${KALDI_LIBS}
 )
 
 include(GoogleTest)
