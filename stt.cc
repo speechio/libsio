@@ -1,15 +1,6 @@
-
 #include <iostream>
+
 #include "feat/wave-reader.h"
-#include "util/common-utils.h"
-#include "base/kaldi-error.h"
-#include "itf/online-feature-itf.h"
-#include "online2/online-nnet2-feature-pipeline.h"
-#include "hmm/transition-model.h"
-#include "nnet3/nnet-utils.h"
-#include "nnet3/decodable-online-looped.h"
-#include "lat/lattice-functions.h"
-#include "lat/determinize-lattice-pruned.h"
 #include "online2/online-timing.h"
 
 #include "sio/sio.h"
@@ -38,7 +29,7 @@ int main() {
         wave_data.Read(stream);
         kaldi::SubVector<float> audio(wave_data.Data(), 0); // only use channel 0
 
-        assert(wave_data.SampFreq() == sample_rate && "inconsistent sample rate between audio/model.");
+        assert(wave_data.SampFreq() == sample_rate);
 
         kaldi::OnlineTimer decoding_timer(audio_key);
         //recognizer->StartSession(audio_key.c_str());
