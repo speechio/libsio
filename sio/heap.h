@@ -46,7 +46,7 @@ class ArenaAllocator {
 
   size_t NumFree() {
     size_t n = 0;
-    for (Opt<FreeNode*> p = free_list_.head; p != nullptr; p = p->next) {
+    for (Optional<FreeNode*> p = free_list_.head; p != nullptr; p = p->next) {
       n++;
     }
     return n;
@@ -54,11 +54,11 @@ class ArenaAllocator {
 
  private:
   struct FreeNode {
-    Opt<FreeNode*> next = nullptr;
+    Optional<FreeNode*> next = nullptr;
   };
 
   struct FreeList {
-    Opt<FreeNode*> head = nullptr;
+    Optional<FreeNode*> head = nullptr;
 
     inline bool IsEmpty() {
       return (head == nullptr);

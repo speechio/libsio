@@ -6,16 +6,16 @@
 namespace sio {
 
 /* 
-C pointers are great at pointing "things", but they failed expressing:
-    - ownerships
+C pointers are great at pointing "things" but failing to express:
+    - ownership
     - nullness
-These two properties are orthogonal.
+Note that these two properties are orthogonal.
 
-Pointer annotations introduced:
-    - T* or Ref<T*>  denotes pointers without ownership & cannot be nullptr
-    - Owner<T*>      denotes pointers with    ownership & cannot be nullptr
-    - Opt<T*>        denotes pointers without ownership & can    be nullptr
-    - Opt<Owner<T*>> denotes pointers with    ownership & can    be nullptr
+To make things clear, annotation types are introduced here as a pointer-convention:
+    - T* or Ref<T*>       denotes pointers without ownership & cannot be null
+    - Owner<T*>           denotes pointers with    ownership & cannot be null
+    - Optional<T*>        denotes pointers without ownership & can    be null
+    - Optional<Owner<T*>> denotes pointers with    ownership & can    be null
 With consistent use of this convention, raw pointers (T*) have less semantic burden.
 
 Note these types are:
@@ -27,7 +27,7 @@ template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::
 using Owner = T;
 
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
-using Opt = T;
+using Optional = T;
 
 /*
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>

@@ -17,17 +17,17 @@ public:
   // O(n)
   size_t NumElems() {
     size_t n = 0;
-    for (Opt<T*> e = Head(); e != nullptr; e = Next(e)) {
+    for (Optional<T*> e = Head(); e != nullptr; e = Next(e)) {
       n++;
     }
     return n;
   }
 
-  Opt<T*> Head() { return NodeOf(origin_.Next()); }
-  Opt<T*> Tail() { return NodeOf(origin_.Prev()); }
+  Optional<T*> Head() { return NodeOf(origin_.Next()); }
+  Optional<T*> Tail() { return NodeOf(origin_.Prev()); }
 
-  Opt<T*> Prev(T* node) { return NodeOf(LinkOf(node)->Prev()); }
-  Opt<T*> Next(T* node) { return NodeOf(LinkOf(node)->Next()); }
+  Optional<T*> Prev(T* node) { return NodeOf(LinkOf(node)->Prev()); }
+  Optional<T*> Next(T* node) { return NodeOf(LinkOf(node)->Next()); }
 
   void InsertHead(T* node) { 
     UnlinkNode(node);
@@ -67,7 +67,7 @@ private:
       return (Link*) ((size_t)node + offset_);
   }
 
-  Opt<T*> NodeOf(Link* link) {
+  Optional<T*> NodeOf(Link* link) {
       return (link == &origin_) ? nullptr : (T*) ((size_t)link - offset_);
   }
 
