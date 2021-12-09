@@ -19,14 +19,10 @@ int main() {
     using namespace sio;
 
     float sample_rate = 16000;
-    float chunk_secs = 0.2;
 
-    int chunk_samples;
-    if (chunk_secs > 0) {
-        chunk_samples = std::max(1, int(sample_rate * chunk_secs));
-    } else {
-        chunk_samples = std::numeric_limits<int>::max();
-    }
+    float chunk_secs = 0.2;
+    int chunk_samples = (chunk_secs > 0) ? int(sample_rate * chunk_secs) : std::numeric_limits<int>::max();
+    assert(chunk_samples > 0);
 
     std::ifstream wav_scp("testdata/MINI/wav.scp");
     std::string line;
@@ -43,10 +39,7 @@ int main() {
         wave_data.Read(stream);
         SubVector<BaseFloat> audio(wave_data.Data(), 0); // only use channel 0
 
-        SIO_CHECK(
-            wave_data.SampFreq() == sample_rate,
-            "inconsistent sample rate between audio/model."
-        );
+        assert(wave_data.SampFreq() == sample_rate && "inconsistent sample rate between audio/model.");
 
         OnlineTimer decoding_timer(audio_key);
         //recognizer->StartSession(audio_key.c_str());
