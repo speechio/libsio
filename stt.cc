@@ -15,7 +15,6 @@
 #include "sio/sio.h"
 
 int main() {
-    using namespace kaldi;
     using namespace sio;
 
     float sample_rate = 16000;
@@ -26,7 +25,7 @@ int main() {
 
     std::ifstream wav_scp("testdata/MINI/wav.scp");
     std::string line;
-    while (getline(wav_scp, line)) {
+    while (std::getline(wav_scp, line)) {
         std::vector<std::string> fields = absl::StrSplit(line, absl::ByAnyChar(" \t,:;"));
         if (fields.size() != 2) continue;
 
@@ -34,21 +33,21 @@ int main() {
         std::string& audio_path = fields[1];
         SIO_DEBUG << audio_key << " " << audio_path;
 
-        WaveData wave_data;
+        kaldi::WaveData wave_data;
         std::ifstream stream(audio_path, std::ifstream::binary);
         wave_data.Read(stream);
-        SubVector<BaseFloat> audio(wave_data.Data(), 0); // only use channel 0
+        kaldi::SubVector<float> audio(wave_data.Data(), 0); // only use channel 0
 
         assert(wave_data.SampFreq() == sample_rate && "inconsistent sample rate between audio/model.");
 
-        OnlineTimer decoding_timer(audio_key);
+        kaldi::OnlineTimer decoding_timer(audio_key);
         //recognizer->StartSession(audio_key.c_str());
         int samples_done = 0;
         while (samples_done < audio.Dim()) {
             int samples_remaining = audio.Dim() - samples_done;
             int n = chunk_samples < samples_remaining ? chunk_samples : samples_remaining;
     
-            SubVector<BaseFloat> audio_chunk(audio, samples_done, n);
+            kaldi::SubVector<float> audio_chunk(audio, samples_done, n);
             //recognizer->AcceptAudioChunk(audio_chunk.Data(), audio_chunk.SizeInBytes(), audio_format);
     
             samples_done += n;
