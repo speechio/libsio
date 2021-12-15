@@ -1,8 +1,8 @@
 #ifndef SIO_BASE_H
 #define SIO_BASE_H
 
-#include "absl/base/optimization.h"
-#include "absl/base/attributes.h"
+#include <absl/base/optimization.h>
+#include <absl/base/attributes.h>
 
 namespace sio {
 

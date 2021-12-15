@@ -22,8 +22,8 @@ TEST(Check, HoareLogic) {
 
 namespace { // seal test func scope in anonymous namespace
 Error test_error_func() {
-  return ErrorNone;
-  //return ErrorOOM;
+  return Error::None;
+  //return Error::OOM;
 }
 }
 
@@ -32,9 +32,9 @@ TEST(Check, Error) {
   SIO_Q_COND(!err);
 
   //FILE *fp = nullptr;
-  //SIO_CHECK(fp != nullptr, "cannot open file", ErrorInvalidFileHandle);
+  //SIO_CHECK(fp != nullptr, "cannot open file", Error::InvalidFileHandle);
 
-  //SIO_CHECK(false, "", ErrorUnknown);
+  //SIO_CHECK(false, "", Error::Unknown);
 }
 
 } // namespace sio

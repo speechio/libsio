@@ -8,17 +8,22 @@ namespace sio {
 
 const char *error_cstr(Error err) {
   switch (err) {
-    case ErrorNone: return "(no error)";
-    case ErrorOOM: return "out of memory";
-    case ErrorUnreachable: return "control flow into unreachable";
-    case ErrorPrecondition: return "pre-condition unsatisfied";
-    case ErrorPostcondition: return "post-condition unsatisfied";
-    case ErrorInvariant: return "invariant unsatisfied";
-    case ErrorCheck: return "check failure";
-    case ErrorInvalidFileHandle: return "invalid file handle";
-    case ErrorUnknown: return "unknown error";
+    case Error::None: return "(no error)";
+    case Error::OOM: return "out of memory";
+    case Error::Unreachable: return "control flow into unreachable";
+    case Error::Precondition: return "pre-condition unsatisfied";
+    case Error::Postcondition: return "post-condition unsatisfied";
+    case Error::Invariant: return "invariant unsatisfied";
+    case Error::Check: return "check failure";
+    case Error::InvalidFileHandle: return "invalid file handle";
+    case Error::Unknown: return "unknown error";
   }
   SIO_UNREACHABLE();
+}
+
+
+bool operator!(Error err) {
+  return (err == Error::None);
 }
 
 
