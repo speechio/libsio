@@ -6,9 +6,9 @@
 namespace sio {
 
 TEST(Error, Basic) {
-  Error err = Error::OOM;
-  std::cout << error_cstr(err) << "\n";
-  EXPECT_EQ(std::string(error_cstr(err)), "out of memory");
+  Error err = Error::None;
+  std::cerr << error_cstr(err) << "\n";
+  EXPECT_EQ(std::string(error_cstr(err)), "(no error)");
 }
 
 TEST(Error, Panic) {

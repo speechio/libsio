@@ -20,16 +20,16 @@ enum class LogSeverity : int {
 
 constexpr const char* LogSeverityRepr(LogSeverity s) {
   return s == LogSeverity::kDebug
-         ? "(D)"
+         ? "[D]"
          : s == LogSeverity::kInfo
-           ? "(I)"
+           ? "[I]"
            : s == LogSeverity::kWarning
-             ? "(WARNING)"
+             ? "[WARNING]"
              : s == LogSeverity::kError
-               ? "(ERROR)"
+               ? "[ERROR]"
                : s == LogSeverity::kFatal 
-                 ? "(FATAL)" 
-                 : "(UNKNOWN)";
+                 ? "[FATAL]" 
+                 : "[UNKNOWN]";
 }
 
 inline LogSeverity CurrentLogVerbosity() {
@@ -58,10 +58,11 @@ class Logger {
   : file_(file), func_(func), line_(line), severity_(severity), os_(os)
   {
     if (severity_ >= CurrentLogVerbosity()) {
-      buf_ << LogSeverityRepr(severity_) << " ";
+      buf_ << LogSeverityRepr(severity_);
       if (severity_ == LogSeverity::kDebug || severity_ >= LogSeverity::kWarning) {
-        buf_ << "[" << file_ << ":" << line_ << ":" << func_ << "] ";
+        buf_ << "(" << file_ << ":" << line_ << ":" << func_ << ")";
       }
+      buf_ << " ";
     }
   }
 

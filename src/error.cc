@@ -28,7 +28,7 @@ bool operator!(Error err) {
 
 
 void panic(const char* file, size_t line, const char* func, Error err) {
-  fprintf(stderr, "panic: %s @ %s:%d:%s\n", error_cstr(err), file, line, func);
+  fprintf(stderr, "[panic](%s:%d:%s) %s\n", file, line, func, error_cstr(err));
   fflush(stderr);
   abort();
 }
