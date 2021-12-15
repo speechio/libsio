@@ -13,7 +13,7 @@ TEST(Error, Basic) {
 
 TEST(Error, Panic) {
   //Error err = Error::OOM;
-  //if (err) {
+  //if (!!err) {
   //  SIO_PANIC(err);
   //}
 }
