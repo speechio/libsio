@@ -1,0 +1,70 @@
+#ifndef SIO_MEAN_VAR_NORMALIZER_H
+#define SIO_MEAN_VAR_NORMALIZER_H
+
+#include <string>
+#include <iostream>
+#include <vector>
+
+#include "matrix/kaldi-vector.h"
+
+#include "sio/check.h"
+
+namespace sio {
+struct MeanVarNormalizer {
+  /*
+  Format of mean_var_norm file, three lines:
+  line1: norm_vector_dimension
+  line2: m_norm_shift vector, no brackets, elements seperated by comma or whitespaces
+  line3: v_nrom_scale vector, same as above
+
+  Example mean_var_norm.txt:
+  3
+  -8.505237579345703 -8.91793441772461 -10.091235160827637
+  0.6330024600028992 0.49299687147140503 0.37579503655433655
+
+  */
+  void Load(std::string mvn_path) {
+    std::ifstream is(mvn_path);
+
+    std::string line;
+    std::getline(is, line);
+    dim = std::stoi(line);
+
+    std::vector<std::string> cols;
+
+    std::getline(is, line);
+    cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
+    SIO_P_COND(cols.size() == dim);
+    m_norm_shift.clear();
+    m_norm_shift.reserve(dim);
+    for (int i = 0; i != dim; i++) {
+      m_norm_shift.push_back(std::stod(cols[i]));
+    }
+
+    std::getline(is, line);
+    cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
+    SIO_P_COND(cols.size() == dim);
+    v_norm_scale.clear();
+    v_norm_scale.reserve(dim);
+    for (int i = 0; i != dim; i++) {
+      v_norm_scale.push_back(std::stod(cols[i]));
+    }
+  }
+
+  void Forward(kaldi::VectorBase<float> *frame) {
+    SIO_P_COND(frame != nullptr);
+    SIO_P_COND(frame->Dim() == dim);
+    for (int i = 0; i < dim; i++) {
+      // use quote for elem referencing, see:
+      // https://github.com/kaldi-asr/kaldi/blob/master/src/matrix/kaldi-vector.h#L82
+      (*frame)(i) += m_norm_shift[i];
+      (*frame)(i) *= v_norm_scale[i];
+    }
+  }
+
+  int dim = 0;
+  std::vector<double> m_norm_shift;
+  std::vector<double> v_norm_scale;
+}; // class MeanVarNormalizer
+}  // namespace sio
+#endif
