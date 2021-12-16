@@ -34,7 +34,7 @@ struct MeanVarNormalizer {
 
     std::getline(is, line);
     cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
-    SIO_P_COND(cols.size() == dim);
+    SIO_P_COND(cols.size() == dim) << "mean norm dim should be consistent with header line";
     m_norm_shift.clear();
     m_norm_shift.reserve(dim);
     for (int i = 0; i != dim; i++) {
@@ -43,7 +43,7 @@ struct MeanVarNormalizer {
 
     std::getline(is, line);
     cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
-    SIO_P_COND(cols.size() == dim);
+    SIO_P_COND(cols.size() == dim) << "var norm dim should be consistent with header line";
     v_norm_scale.clear();
     v_norm_scale.reserve(dim);
     for (int i = 0; i != dim; i++) {
@@ -52,8 +52,8 @@ struct MeanVarNormalizer {
   }
 
   void Forward(kaldi::VectorBase<float> *frame) {
-    SIO_P_COND(frame != nullptr);
-    SIO_P_COND(frame->Dim() == dim);
+    SIO_P_COND(frame != nullptr) << "null input to mvn ?";
+    SIO_P_COND(frame->Dim() == dim) << "input dimension should be consistent with mvn dim";
     for (int i = 0; i < dim; i++) {
       // use quote for elem referencing, see:
       // https://github.com/kaldi-asr/kaldi/blob/master/src/matrix/kaldi-vector.h#L82
