@@ -13,6 +13,7 @@ add_executable(unittest
   json_test.cc
   audio_test.cc
   feature_test.cc
+  dbg_test.cc
 )
 
 target_link_libraries(unittest
