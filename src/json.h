@@ -1,7 +1,12 @@
 /* 
- * Modified from SimpleJSON project https://github.com/nbsdx/SimpleJSO
- * License: "Do what the fuck you want public license"
- */
+  Copied and Modified from SimpleJSON project https://github.com/nbsdx/SimpleJSON
+  commit 8dd3e9b84a0b532c46f22f402bafb2c4cf8621eb
+  License: "Do what the fuck you want public license"
+  
+  Modification:
+  2021.12:
+    Add support to load from json file at the end of this header.
+*/
 
 #pragma once
 
