@@ -14,7 +14,7 @@ enum class Error : int {
   Precondition,
   Postcondition,
   Invariant,
-  Check,
+  AssertionFailure,
   InvalidFileHandle,
   Unknown,
 }; // enum class Error

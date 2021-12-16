@@ -14,7 +14,7 @@ const char *error_cstr(Error err) {
     case Error::Precondition: return "pre-condition unsatisfied";
     case Error::Postcondition: return "post-condition unsatisfied";
     case Error::Invariant: return "invariant unsatisfied";
-    case Error::Check: return "check failure";
+    case Error::AssertionFailure: return "assertion failure";
     case Error::InvalidFileHandle: return "invalid file handle";
     case Error::Unknown: return "unknown error";
   }

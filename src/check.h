@@ -16,6 +16,4 @@
 #define SIO_Q_COND(cond) SIO_CHECK(cond, ::sio::Error::Postcondition, "")
 #define SIO_INVAR(cond)  SIO_CHECK(cond, ::sio::Error::Invariant, "")
 
-
 #endif
-
