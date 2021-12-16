@@ -21,16 +21,11 @@ enum class LogSeverity : int {
 };
 
 constexpr const char* LogSeverityRepr(LogSeverity s) {
-  return s == LogSeverity::kDebug
-         ? "[D]"
-         : s == LogSeverity::kInfo
-           ? "[I]"
-           : s == LogSeverity::kWarning
-             ? "[WARNING]"
-             : s == LogSeverity::kError
-               ? "[ERROR]"
-               : s == LogSeverity::kFatal 
-                 ? "[FATAL]" 
+  return s == LogSeverity::kDebug ? "[D]"
+         : s == LogSeverity::kInfo ? "[I]"
+           : s == LogSeverity::kWarning ? "[WARNING]"
+             : s == LogSeverity::kError ? "[ERROR]"
+               : s == LogSeverity::kFatal ? "[FATAL]" 
                  : "[UNKNOWN]";
 }
 
