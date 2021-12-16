@@ -16,9 +16,9 @@ class Voidifier {
   SIO_LIKELY(cond) ? (void)0 \
     : ::sio::Voidifier() & SIO_FATAL(::sio::Error::AssertionFailure) << "Check failed: {" << #cond << "}. "
 
-#define SIO_P_COND(cond) SIO_CHECK(cond) << "Pre-condition. "
-#define SIO_Q_COND(cond) SIO_CHECK(cond) << "Post-condition. "
-#define SIO_INVAR(cond)  SIO_CHECK(cond) << "Invariant. "
+#define SIO_P_COND(cond) SIO_CHECK(cond) << "<pre-condition> "
+#define SIO_Q_COND(cond) SIO_CHECK(cond) << "<post-condition> "
+#define SIO_INVAR(cond)  SIO_CHECK(cond) << "<invariant> "
 
 } // namespace sio
 #endif
