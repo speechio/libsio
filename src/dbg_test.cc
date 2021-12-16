@@ -16,7 +16,7 @@ TEST(dbg_macro, Basic) {
     j--;
   }
   EXPECT_EQ(i,  2);
-  EXPECT_EQ(dbg("j value check in EXPECT_EQ:", j), -2); // comma expression use last one as expr value
+  EXPECT_EQ(dbg("j value check in EXPECT_EQ:", j), -2); // comma expression takes last one as its value
 
   Map<i32, Str> m = {
     {1,"abc"}, 
