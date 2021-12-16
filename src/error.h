@@ -11,9 +11,6 @@ enum class Error : int {
   None = 0,
   OOM,
   Unreachable,
-  Precondition,
-  Postcondition,
-  Invariant,
   AssertionFailure,
   InvalidFileHandle,
   Unknown,
@@ -21,9 +18,8 @@ enum class Error : int {
 
 bool operator!(Error err);
 const char *error_cstr(Error err);
+bool fatal(Error err);
 
-
-ABSL_ATTRIBUTE_NOINLINE
 ABSL_ATTRIBUTE_NORETURN
 void panic(const char* file, size_t line, const char* func, Error err);
 

@@ -11,9 +11,6 @@ const char *error_cstr(Error err) {
     case Error::None: return "(no error)";
     case Error::OOM: return "out of memory";
     case Error::Unreachable: return "control flow into unreachable";
-    case Error::Precondition: return "pre-condition unsatisfied";
-    case Error::Postcondition: return "post-condition unsatisfied";
-    case Error::Invariant: return "invariant unsatisfied";
     case Error::AssertionFailure: return "assertion failure";
     case Error::InvalidFileHandle: return "invalid file handle";
     case Error::Unknown: return "unknown error";
@@ -21,16 +18,20 @@ const char *error_cstr(Error err) {
   SIO_UNREACHABLE();
 }
 
+bool fatal(Error err) {
+  return (static_cast<int>(err) > 0);
+}
 
 bool operator!(Error err) {
   return (err == Error::None);
 }
 
-
 void panic(const char* file, size_t line, const char* func, Error err) {
   fprintf(stderr, "[panic](%s:%d:%s) %s\n", file, line, func, error_cstr(err));
   fflush(stderr);
-  abort();
+  if (fatal(err)) {
+    abort();
+  }
 }
 
 } // namespace sio

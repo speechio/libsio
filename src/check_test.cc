@@ -14,10 +14,10 @@ TEST(Check, HoareLogic) {
   i32 sum = 0;
   SIO_INVAR("sum = sum of v[0,i)");
   SIO_P_COND(i == 0);
-  while (i != 2) {
+  while (i != v.size()) {
     sum += v[i++];
   }
-  SIO_Q_COND(i == 2);
+  SIO_Q_COND(sum == 3) << "1 + 2 != 3, something wrong. ";
 }
 
 namespace { // seal test func scope in anonymous namespace
@@ -29,12 +29,7 @@ Error test_error_func() {
 
 TEST(Check, Error) {
   Error err = test_error_func();
-  SIO_Q_COND(!err);
-
-  //FILE *fp = nullptr;
-  //SIO_CHECK(fp != nullptr, "cannot open file", Error::InvalidFileHandle);
-
-  //SIO_CHECK(false, "", Error::Unknown);
+  SIO_CHECK(!err) << "an error occured.";
 }
 
 } // namespace sio
