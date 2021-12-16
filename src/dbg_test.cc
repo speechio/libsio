@@ -10,14 +10,13 @@
 
 TEST(dbg_macro, Basic) {
   using namespace sio;
-  int i = 1, j = -1;
-  while(dbg(i < 2)) {
+  int i = 0, j = 0;
+  while(dbg(i < 2)) { // with DBG_MACRO_DISABLE, dbg() is no-op
     dbg(i++);
     j--;
   }
-  dbg(i == 2);
-  dbg(i, j);
-  std::cout << i << " " << j << "\n";
+  EXPECT_EQ(i,  2);
+  EXPECT_EQ(dbg("j value check in EXPECT_EQ:", j), -2); // comma expression use last one as expr value
 
   Map<i32, Str> m = {
     {1,"abc"}, 
@@ -26,5 +25,5 @@ TEST(dbg_macro, Basic) {
 
   Vec<Str> v = {"s1", "s2", "s3"};
 
-  dbg("testing debug macro...", i, m, v);
+  dbg("---- dbg macro ----", i, m, v, "==== dbg macro ====");
 }

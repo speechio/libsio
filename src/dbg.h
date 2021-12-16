@@ -1,8 +1,9 @@
 /*
   2021.12 Jiayu notes:
-    this code is copied and modified from: https://github.com/sharkdp/dbg-macro/dbg.h
+    this code is copied from: https://github.com/sharkdp/dbg-macro/dbg.h
+    commit 4db61805d90cb66d91bcc56c2703591a0127ed11
     It is a C++ version of Rust's dbg!() macro
-
+  
   License: MIT
 
   Integration tips:
@@ -10,6 +11,20 @@
       disable the dbg(…) macro (i.e. to make it a no-op).
     2. DBG_MACRO_NO_WARNING flag:
       disable the "'dbg.h' header is included in your code base" warnings.
+
+  Modification:
+    ----
+    2021.12:
+      in function: 
+        template <typename T>
+        T&& print_impl(const expr_t* expr, const std::string* type, T&& value)
+
+      change printing fromat from:
+        expr = value (type)
+      to:
+        expr ~> value (type)
+    ----
+
 */
 
 /*****************************************************************************
@@ -789,7 +804,7 @@ class DebugOutput {
     std::stringstream output;
     output << m_location;
     if (print_expr_and_type) {
-      output << ansi(ANSI_EXPRESSION) << *expr << ansi(ANSI_RESET) << " = ";
+      output << ansi(ANSI_EXPRESSION) << *expr << ansi(ANSI_RESET) << " ~> "; // 2021.12 Jiayu: change from " = " to " ~> "
     }
     output << ansi(ANSI_VALUE) << stream_value.str() << ansi(ANSI_RESET);
     if (print_expr_and_type) {
