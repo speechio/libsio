@@ -35,15 +35,15 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
     wave.Read(is);
 
     kaldi::SubVector<float> audio(wave.Data(), 0);
-    feature_extractor.Forward(audio.Data(), audio.Dim(), sample_rate);
-    feature_extractor.InputFinished();
+    feature_extractor.PushAudio(audio.Data(), audio.Dim(), sample_rate);
+    feature_extractor.PushAudioDone();
 
-    kaldi::Vector<float> frame_feat(feature_extractor.Dim());
-    for (index_t f = 0; f < feature_extractor.NumFramesReady(); f++) {
+    kaldi::Vector<float> frame_feat(feature_extractor.FeatureDim());
+    for (index_t f = 0; f < feature_extractor.FramesReady(); f++) {
       feature_extractor.GetFrame(f, &frame_feat);
       mvn.Forward(&frame_feat);
     }
-    EXPECT_EQ(num_frames, feature_extractor.NumFramesReady());
+    EXPECT_EQ(num_frames, feature_extractor.FramesReady());
   }
 
 }

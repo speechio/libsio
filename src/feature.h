@@ -16,22 +16,22 @@ class FeatureExtractor {
     extractor_(info)
   { }
 
-  i32 Dim() {
+  i32 FeatureDim() {
     return extractor_.Dim();
   }
 
-  void Forward(const float* samples, size_t num_samples, float sample_rate) {
+  void PushAudio(const float* samples, size_t num_samples, float sample_rate) {
     extractor_.AcceptWaveform(
       sample_rate, 
       kaldi::SubVector<float>(samples, num_samples)
     );
   }
 
-  i32 NumFramesReady() const {
+  i32 FramesReady() const {
     return extractor_.NumFramesReady();
   }
 
-  void InputFinished() {
+  void PushAudioDone() {
     extractor_.InputFinished();
   }
 

@@ -52,11 +52,13 @@ class Recognizer {
     */
 
     // Feature extractor
-    feature_extractor_.Forward(
+    feature_extractor_.PushAudio(
       audio_seg.data,
       audio_seg.len,
       audio_seg.sample_rate
     );
+
+    SIO_DEBUG << feature_extractor_.FramesReady();
 
     return 0;
   }
