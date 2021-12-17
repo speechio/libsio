@@ -27,12 +27,12 @@ class FeatureExtractor {
     );
   }
 
-  i32 FramesReady() const {
-    return extractor_.NumFramesReady();
+  void NoMoreAudio() {
+    extractor_.InputFinished();
   }
 
-  void PushAudioDone() {
-    extractor_.InputFinished();
+  i32 FramesReady() const {
+    return extractor_.NumFramesReady();
   }
 
   void GetFrame(i32 frame_idx, kaldi::VectorBase<f32>* feat) {
