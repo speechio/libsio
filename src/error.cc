@@ -8,12 +8,12 @@ namespace sio {
 
 const char *error_cstr(Error err) {
   switch (err) {
-    case Error::None: return "(no error)";
-    case Error::OOM: return "out of memory";
-    case Error::Unreachable: return "control flow into unreachable";
-    case Error::AssertionFailure: return "assertion failure";
-    case Error::InvalidFileHandle: return "invalid file handle";
-    case Error::Unknown: return "unknown error";
+    case Error::kNone: return "(no error)";
+    case Error::kOOM: return "out of memory";
+    case Error::kUnreachable: return "control flow into unreachable";
+    case Error::kAssertionFailure: return "assertion failure";
+    case Error::kInvalidFileHandle: return "invalid file handle";
+    case Error::kUnknown: return "unknown error";
   }
   SIO_UNREACHABLE();
 }
@@ -23,7 +23,7 @@ bool fatal(Error err) {
 }
 
 bool operator!(Error err) {
-  return (err == Error::None);
+  return (err == Error::kNone);
 }
 
 void panic(const char* file, size_t line, const char* func, Error err) {

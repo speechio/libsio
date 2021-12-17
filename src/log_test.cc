@@ -10,8 +10,8 @@ TEST(Log, Basic) {
   SIO_DEBUG   << msg;
   SIO_INFO    << msg;
   SIO_WARNING << msg;
-  SIO_ERROR(Error::None)   << msg;
-  SIO_FATAL(Error::None)   << msg; // non fatal error won't trigger abort()
+  SIO_ERROR(Error::kNone)   << msg;
+  SIO_FATAL(Error::kNone)   << msg; // non fatal error won't trigger abort()
 }
 
 } // namespace sio

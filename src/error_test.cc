@@ -6,13 +6,13 @@
 namespace sio {
 
 TEST(Error, Basic) {
-  Error err = Error::None;
+  Error err = Error::kNone;
   std::cerr << error_cstr(err) << "\n";
   EXPECT_EQ(std::string(error_cstr(err)), "(no error)");
 }
 
 TEST(Error, Panic) {
-  //Error err = Error::OOM;
+  //Error err = Error::kOOM;
   //if (!!err) {
   //  SIO_PANIC(err);
   //}
