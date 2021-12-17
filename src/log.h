@@ -21,12 +21,12 @@ enum class LogSeverity : int {
 };
 
 constexpr const char* LogSeverityRepr(LogSeverity s) {
-  return s == LogSeverity::kDebug ? "[D]"
-         : s == LogSeverity::kInfo ? "[I]"
-           : s == LogSeverity::kWarning ? "[WARNING]"
-             : s == LogSeverity::kError ? "[ERROR]"
-               : s == LogSeverity::kFatal ? "[FATAL]" 
-                 : "[UNKNOWN]";
+  return   s == LogSeverity::kDebug   ? "[D]"
+         : s == LogSeverity::kInfo    ? "[I]"
+         : s == LogSeverity::kWarning ? "[WARNING]"
+         : s == LogSeverity::kError   ? "[ERROR]"
+         : s == LogSeverity::kFatal   ? "[FATAL]" 
+         :                              "[UNKNOWN]";
 }
 
 inline LogSeverity CurrentLogVerbosity() {
@@ -73,7 +73,7 @@ class Logger {
     if (severity_ >= CurrentLogVerbosity()) {
       ostream_ << buf_.str() << "\n";
     }
-    if (severity_ >= LogSeverity::kError) {
+    if (!!err_) {
       panic(file_, line_, func_, err_);
     }
   }
@@ -90,15 +90,15 @@ class Logger {
 };
 
 #define SIO_DEBUG \
-    sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kDebug, sio::Error::None)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kDebug,   ::sio::Error::None)
 #define SIO_INFO \
-    sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kInfo, sio::Error::None)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kInfo,    ::sio::Error::None)
 #define SIO_WARNING \
-    sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kWarning, sio::Error::None)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kWarning, ::sio::Error::None)
 #define SIO_ERROR(err) \
-    sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kError, err)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kError,   err)
 #define SIO_FATAL(err) \
-    sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, sio::LogSeverity::kFatal, err)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kFatal,   err)
 
 } // namespace sio
 #endif
