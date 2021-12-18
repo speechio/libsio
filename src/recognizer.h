@@ -58,12 +58,12 @@ class Recognizer {
       audio_seg.sample_rate
     );
 
-    SIO_DEBUG << feature_extractor_.FramesReady();
+    SIO_DEBUG << feature_extractor_.NumFrames();
 
     return Error::OK;
   }
 
-  Error Stop() { return Error::OK; }
+  Error ReachEnd() { return Error::OK; }
 
   Error Result(std::string* result) { 
     *result = "This is a recognition result.";

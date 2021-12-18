@@ -27,11 +27,11 @@ class FeatureExtractor {
     );
   }
 
-  void NoMore() {
+  void ReachEnd() {
     extractor_.InputFinished();
   }
 
-  i32 FramesReady() const {
+  i32 NumFrames() const {
     return extractor_.NumFramesReady();
   }
 

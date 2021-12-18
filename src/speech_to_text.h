@@ -67,7 +67,7 @@ class SpeechToText {
     SIO_P_COND(stream.recognizer < recognizers_.size());
 
     Error err;
-    err = recognizers_[stream.recognizer].Stop();
+    err = recognizers_[stream.recognizer].ReachEnd();
     SIO_CHECK(!err);
 
     err = recognizers_[stream.recognizer].Result(text);
