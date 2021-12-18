@@ -2,6 +2,7 @@
 #define SIO_SPEECH_TO_TEXT_H
 
 #include "sio/error.h"
+#include "sio/check.h"
 #include "sio/ptr.h"
 #include "sio/speech_to_text_config.h"
 #include "sio/recognizer.h"
@@ -51,6 +52,12 @@ class SpeechToText {
     SIO_CHECK(!err);
 
     return err;
+  }
+
+
+  Error PeekText(std::string* partial_text) {
+    *partial_text = "partial result";
+    return Error::OK;
   }
 
 

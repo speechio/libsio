@@ -6,7 +6,7 @@
 #include "sio/map.h"
 #include "sio/audio.h"
 #include "sio/feature.h"
-#include "sio/mean_var_normalizer.h"
+#include "sio/mean_var_norm.h"
 
 namespace sio {
 
@@ -21,8 +21,8 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
   c.feature_type = "fbank";
   FeatureInfo feature_info(c);
 
-  MeanVarNormalizer mvn;
-  mvn.Load("testdata/mean_var_normalizer_23dim.txt");
+  MeanVarNorm mvn;
+  mvn.Load("testdata/mean_var_norm_23dim.txt");
 
   for (const auto& kv : audio_to_frames) {
     Str audio_file = kv.first;
