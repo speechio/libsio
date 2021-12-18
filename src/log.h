@@ -90,11 +90,11 @@ class Logger {
 };
 
 #define SIO_DEBUG \
-    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kDebug,   ::sio::Error::kNone)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kDebug,   ::sio::Error::OK)
 #define SIO_INFO \
-    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kInfo,    ::sio::Error::kNone)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kInfo,    ::sio::Error::OK)
 #define SIO_WARNING \
-    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kWarning, ::sio::Error::kNone)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kWarning, ::sio::Error::OK)
 #define SIO_ERROR(err) \
     ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_FUNC_REPR, __LINE__, ::sio::LogSeverity::kError,   err)
 #define SIO_FATAL(err) \

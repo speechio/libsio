@@ -8,12 +8,12 @@
 namespace sio {
 
 enum class Error : int {
-  kNone = 0,
-  kOOM,
-  kUnreachable,
-  kAssertionFailure,
-  kInvalidFileHandle,
-  kUnknown,
+  OK = 0,
+  OutOfMemory,
+  Unreachable,
+  AssertionFailure,
+  InvalidFileHandle,
+  Unknown,
 }; // enum class Error
 
 bool operator!(Error err);
@@ -25,7 +25,7 @@ void panic(const char* file, size_t line, const char* func, Error err);
 
 #define SIO_PANIC(err) ::sio::panic(SIO_FILE_REPR, __LINE__, SIO_FUNC_REPR, err)
 
-#define SIO_UNREACHABLE() SIO_PANIC(::sio::Error::kUnreachable)
+#define SIO_UNREACHABLE() SIO_PANIC(::sio::Error::Unreachable)
 
 } // namespace sio
 

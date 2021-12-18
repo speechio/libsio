@@ -22,8 +22,8 @@ TEST(Check, HoareLogic) {
 
 namespace { // seal test func scope in anonymous namespace
 Error test_error_func() {
-  return Error::kNone;
-  //return Error::kOOM;
+  return Error::OK;
+  //return Error::OutOfMemory;
 }
 }
 
