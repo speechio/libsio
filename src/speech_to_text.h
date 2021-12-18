@@ -36,7 +36,7 @@ class SpeechToText {
     stream->key = stream_key;
     stream->recognizer = 0;
 
-    Error err = recognizers_[stream->recognizer].Start(stream->key);
+    Error err = recognizers_[stream->recognizer].BeginOfAudio(stream->key);
     SIO_CHECK(!err);
     return err;
   }
@@ -48,7 +48,7 @@ class SpeechToText {
     SIO_P_COND(stream.recognizer < recognizers_.size());
 
     Error err;
-    err = recognizers_[stream.recognizer].Forward(data, len, sample_rate);
+    err = recognizers_[stream.recognizer].PushAudio(data, len, sample_rate);
     SIO_CHECK(!err);
 
     return err;
@@ -67,7 +67,7 @@ class SpeechToText {
     SIO_P_COND(stream.recognizer < recognizers_.size());
 
     Error err;
-    err = recognizers_[stream.recognizer].ReachEnd();
+    err = recognizers_[stream.recognizer].EndOfAudio();
     SIO_CHECK(!err);
 
     err = recognizers_[stream.recognizer].Result(text);
