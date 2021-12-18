@@ -22,9 +22,9 @@ class Recognizer {
     if (resampler_ != nullptr) delete resampler_;
   }
 
-  int StartSession(const char* key = nullptr) { return 0; }
+  Error Start(const char* key = nullptr) { return Error::OK; }
 
-  int Speech(const float* data, size_t len, float sample_rate) {
+  Error Forward(const float* data, size_t len, float sample_rate) {
     AudioSegment<const float> audio_seg(data, len, sample_rate);
 
     // Resampler
@@ -60,11 +60,15 @@ class Recognizer {
 
     SIO_DEBUG << feature_extractor_.FramesReady();
 
-    return 0;
+    return Error::OK;
   }
 
-  int To() { return 0; }
-  int Text() { return 0; }
+  Error Stop() { return Error::OK; }
+
+  Error Result(std::string* result) { 
+    *result = "This is a recognition result.";
+    return Error::OK;
+  }
 
  private:
   FeatureInfo& feature_info_;
