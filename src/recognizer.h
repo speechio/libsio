@@ -52,7 +52,7 @@ class Recognizer {
     */
 
     // Feature extractor
-    feature_extractor_.PushAudio(
+    feature_extractor_.Forward(
       audio_seg.data,
       audio_seg.len,
       audio_seg.sample_rate

@@ -20,14 +20,14 @@ class FeatureExtractor {
     return extractor_.Dim();
   }
 
-  void PushAudio(const float* samples, size_t num_samples, float sample_rate) {
+  void Forward(const float* samples, size_t num_samples, float sample_rate) {
     extractor_.AcceptWaveform(
       sample_rate, 
       kaldi::SubVector<float>(samples, num_samples)
     );
   }
 
-  void NoMoreAudio() {
+  void NoMore() {
     extractor_.InputFinished();
   }
 
