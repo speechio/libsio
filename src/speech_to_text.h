@@ -10,7 +10,7 @@
 namespace sio {
 
 struct SttStreamHandle {
-  uint32_t recognizer = 0;
+  uint32_t worker_id = 0;
   const char* key = nullptr;
 };
 
@@ -29,26 +29,26 @@ class SpeechToText {
 
 
   Error CreateStream(SttStreamHandle* stream, const char* stream_key) {
-    SIO_P_COND(config_.max_threads == 1);
+    SIO_P_COND(config_.num_workers == 1);
     SIO_P_COND(recognizers_.size() == 0);
 
     recognizers_.emplace_back(feature_info_);
     stream->key = stream_key;
-    stream->recognizer = 0;
+    stream->worker_id = 0;
 
-    Error err = recognizers_[stream->recognizer].BeginOfAudio(stream->key);
+    Error err = recognizers_[stream->worker_id].Start(stream->key);
     SIO_CHECK(!err);
     return err;
   }
 
 
   Error SpeechIn(const SttStreamHandle& stream, const float* data, size_t len, float sample_rate) {
-    SIO_P_COND(config_.max_threads == 1);
+    SIO_P_COND(config_.num_workers == 1);
     SIO_P_COND(recognizers_.size() == 1);
-    SIO_P_COND(stream.recognizer < recognizers_.size());
+    SIO_P_COND(stream.worker_id < recognizers_.size());
 
     Error err;
-    err = recognizers_[stream.recognizer].PushAudio(data, len, sample_rate);
+    err = recognizers_[stream.worker_id].Forward(data, len, sample_rate);
     SIO_CHECK(!err);
 
     return err;
@@ -62,15 +62,20 @@ class SpeechToText {
 
 
   Error TextOut(const SttStreamHandle& stream, std::string* text) {
-    SIO_P_COND(config_.max_threads == 1);
+    SIO_P_COND(config_.num_workers == 1);
     SIO_P_COND(recognizers_.size() == 1);
-    SIO_P_COND(stream.recognizer < recognizers_.size());
+    SIO_P_COND(stream.worker_id < recognizers_.size());
+
+    Recognizer& rec = recognizers_[stream.worker_id];
 
     Error err;
-    err = recognizers_[stream.recognizer].EndOfAudio();
+    err = rec.Stop();
     SIO_CHECK(!err);
 
-    err = recognizers_[stream.recognizer].Result(text);
+    err = rec.Result(text);
+    SIO_CHECK(!err);
+
+    err = rec.Start();
     SIO_CHECK(!err);
 
     return err;
@@ -78,9 +83,9 @@ class SpeechToText {
 
 
   Error DestroyStream(const SttStreamHandle& stream) { 
-    SIO_P_COND(config_.max_threads == 1);
+    SIO_P_COND(config_.num_workers == 1);
     SIO_P_COND(recognizers_.size() == 1);
-    SIO_P_COND(stream.recognizer < recognizers_.size());
+    SIO_P_COND(stream.worker_id < recognizers_.size());
     recognizers_.pop_back();
     SIO_Q_COND(recognizers_.size() == 0);
     return Error::OK;

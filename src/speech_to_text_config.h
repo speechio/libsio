@@ -12,7 +12,7 @@ struct SpeechToTextConfig {
   std::string graph;
   std::string context;
 
-  uint32_t max_threads = 1;
+  uint32_t num_workers = 1;
 
   bool do_endpointing = false;
   bool online = true;
