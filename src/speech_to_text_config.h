@@ -2,31 +2,34 @@
 #define SIO_SPEECH_TO_TEXT_CONFIG_H
 
 #include "sio/feature.h"
+#include "sio/json.h"
 
 namespace sio {
 struct SpeechToTextConfig {
-  FeatureConfig feature_config;
+  bool online = true;
 
+  FeatureConfig feature;
+
+  std::string mean_var_norm_file;
   std::string tokenizer;
   std::string model;
   std::string graph;
   std::string context;
 
-  uint32_t num_workers = 1;
-
   bool do_endpointing = false;
-  bool online = true;
 
-  void Register(kaldi::OptionsItf *opts) {
-    feature_config.Register(opts);
+  Error Load(std::string json_config) {
+    // Load configs
+    json::JSON jc = json::Load(json_config);
 
-    opts->Register("tokenizer", &tokenizer, "sentencepiece tokenizer");
-    opts->Register("model", &model, "nn model filename");
-    opts->Register("graph", &graph, "beam search graph(e.g. HCLG.fst)");
-    opts->Register("context", &context, "context configuration(e.g. context.json)");
+    online = jc["online"].ToBool();
+    feature.feature_type = jc["feature"]["type"].ToString();
+    feature.fbank_config = jc["feature"]["fbank_config"].ToString();
+    mean_var_norm_file = jc["mean_var_norm"].ToString();
 
-    opts->Register("do-endpointing", &do_endpointing, "If true, apply endpoint detection");
+    return Error::OK;
   }
+
 }; // class SpeechToTextConfig
 }  // namespace sio
 #endif

@@ -9,21 +9,36 @@
 
 namespace sio {
 
-template <typename BeamSearchGraphT>
-class SpeechToText {
- private:
-  SpeechToTextConfig config_;
-  FeatureInfo feature_info_;
+struct SpeechToText {
+  SpeechToTextConfig config;
+  Owner<FeatureInfo*> feature_info = nullptr;
+  Optional<Owner<MeanVarNorm*>> mean_var_norm = nullptr;
 
  public:
-  SpeechToText(const SpeechToTextConfig& config) :
-    config_(config),
-    feature_info_(config_.feature_config)
-  { }
+  Error Load(std::string config_file) { 
+    config.Load(config_file);
+
+    // TODO: 
+    // Get rid of this pointer, kaldi code doesn't provide trivial constructor
+    // Consider switching to a value, read via a Load() function
+    feature_info = new FeatureInfo(config.feature);
+
+    if (config.mean_var_norm_file != "") {
+      mean_var_norm = new MeanVarNorm;
+      mean_var_norm->Load(config.mean_var_norm_file);
+    }
+
+    return Error::OK;
+  }
+
+  ~SpeechToText() {
+    delete feature_info;
+    delete mean_var_norm;
+  }
 
   Optional<Recognizer*> CreateRecognizer() {
     try {
-      return new Recognizer(feature_info_); 
+      return new Recognizer(*feature_info); 
     } catch (...) {
       return nullptr;
     }

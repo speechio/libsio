@@ -3,21 +3,15 @@
 #include "stt.h"
 
 int main() {
-    sio::SpeechToTextConfig config;
-    config.feature_config.feature_type = "fbank";
-
-    json::JSON json_config = json::Load("testdata/config.json");
+    sio::SpeechToText stt;
+    stt.Load("testdata/stt.json");
 
     int chunk_size = std::numeric_limits<int>::max();
-    if (config.online == true) {
+    if (stt.config.online == true) {
         chunk_size = 1000;
     }
 
-    sio::SpeechToText<float> stt(config);
-
-    //std::ifstream wav_scp("testdata/MINI/wav.scp");
-    std::string scp_file = json_config["wav"].ToString();
-    std::ifstream wav_scp(scp_file);
+    std::ifstream wav_scp("testdata/MINI/wav.scp");
     std::string line;
     while (std::getline(wav_scp, line)) {
         std::vector<std::string> fields = absl::StrSplit(line, absl::ByAnyChar(" \t,:;"));

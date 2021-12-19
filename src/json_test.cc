@@ -48,16 +48,15 @@ TEST(JSON, LoadFromString) {
 }
 
 TEST(JSON, LoadFromFile) {
-  JSON json_obj = json::Load("testdata/config.json");  // SIO extended function
+  JSON json_obj = json::Load("testdata/stt.json");  // SIO extended function
   //cout << j << endl;
   EXPECT_EQ(json_obj["model"].ToString(), "model_dir/model.bin");
   EXPECT_EQ(json_obj["sample_rate"].ToFloat(), 16000.0);
-  EXPECT_EQ(json_obj["num_mel_bins"].ToInt(), 80);
   EXPECT_EQ(json_obj["online"].ToBool(), true);
 }
 
 TEST(JSON, DumpToString) {
-  JSON obj = json::Load("testdata/config.json");
+  JSON obj = json::Load("testdata/stt.json");
 
   std::string dump_str = obj.dump();
   cout << "dump_str: " << dump_str << endl;
