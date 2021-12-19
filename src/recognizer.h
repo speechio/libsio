@@ -24,7 +24,7 @@ class Recognizer {
 
   Error Reset(const char* key = nullptr) { return Error::OK; }
 
-  Error Forward(const float* data, size_t len, float sample_rate) {
+  Error Speech(const float* data, size_t len, float sample_rate) {
     AudioSegment<const float> audio_seg(data, len, sample_rate);
 
     // Resampler
@@ -63,9 +63,9 @@ class Recognizer {
     return Error::OK;
   }
 
-  Error ForwardEnd() { return Error::OK; }
+  Error To() { return Error::OK; }
 
-  Error Result(std::string* result) { 
+  Error Text(std::string* result) { 
     *result = "This is a recognition result.";
     return Error::OK;
   }

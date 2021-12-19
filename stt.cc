@@ -32,24 +32,24 @@ int main() {
         wave_data.Read(is);
         kaldi::SubVector<float> audio(wave_data.Data(), 0);
 
-        sio::SttStreamHandle stream;
-        sio::Error err = stt.CreateStream(&stream, audio_id.c_str());
-        assert(!err);
+        sio::Recognizer* rec = stt.CreateRecognizer();
+        assert(rec != nullptr);
 
         int samples_done = 0;
         while (samples_done < audio.Dim()) {
             int actual_chunk_size = std::min(chunk_size, audio.Dim() - samples_done);
-            stt.SpeechIn(
-                stream,
+            rec->Speech(
                 audio.Data() + samples_done,
                 actual_chunk_size,
                 wave_data.SampFreq()
             );
             samples_done += actual_chunk_size;
         }
+        rec->To();
+
         std::string result;
-        stt.TextOut(stream, &result);
-        stt.DestroyStream(stream);
+        rec->Text(&result);
+        stt.DestroyRecognizer(rec);
         SIO_INFO << audio_id << " -> " << samples_done << " samples decoded: " << result;
     }
 
