@@ -36,7 +36,7 @@ class SpeechToText {
     stream->key = stream_key;
     stream->worker_id = 0;
 
-    Error err = recognizers_[stream->worker_id].Start(stream->key);
+    Error err = recognizers_[stream->worker_id].Reset(stream->key);
     SIO_CHECK(!err);
     return err;
   }
@@ -69,13 +69,13 @@ class SpeechToText {
     Recognizer& rec = recognizers_[stream.worker_id];
 
     Error err;
-    err = rec.Stop();
+    err = rec.ForwardEnd();
     SIO_CHECK(!err);
 
     err = rec.Result(text);
     SIO_CHECK(!err);
 
-    err = rec.Start();
+    err = rec.Reset();
     SIO_CHECK(!err);
 
     return err;
