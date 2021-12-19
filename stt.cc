@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "sio_stt.h"
+#include "stt.h"
 
 int main() {
     sio::SpeechToTextConfig config;
