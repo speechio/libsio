@@ -18,19 +18,19 @@ class Voidifier {
       << "Check {" #cond "} failed. "
   
 // CAUTION: operands evaluate more than once.
-#define _SIO_CHECK_PRED2_(op, x, y) \
+#define SIO_CHECK_PRED2(op, x, y) \
   SIO_LIKELY( (x) op (y) ) ? (void)0 : \
     ::sio::Voidifier() & SIO_FATAL(::sio::Error::AssertionFailure) \
       << "Check {" #x " " #op " " #y "} failed: " \
       << #x " ~> (" << (x) << "), " \
       << #y " ~> (" << (y) << "). "
 
-#define SIO_CHECK_EQ(x, y)  _SIO_CHECK_PRED2_(==, x, y)
-#define SIO_CHECK_NE(x, y)  _SIO_CHECK_PRED2_(!=, x, y)
-#define SIO_CHECK_LT(x, y)  _SIO_CHECK_PRED2_(< , x, y)
-#define SIO_CHECK_LE(x, y)  _SIO_CHECK_PRED2_(<=, x, y)
-#define SIO_CHECK_GT(x, y)  _SIO_CHECK_PRED2_(> , x, y)
-#define SIO_CHECK_GE(x, y)  _SIO_CHECK_PRED2_(>=, x, y)
+#define SIO_CHECK_EQ(x, y)  SIO_CHECK_PRED2(==, x, y)
+#define SIO_CHECK_NE(x, y)  SIO_CHECK_PRED2(!=, x, y)
+#define SIO_CHECK_LT(x, y)  SIO_CHECK_PRED2(< , x, y)
+#define SIO_CHECK_LE(x, y)  SIO_CHECK_PRED2(<=, x, y)
+#define SIO_CHECK_GT(x, y)  SIO_CHECK_PRED2(> , x, y)
+#define SIO_CHECK_GE(x, y)  SIO_CHECK_PRED2(>=, x, y)
 
 } // namespace sio
 #endif
