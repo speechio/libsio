@@ -47,7 +47,7 @@ class Resampler {
     kaldi::Vector<float> *output,
     bool flush
   ) {
-    SIO_P_COND(sample_rate == resampler_.GetInputSamplingRate());
+    SIO_CHECK_EQ(sample_rate, resampler_.GetInputSamplingRate());
 
     kaldi::SubVector<float> input(data, len);
     resampler_.Resample(input, flush, output);

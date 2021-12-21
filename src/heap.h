@@ -11,7 +11,7 @@ class ArenaAllocator {
  public:
   ArenaAllocator(size_t elems_per_slab) {
     static_assert(sizeof(T) >= sizeof(FreeNode*) && "element size should be larger than a pointer");
-    SIO_P_COND(elems_per_slab >= 1);
+    SIO_CHECK_GE(elems_per_slab, 1);
     elem_bytes_ = sizeof(T);
     elems_per_slab_ = elems_per_slab;
     num_used_ = 0;
@@ -70,7 +70,7 @@ class ArenaAllocator {
     }
 
     inline FreeNode* Pop() {
-      SIO_P_COND(!IsEmpty()); // Exhausted arena should grow in Alloc()
+      SIO_CHECK(!IsEmpty()); // Exhausted arena should grow in Alloc()
       FreeNode* p = head;
       head = head->next;
       return p;

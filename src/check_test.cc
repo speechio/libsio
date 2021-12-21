@@ -12,12 +12,18 @@ TEST(Check, HoareLogic) {
   Vec<int> v = {1,2};
   i32 i = 0;
   i32 sum = 0;
-  SIO_INVAR("sum = sum of v[0,i)");
-  SIO_P_COND(i == 0);
+  SIO_CHECK("sum = sum of v[0,i)") << "invariance";
+  SIO_CHECK_EQ(i, 0) << "pre-condition";
   while (i != v.size()) {
     sum += v[i++];
   }
-  SIO_Q_COND(sum == 3) << "1 + 2 != 3, something wrong. ";
+  SIO_CHECK_EQ(i, v.size()) << "post-condition";
+
+  SIO_CHECK_EQ(sum, 3) << "1 + 2 != 3, something wrong. ";
+  SIO_CHECK_GE(sum, 3);
+  SIO_CHECK_LE(sum, 3);
+  SIO_CHECK_GT(sum, 2);
+  SIO_CHECK_LT(sum, 4);
 }
 
 namespace { // seal test func scope in anonymous namespace

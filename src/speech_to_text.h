@@ -45,7 +45,7 @@ struct SpeechToText {
   }
 
   void DestroyRecognizer(Recognizer* rec) {
-    SIO_P_COND(rec != nullptr);
+    SIO_CHECK(rec != nullptr);
     delete rec;
   }
 }; // class SpeechToText
