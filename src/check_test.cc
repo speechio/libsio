@@ -12,7 +12,7 @@ TEST(Check, HoareLogic) {
   Vec<int> v = {1,2};
   i32 i = 0;
   i32 sum = 0;
-  SIO_CHECK("sum = sum of v[0,i)") << "invariance";
+  SIO_CHECK("sum = sum of v[0,i)") << "invariant";
   SIO_CHECK_EQ(i, 0) << "pre-condition";
   while (i != v.size()) {
     sum += v[i++];
