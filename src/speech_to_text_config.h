@@ -2,9 +2,10 @@
 #define SIO_SPEECH_TO_TEXT_CONFIG_H
 
 #include "sio/feature.h"
-#include "sio/json.h"
+#include "sio/json.hpp"
 
 namespace sio {
+using nlohmann::json;
 struct SpeechToTextConfig {
   bool online = true;
 
@@ -18,14 +19,16 @@ struct SpeechToTextConfig {
 
   bool do_endpointing = false;
 
-  Error Load(std::string json_config) {
+  Error Load(std::string config_file) {
     // Load configs
-    json::JSON jc = json::Load(json_config);
+    std::ifstream is(config_file);
+    json jc;
+    is >> jc;
 
-    online = jc["online"].ToBool();
-    feature.feature_type = jc["feature"]["type"].ToString();
-    feature.fbank_config = jc["feature"]["fbank_config"].ToString();
-    mean_var_norm_file = jc["mean_var_norm"].ToString();
+    online = jc["online"];
+    feature.feature_type = jc["feature"]["type"];
+    feature.fbank_config = jc["feature"]["fbank_config"];
+    mean_var_norm_file = jc["mean_var_norm"];
 
     return Error::OK;
   }

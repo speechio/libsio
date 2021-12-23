@@ -10,7 +10,6 @@ add_executable(unittest
   check_test.cc
   linked_list_test.cc
   heap_test.cc
-  #json_test.cc
   audio_test.cc
   feature_test.cc
   dbg_test.cc
