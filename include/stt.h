@@ -12,7 +12,7 @@
 #include "sio/map.h"
 #include "sio/linked_list.h"
 #include "sio/heap.h"
-#include "sio/json.hpp"
+#include "sio/json.h"
 #include "sio/audio.h"
 #include "sio/feature.h"
 #include "sio/mean_var_norm.h"

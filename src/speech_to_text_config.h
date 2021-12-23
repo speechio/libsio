@@ -2,10 +2,9 @@
 #define SIO_SPEECH_TO_TEXT_CONFIG_H
 
 #include "sio/feature.h"
-#include "sio/json.hpp"
+#include "sio/json.h"
 
 namespace sio {
-using nlohmann::json;
 struct SpeechToTextConfig {
   bool online = true;
 
@@ -22,7 +21,7 @@ struct SpeechToTextConfig {
   Error Load(std::string config_file) {
     // Load configs
     std::ifstream is(config_file);
-    json jc;
+    Json jc;
     is >> jc;
 
     online = jc["online"];
