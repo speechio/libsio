@@ -5,6 +5,7 @@
 
 #include "sio/log.h"
 #include "sio/check.h"
+#include "sio/ptr.h"
 #include "sio/str.h"
 #include "sio/vec.h"
 #include "sio/json.h"
@@ -16,7 +17,7 @@ class StructLoader {
     for (const auto& kv : bool_map_) {
       auto& k = kv.first;
       auto& v = kv.second;
-      const Json *node = FindEntry(&j, k);
+      const Json *node = FindEntry(j, k);
       if (node) {
         *v = node->get<bool>();
       }
@@ -25,7 +26,7 @@ class StructLoader {
     for (const auto& kv : int_map_) {
       auto& k = kv.first;
       auto& v = kv.second;
-      const Json *node = FindEntry(&j, k);
+      const Json *node = FindEntry(j, k);
       if (node) {
         *v = node->get<int>();
       }
@@ -34,7 +35,7 @@ class StructLoader {
     for (const auto& kv : float_map_) {
       auto& k = kv.first;
       auto& v = kv.second;
-      const Json *node = FindEntry(&j, k);
+      const Json *node = FindEntry(j, k);
       if (node) {
         *v = node->get<float>();
       }
@@ -43,7 +44,7 @@ class StructLoader {
     for (const auto& kv : string_map_) {
       auto& k = kv.first;
       auto& v = kv.second;
-      const Json *node = FindEntry(&j, k);
+      const Json *node = FindEntry(j, k);
       if (node) {
         *v = node->get<Str>();
       }
@@ -87,12 +88,10 @@ class StructLoader {
 
 
  private:
-  static const Json* FindEntry(const Json *root, StrView entry) {
-    SIO_CHECK(root != nullptr);
-
+  static Optional<const Json*> FindEntry(const Json& json_root, const StrView entry) {
     // longest path match
     Vec<Str> steps = absl::StrSplit(entry, ".", absl::SkipWhitespace());
-    const Json *node = root;
+    const Json *node = &json_root;
     int k = 0;
     while(k != steps.size()) {
       Str& field = steps[k];
