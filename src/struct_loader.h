@@ -88,24 +88,24 @@ class StructLoader {
 
 
  private:
-  static Optional<const Json*> FindEntry(const Json& json_root, const StrView entry) {
+  static Optional<const Json*> FindEntry(const Json& json, const StrView entry) {
     // longest path match
-    Vec<Str> steps = absl::StrSplit(entry, ".", absl::SkipWhitespace());
-    const Json *node = &json_root;
+    Vec<Str> keys = absl::StrSplit(entry, ".", absl::SkipWhitespace());
+    const Json *node = &json;
     int k = 0;
-    while(k != steps.size()) {
-      Str& field = steps[k];
-      if (node->contains(field)) {
-        node = &((*node)[field]);
+    while(k != keys.size()) {
+      Str& key = keys[k];
+      if (node->contains(key)) {
+        node = &((*node)[key]);
         ++k;
       } else {
         break;
       }
     }
 
-    if (k == steps.size()) {
+    if (k == keys.size()) {
       return node;
-    } else { // non-terminal node
+    } else { // non-terminal partial match
       return nullptr;
     }
   }
