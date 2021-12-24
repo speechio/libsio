@@ -51,19 +51,19 @@ class StructLoader {
   }
 
 
-  void Register(const StrView module, const StrView field, bool* p) {
+  void AddEntry(const StrView module, const StrView field, bool* p) {
     bool_map_[absl::StrCat(module, field)] = p;
   }
 
-  void Register(const StrView module, const StrView field, int* p) {
+  void AddEntry(const StrView module, const StrView field, int* p) {
     int_map_[absl::StrCat(module, field)] = p;
   }
 
-  void Register(const StrView module, const StrView field, float* p) {
+  void AddEntry(const StrView module, const StrView field, float* p) {
     float_map_[absl::StrCat(module, field)] = p;
   }
 
-  void Register(const StrView module, const StrView field, Str* p) {
+  void AddEntry(const StrView module, const StrView field, Str* p) {
     string_map_[absl::StrCat(module, field)] = p;
   }
 

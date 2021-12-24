@@ -21,24 +21,24 @@ struct SpeechToTextConfig {
 
   FeatureConfig feature;
 
-  Error RegisterToLoader(StructLoader* loader, const std::string module = "") {
-    loader->Register(module, ".online", &online);
-    loader->Register(module, ".mean_var_norm_file", &mean_var_norm_file);
-    loader->Register(module, ".tokenizer", &tokenizer);
-    loader->Register(module, ".model", &model);
-    loader->Register(module, ".graph", &graph);
-    loader->Register(module, ".context", &context);
-    loader->Register(module, ".do_endpointing", &do_endpointing);
+  Error Register(StructLoader* loader, const std::string module = "") {
+    loader->AddEntry(module, ".online", &online);
+    loader->AddEntry(module, ".mean_var_norm_file", &mean_var_norm_file);
+    loader->AddEntry(module, ".tokenizer", &tokenizer);
+    loader->AddEntry(module, ".model", &model);
+    loader->AddEntry(module, ".graph", &graph);
+    loader->AddEntry(module, ".context", &context);
+    loader->AddEntry(module, ".do_endpointing", &do_endpointing);
 
-    loader->Register(module + ".feature", ".type", &feature.feature_type);
-    loader->Register(module + ".feature", ".fbank_config", &feature.fbank_config);
+    loader->AddEntry(module + ".feature", ".type", &feature.feature_type);
+    loader->AddEntry(module + ".feature", ".fbank_config", &feature.fbank_config);
 
     return Error::OK;
   }
 
   Error Load(const std::string& config_file) {
     StructLoader loader;
-    RegisterToLoader(&loader);
+    Register(&loader);
 
     Json json_config;
     std::ifstream config_stream(config_file);

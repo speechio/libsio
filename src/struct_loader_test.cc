@@ -8,13 +8,14 @@
 namespace sio {
 
 TEST(StructLoader, Basic) {
+
   struct Foo {
     Str foo_str;
     int foo_int;
 
-    Error RegisterToLoader(StructLoader* loader, const Str module = "") {
-      loader->Register(module, ".foo_str", &foo_str);
-      loader->Register(module, ".foo_int", &foo_int);
+    Error Register(StructLoader* loader, const Str module = "") {
+      loader->AddEntry(module, ".foo_str", &foo_str);
+      loader->AddEntry(module, ".foo_int", &foo_int);
       return Error::OK;
     }
   };
@@ -26,24 +27,40 @@ TEST(StructLoader, Basic) {
     Str model;
     Foo foo;
 
-    Error RegisterToLoader(StructLoader* loader, const Str module = "") {
-      loader->Register(module, ".online", &online);
-      loader->Register(module, ".num_workers", &num_workers);
-      loader->Register(module, ".sample_rate", &sample_rate);
-      loader->Register(module, ".model", &model);
-      foo.RegisterToLoader(loader, module + ".foo");
+    Error Register(StructLoader* loader, const Str module = "") {
+      loader->AddEntry(module, ".online", &online);
+      loader->AddEntry(module, ".num_workers", &num_workers);
+      loader->AddEntry(module, ".sample_rate", &sample_rate);
+      loader->AddEntry(module, ".model", &model);
+      foo.Register(loader, module + ".foo");
       return Error::OK;
     }
   };
 
   Bar bar;
   StructLoader loader;
-  bar.RegisterToLoader(&loader);
-  loader.Print();
+  bar.Register(&loader);
 
-  std::ifstream is("testdata/stt.json");
-  Json j;
-  is >> j;
+  Json j = R"(
+    { 
+      "model": "model_dir/model.bin",
+      "sample_rate": 16000.0,
+      "weights": [1.0, 2.0, 3.0],
+      "online": true,
+      "feature": {
+        "type": "fbank",
+        "fbank_config": "testdata/fbank.cfg"
+      },
+      "mean_var_norm_file": "testdata/mean_var_norm_80dim.txt",
+      "num_workers": 8,
+      "foo": {
+        "foo_str": "this is foo string",
+        "foo_int": 12345
+      }
+    }
+  )"_json;
+
+  loader.Print();
   loader.Load(j);
   loader.Print();
 
