@@ -41,10 +41,10 @@ int main() {
         }
         rec->To();
 
-        std::string result;
-        rec->Text(&result);
+        std::string text;
+        rec->Text(&text);
         stt.DestroyRecognizer(rec);
-        SIO_INFO << audio_id << " -> " << samples_done << " samples decoded: " << result;
+        SIO_INFO << audio_id << " -> " << samples_done << " samples decoded: " << text;
     }
 
     return 0;
