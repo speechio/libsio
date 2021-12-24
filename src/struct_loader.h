@@ -91,16 +91,11 @@ class StructLoader {
     SIO_CHECK(root != nullptr);
 
     // longest path match
-    Vec<Str> steps = absl::StrSplit(entry, ".");
+    Vec<Str> steps = absl::StrSplit(entry, ".", absl::SkipWhitespace());
     const Json *node = root;
     int k = 0;
     while(k != steps.size()) {
       Str& field = steps[k];
-      if (field == "") {
-        ++k;
-        continue;
-      }
-
       if (node->contains(field)) {
         node = &((*node)[field]);
         ++k;
