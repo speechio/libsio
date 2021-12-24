@@ -42,7 +42,11 @@ struct SpeechToTextConfig {
 
     Json json_config;
     std::ifstream config_stream(config_file);
-    config_stream >> json_config;
+    if (config_stream.good()) {
+      config_stream >> json_config;
+    } else {
+      SIO_FATAL(Error::InvalidFileHandle) << "Can't open stt config file: " << config_file;
+    }
 
     loader.Load(json_config);
     loader.Print();
