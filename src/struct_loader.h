@@ -93,6 +93,7 @@ class StructLoader {
     Vec<Str> keys = absl::StrSplit(entry, ".", absl::SkipWhitespace());
     const Json *node = &json;
     int k = 0;
+    SIO_CHECK("Loop invariant: keys from root to node match keys[0,k)");
     while(k != keys.size()) {
       Str& key = keys[k];
       if (node->contains(key)) {
@@ -103,7 +104,7 @@ class StructLoader {
       }
     }
 
-    if (k == keys.size()) {
+    if (k == keys.size()) { // successful full match
       return node;
     } else { // non-terminal partial match
       return nullptr;
