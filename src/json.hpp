@@ -1,8 +1,4 @@
 /*
-    commit: 825d3230d1f31448be906d3242cad9c3e4044733
-    date of copy: 2021.12.23 
-*/
-/*
     __ _____ _____ _____
  __|  |   __|     |   | |  JSON for Modern C++
 |  |  |__   |  |  | | | |  version 3.10.4
