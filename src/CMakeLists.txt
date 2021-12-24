@@ -13,8 +13,7 @@ add_executable(unittest
   audio_test.cc
   feature_test.cc
   dbg_test.cc
-  config_loader_test.cc
-  speech_to_text_config_test.cc
+  struct_loader_test.cc
 )
 
 target_link_libraries(unittest
