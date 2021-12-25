@@ -52,20 +52,20 @@ class StructLoader {
   }
 
 
-  void AddEntry(const StrView module, const StrView field, bool* p) {
-    bool_map_[absl::StrCat(module, field)] = p;
+  void AddEntry(const StrView prefix, const StrView field, bool* p) {
+    bool_map_[absl::StrCat(prefix, field)] = p;
   }
 
-  void AddEntry(const StrView module, const StrView field, int* p) {
-    int_map_[absl::StrCat(module, field)] = p;
+  void AddEntry(const StrView prefix, const StrView field, int* p) {
+    int_map_[absl::StrCat(prefix, field)] = p;
   }
 
-  void AddEntry(const StrView module, const StrView field, float* p) {
-    float_map_[absl::StrCat(module, field)] = p;
+  void AddEntry(const StrView prefix, const StrView field, float* p) {
+    float_map_[absl::StrCat(prefix, field)] = p;
   }
 
-  void AddEntry(const StrView module, const StrView field, Str* p) {
-    string_map_[absl::StrCat(module, field)] = p;
+  void AddEntry(const StrView prefix, const StrView field, Str* p) {
+    string_map_[absl::StrCat(prefix, field)] = p;
   }
 
 
@@ -90,21 +90,21 @@ class StructLoader {
  private:
   static Optional<const Json*> FindEntry(const Json& json, const StrView entry) {
     // longest path match
-    Vec<Str> keys = absl::StrSplit(entry, ".", absl::SkipWhitespace());
+    Vec<Str> fields = absl::StrSplit(entry, ".", absl::SkipWhitespace());
     const Json *node = &json;
     int k = 0;
-    SIO_CHECK("Loop invariant: keys from root to node match keys[0,k)");
-    while(k != keys.size()) {
-      Str& key = keys[k];
-      if (node->contains(key)) {
-        node = &((*node)[key]);
+    SIO_CHECK("Loop invariant: the path from root to node matches fields[0,k)");
+    while(k != fields.size()) {
+      Str& field = fields[k];
+      if (node->contains(field)) {
+        node = &((*node)[field]);
         ++k;
       } else {
         break;
       }
     }
 
-    if (k == keys.size()) { // successful full match
+    if (k == fields.size()) { // successful full match
       return node;
     } else { // non-terminal partial match
       return nullptr;
