@@ -1,7 +1,7 @@
 #ifndef SIO_ERROR_H
 #define SIO_ERROR_H
 
-#include <cstddef>
+#include <stddef.h>
 
 #include "sio/base.h"
 

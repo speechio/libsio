@@ -1,7 +1,7 @@
 #ifndef SIO_RECOGNIZER_H
 #define SIO_RECOGNIZER_H
 
-#include <cstddef>
+#include <stddef.h>
 
 #include "sio/ptr.h"
 #include "sio/check.h"

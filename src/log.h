@@ -1,7 +1,7 @@
 #ifndef SIO_LOG_H
 #define SIO_LOG_H
 
-#include <cstdlib>
+#include <stdlib.h>
 #include <iostream>
 #include <sstream>
 #include <mutex>
