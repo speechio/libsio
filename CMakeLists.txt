@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(sio LANGUAGES CXX VERSION 0.1)
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 enable_testing()
@@ -58,11 +58,16 @@ foreach(x ${KALDI_LIBS})
     set_target_properties(${x} PROPERTIES IMPORTED_LOCATION ${KALDI_CMAKE_DIST}/lib64/lib${x}.so)
 endforeach()
 
+# libtorch
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/deps/libtorch")
+find_package(Torch REQUIRED)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+
 # libsio
 include_directories(${CMAKE_SOURCE_DIR}/include)
 add_subdirectory(src)
 
 # bin
 add_executable(stt stt.cc)
-target_link_libraries(stt sio ${KALDI_LIBS} absl::base absl::strings absl::str_format absl::type_traits absl::flat_hash_map)
+target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBS} absl::base absl::strings absl::str_format absl::type_traits absl::flat_hash_map)
 

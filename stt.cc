@@ -1,8 +1,24 @@
 #include <iostream>
 
+#include <torch/torch.h>
+#include <torch/script.h>
+
 #include "stt.h"
 
 int main() {
+    torch::Tensor frame0 = torch::rand({80});
+    torch::Tensor frame1 = torch::rand({80});
+
+    std::string model_path = "/home/speechio/work/git/speechio/exp/AISHELL-1/final.pt";
+    torch::jit::script::Module model = torch::jit::load(model_path);
+
+    torch::jit::IValue o1 = model.run_method("is_bidirectional_decoder");
+    std::cout << "bidirectional: " << o1.toBool() << "\n";
+
+    torch::jit::IValue o2 = model.run_method("subsampling_rate");
+    std::cout << "subsampling_rate: " << o2.toInt() << "\n";
+
+
     sio::SpeechToText stt;
     stt.Load("testdata/stt.json");
 
