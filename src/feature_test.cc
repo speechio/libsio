@@ -40,7 +40,7 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
     EXPECT_EQ(num_frames, feature_extractor.NumFrames());
 
     kaldi::Vector<float> frame_feat(feature_extractor.FeatureDim());
-    for (index_t f = 0; f < feature_extractor.NumFrames(); f++) {
+    for (index f = 0; f < feature_extractor.NumFrames(); f++) {
       feature_extractor.GetFrame(f, &frame_feat);
       mvn.Forward(&frame_feat);
     }
