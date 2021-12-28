@@ -19,7 +19,7 @@ using u64 = uint64_t;
 using f32 = float;
 using f64 = double;
 
-using index = ptrdiff_t;
+using Index = ptrdiff_t;
 
 }; // namespace sio
 #endif
