@@ -23,8 +23,8 @@ class Recognizer {
     model_(model)
   { }
 
-  Error Speech(const float* data, size_t len, float sample_rate) {
-    feature_extractor_.PushAudio(data, len, sample_rate);
+  Error Speech(const float* samples, size_t num_samples, float sample_rate) {
+    feature_extractor_.PushAudio(samples, num_samples, sample_rate);
     SIO_DEBUG << feature_extractor_.NumFrames();
 
     return Error::OK;
