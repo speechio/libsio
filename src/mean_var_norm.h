@@ -23,8 +23,8 @@ struct MeanVarNorm {
   0.6330024600028992 0.49299687147140503 0.37579503655433655
 
   */
-  void Load(std::string mvn_path) {
-    std::ifstream is(mvn_path);
+  explicit MeanVarNorm(std::string mean_var_norm_file) {
+    std::ifstream is(mean_var_norm_file);
 
     std::string line;
     std::getline(is, line);
@@ -51,7 +51,7 @@ struct MeanVarNorm {
     }
   }
 
-  void Forward(kaldi::VectorBase<float> *frame) const {
+  void Normalize(kaldi::VectorBase<float> *frame) const {
     SIO_CHECK(frame != nullptr) << "null input to mvn ?";
     SIO_CHECK_EQ(frame->Dim(), dim) << "input dimension should be consistent with mvn dim";
     for (int i = 0; i < dim; i++) {

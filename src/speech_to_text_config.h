@@ -11,8 +11,7 @@ namespace sio {
 struct SpeechToTextConfig {
   bool online = true;
 
-  FeatureConfig feature;
-  std::string mean_var_norm_file;
+  FeatureExtractorConfig feature;
 
   std::string tokenizer;
   std::string model;
@@ -24,10 +23,8 @@ struct SpeechToTextConfig {
   Error Register(StructLoader* loader, const std::string module = "") {
     loader->AddEntry(module, ".online", &online);
 
-    loader->AddEntry(module + ".feature", ".type", &feature.feature_type);
-    loader->AddEntry(module + ".feature", ".fbank_config", &feature.fbank_config);
+    feature.Register(loader, "feature");
 
-    loader->AddEntry(module, ".mean_var_norm_file", &mean_var_norm_file);
     loader->AddEntry(module, ".tokenizer", &tokenizer);
     loader->AddEntry(module, ".model", &model);
     loader->AddEntry(module, ".graph", &graph);

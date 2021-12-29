@@ -2,9 +2,9 @@
   "online": true,
   "feature": {
     "type": "fbank",
-    "fbank_config": "testdata/fbank.cfg"
+    "fbank_config": "testdata/fbank.cfg",
+    "mean_var_norm_file": "testdata/mean_var_norm_80dim.txt"
   },
-  "mean_var_norm_file": "testdata/mean_var_norm_80dim.txt",
   "tokenizer": "testdata/sentencepiece.model",
   "model": "testdata/model.pts",
   "graph": "testdata/graph.fsa",

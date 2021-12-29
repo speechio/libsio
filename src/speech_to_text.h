@@ -14,18 +14,12 @@ namespace sio {
 struct SpeechToText {
   SpeechToTextConfig config;
   torch::jit::script::Module model;
-  Optional<Owner<MeanVarNorm*>> mean_var_norm = nullptr;
 
  public:
   Error Load(std::string config_file) { 
     config.Load(config_file);
 
-    if (config.mean_var_norm_file != "") {
-      mean_var_norm = new MeanVarNorm;
-      mean_var_norm->Load(config.mean_var_norm_file);
-    }
-
-    SIO_CHECK_NE(config.model, "") << "Need to provide a stt model.";
+    SIO_CHECK(config.model != "") << "Need to provide a stt model.";
     SIO_INFO << "Loading torchscript model from: " << config.model;
     model = torch::jit::load(config.model);
 
@@ -36,15 +30,12 @@ struct SpeechToText {
     return Error::OK;
   }
 
-  ~SpeechToText() {
-    delete mean_var_norm;
-  }
+  ~SpeechToText() { }
 
   Optional<Recognizer*> CreateRecognizer() {
     try {
       return new Recognizer(
         config.feature,
-        mean_var_norm,
         model
       ); 
     } catch (...) {
