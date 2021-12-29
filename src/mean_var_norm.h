@@ -51,7 +51,7 @@ struct MeanVarNorm {
     }
   }
 
-  void Forward(kaldi::VectorBase<float> *frame) {
+  void Forward(kaldi::VectorBase<float> *frame) const {
     SIO_CHECK(frame != nullptr) << "null input to mvn ?";
     SIO_CHECK_EQ(frame->Dim(), dim) << "input dimension should be consistent with mvn dim";
     for (int i = 0; i < dim; i++) {

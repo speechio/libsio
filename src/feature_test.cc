@@ -35,8 +35,8 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
     wave.Read(is);
 
     kaldi::SubVector<float> audio(wave.Data(), 0);
-    feature_extractor.Forward(audio.Data(), audio.Dim(), sample_rate);
-    feature_extractor.ReachEnd();
+    feature_extractor.PushAudio(audio.Data(), audio.Dim(), sample_rate);
+    feature_extractor.EndOfAudio();
     EXPECT_EQ(num_frames, feature_extractor.NumFrames());
 
     kaldi::Vector<float> frame_feat(feature_extractor.FeatureDim());

@@ -6,7 +6,7 @@
   },
   "mean_var_norm_file": "testdata/mean_var_norm_80dim.txt",
   "tokenizer": "testdata/sentencepiece.model",
-  "model": "testdata/model.bin",
+  "model": "testdata/model.pts",
   "graph": "testdata/graph.fsa",
   "context": "testdata/context.json",
   "sample_rate": 16000.0,
