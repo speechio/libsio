@@ -16,8 +16,8 @@ namespace sio {
 class Recognizer {
  public:
   Recognizer(
-    FeatureConfig& feature_config,
-    Optional<const MeanVarNorm*> mean_var_norm,
+    const FeatureConfig& feature_config,
+    const Optional<MeanVarNorm*> mean_var_norm,
     torch::jit::script::Module& model
   ) :
     feature_info_(feature_config),
@@ -46,9 +46,9 @@ class Recognizer {
   Error Reset(const char* key = nullptr) { return Error::OK; }
 
  private:
-  FeatureInfo feature_info_;
+  const FeatureInfo feature_info_;
   FeatureExtractor feature_extractor_;
-  Optional<const MeanVarNorm*> mean_var_norm_;
+  const Optional<MeanVarNorm*> mean_var_norm_ = nullptr;
 
   torch::jit::script::Module& model_;
 
