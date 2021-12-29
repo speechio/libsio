@@ -12,6 +12,9 @@ int main() {
     torch::Tensor output1 = module.forward(inputs).toTensor();
     std::cout << output1 << "\n";
 
+    // try explicitly exported method rather than "forward"
+    // forward accept a vector of input(aka batch)
+    // other methods follow their own prototype
     torch::Tensor input_a = torch::ones({10, 20});
     torch::Tensor input_b = torch::ones({10, 20});
     torch::Tensor output2 = module.run_method("another_forward", input_a, input_b).toTensor();
