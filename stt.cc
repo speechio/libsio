@@ -21,21 +21,20 @@ int main() {
         std::string& audio_path = fields[1];
         SIO_DEBUG << audio_id << " " << audio_path;
 
-        kaldi::WaveData wave_data;
-        std::ifstream is(audio_path, std::ifstream::binary);
-        wave_data.Read(is);
-        kaldi::SubVector<float> audio(wave_data.Data(), 0);
+        std::vector<float> audio;
+        float sample_rate;
+        sio::ReadAudio(audio_path, &audio, &sample_rate);
 
         sio::Recognizer* rec = stt.CreateRecognizer();
         assert(rec != nullptr);
 
         int samples_done = 0;
-        while (samples_done < audio.Dim()) {
-            int actual_chunk_size = std::min(chunk_size, audio.Dim() - samples_done);
+        while (samples_done < audio.size()) {
+            int actual_chunk_size = std::min(chunk_size, (int)audio.size() - samples_done);
             rec->Speech(
-                audio.Data() + samples_done,
+                audio.data() + samples_done,
                 actual_chunk_size,
-                wave_data.SampFreq()
+                sample_rate
             );
             samples_done += actual_chunk_size;
         }

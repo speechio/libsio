@@ -24,10 +24,7 @@ class Recognizer {
   { }
 
   Error Speech(const float* data, size_t len, float sample_rate) {
-    AudioSegment<const float> audio_seg(data, len, sample_rate);
-    feature_extractor_.PushAudio(
-      audio_seg.data, audio_seg.len, audio_seg.sample_rate
-    );
+    feature_extractor_.PushAudio(data, len, sample_rate);
     SIO_DEBUG << feature_extractor_.NumFrames();
 
     return Error::OK;

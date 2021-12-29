@@ -7,6 +7,7 @@
 #include "feat/wave-reader.h"
 #include "feat/resample.h"
 
+#include "sio/error.h"
 #include "sio/check.h"
 
 namespace sio {
@@ -19,7 +20,23 @@ enum class AudioFormat: int {
 };
 */
 
-/* AudioSegment has no ownership */
+inline Error ReadAudio(const std::string& audio_path, std::vector<float>* audio, float* sample_rate) {
+  kaldi::WaveData wave_data;
+  std::ifstream is(audio_path, std::ifstream::binary);
+  wave_data.Read(is);
+
+  *sample_rate = wave_data.SampFreq();
+
+  kaldi::SubVector<float> ch0(wave_data.Data(), 0);
+  audio->resize(ch0.Dim(), 0.0f);
+  for (int i = 0; i < ch0.Dim(); i++) {
+    (*audio)[i] = ch0(i);
+  }
+  return Error::OK;
+}
+
+/*
+// AudioSegment has no ownership
 template <typename SampleType>
 struct AudioSegment {
   SampleType* data = nullptr;
@@ -30,6 +47,7 @@ struct AudioSegment {
     data(data), len(len), sample_rate(sample_rate)
   { }
 };
+*/
 
 class Resampler {
  public:

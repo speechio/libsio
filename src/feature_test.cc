@@ -16,7 +16,6 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
       {"testdata/MINI/audio/audio2.wav", 522}
   };
 
-  float sample_rate = 16000;
   FeatureExtractorConfig config;
   config.kaldi.feature_type = "fbank";
   config.kaldi.fbank_config = "testdata/fbank.cfg";
@@ -27,12 +26,11 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
     Str audio_file = kv.first;
     int num_frames = kv.second;
 
-    std::ifstream is(audio_file, std::ifstream::binary);
-    kaldi::WaveData wave;
-    wave.Read(is);
+    std::vector<float> audio;
+    float sample_rate;
+    ReadAudio(audio_file, &audio, &sample_rate);
 
-    kaldi::SubVector<float> audio(wave.Data(), 0);
-    feature_extractor.PushAudio(audio.Data(), audio.Dim(), sample_rate);
+    feature_extractor.PushAudio(audio.data(), audio.size(), sample_rate);
     feature_extractor.EndOfAudio();
     EXPECT_EQ(num_frames, feature_extractor.NumFrames());
 

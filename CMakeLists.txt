@@ -71,5 +71,5 @@ add_subdirectory(src)
 add_executable(stt stt.cc)
 target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBS} absl::base absl::strings absl::str_format absl::type_traits absl::flat_hash_map)
 
-add_executable(torchscript torchscript.cc)
-target_link_libraries(torchscript ${TORCH_LIBRARIES})
+#add_executable(torchscript torchscript.cc)
+#target_link_libraries(torchscript ${TORCH_LIBRARIES})
