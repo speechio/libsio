@@ -6,9 +6,7 @@
 #include <torch/torch.h>
 #include <torch/script.h>
 
-#include "sio/ptr.h"
-#include "sio/check.h"
-#include "sio/audio.h"
+#include "sio/base.h"
 #include "sio/feature.h"
 #include "sio/mean_var_norm.h"
 

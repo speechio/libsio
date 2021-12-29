@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "sio/str.h"
-#include "sio/type.h"
-#include "sio/map.h"
+#include "sio/base.h"
 #include "sio/audio.h"
 #include "sio/mean_var_norm.h"
 #include "sio/feature.h"

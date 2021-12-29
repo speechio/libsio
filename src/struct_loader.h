@@ -3,11 +3,9 @@
 
 #include <map>
 
-#include "sio/log.h"
-#include "sio/check.h"
-#include "sio/ptr.h"
-#include "sio/str.h"
+#include "sio/base.h"
 #include "sio/vec.h"
+#include "sio/str.h"
 #include "sio/json.h"
 
 namespace sio {

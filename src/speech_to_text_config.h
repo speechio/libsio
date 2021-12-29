@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-#include "sio/error.h"
+#include "sio/base.h"
 #include "sio/feature.h"
 #include "sio/struct_loader.h"
 

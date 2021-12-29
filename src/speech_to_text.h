@@ -3,9 +3,7 @@
 
 #include <torch/script.h>
 
-#include "sio/error.h"
-#include "sio/check.h"
-#include "sio/ptr.h"
+#include "sio/base.h"
 #include "sio/speech_to_text_config.h"
 #include "sio/recognizer.h"
 

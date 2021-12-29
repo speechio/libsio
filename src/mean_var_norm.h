@@ -8,7 +8,7 @@
 #include "matrix/kaldi-vector.h"
 
 #include "sio/check.h"
-
+#include "sio/str.h"
 namespace sio {
 struct MeanVarNorm {
   /*

@@ -6,7 +6,7 @@
 #include <sstream>
 #include <mutex>
 
-#include "sio/base.h"
+#include "sio/macro.h"
 #include "sio/error.h"
 
 namespace sio {

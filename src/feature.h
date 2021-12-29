@@ -2,15 +2,11 @@
 #define SIO_FEATURE_H
 
 #include "online2/online-nnet2-feature-pipeline.h"
-#include "sio/type.h"
-#include "sio/ptr.h"
-#include "sio/error.h"
-#include "sio/log.h"
+
+#include "sio/base.h"
 #include "sio/struct_loader.h"
 #include "sio/mean_var_norm.h"
-
 namespace sio {
-
 struct FeatureExtractorConfig {
   kaldi::OnlineNnet2FeaturePipelineConfig kaldi;
   std::string mean_var_norm_file;

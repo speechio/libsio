@@ -34,18 +34,6 @@ template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::
 using Ref = T;
 */
 
-
-/* Fat pointer */
-template <typename T>
-struct Slice {
-  Optional<T*> items = nullptr;
-  size_t len = 0;
-
-  Slice(T* p, size_t n) : items(p), len(n) { }
-};
-
-#define SIO_UNDEFINED nullptr
-
 };
 
 #endif

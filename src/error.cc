@@ -3,7 +3,6 @@
 #include <stdlib.h>
 
 #include "sio/error.h"
-
 namespace sio {
 
 const char *error_cstr(Error err) {

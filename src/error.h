@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 
-#include "sio/base.h"
+#include "sio/macro.h"
 
 namespace sio {
 

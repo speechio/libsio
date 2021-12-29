@@ -7,8 +7,7 @@
 #include "feat/wave-reader.h"
 #include "feat/resample.h"
 
-#include "sio/error.h"
-#include "sio/check.h"
+#include "sio/base.h"
 
 namespace sio {
 

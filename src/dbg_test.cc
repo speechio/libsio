@@ -1,9 +1,6 @@
 #include "gtest/gtest.h"
 
-#include "sio/type.h"
-#include "sio/str.h"
-#include "sio/vec.h"
-#include "sio/map.h"
+#include "sio/base.h"
 
 //#define DBG_MACRO_DISABLE
 #include "sio/dbg.h"
