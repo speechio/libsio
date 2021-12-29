@@ -20,7 +20,7 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
   FeatureExtractorConfig config;
   config.kaldi.feature_type = "fbank";
   config.kaldi.fbank_config = "testdata/fbank.cfg";
-  config.mean_var_norm_file = "testdata/mean_var_norm_80dim.txt";
+  config.mean_var_norm_file = "testdata/mean_var_norm.txt";
 
   FeatureExtractor feature_extractor(config);
   for (const auto& kv : audio_to_frames) {
