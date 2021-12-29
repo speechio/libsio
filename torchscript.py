@@ -12,10 +12,19 @@ class MyModule(torch.nn.Module):
           output = -self.weight
         return output
 
+    @torch.jit.export
+    def another_forward(self, input_a, input_b):
+        if (input_a + input_b).sum() > 0:
+          output = self.weight - 1
+        else:
+          output = -self.weight
+        return output
+
 my_module = MyModule(10,20)
 sm = torch.jit.script(my_module)
 
+print(sm.graph)
 print(sm.code)
 
-sm.save("foo.pt")
+sm.save("model.pt")
 
