@@ -6,9 +6,9 @@ int main() {
     sio::SpeechToText stt;
     stt.Load("testdata/stt.json");
 
-    int chunk_size = std::numeric_limits<int>::max();
+    int samples_per_chunk = std::numeric_limits<int>::max();
     if (stt.config.online == true) {
-        chunk_size = 1000;
+        samples_per_chunk = 1000;
     }
 
     std::ifstream wav_scp("testdata/MINI/wav.scp");
@@ -28,22 +28,22 @@ int main() {
         sio::Recognizer* rec = stt.CreateRecognizer();
         assert(rec != nullptr);
 
-        int samples_done = 0;
-        while (samples_done < audio.size()) {
-            int actual_chunk_size = std::min(chunk_size, (int)audio.size() - samples_done);
+        int N = 0;
+        while (N < audio.size()) {
+            int n = std::min(samples_per_chunk , (int)audio.size() - N);
             rec->Speech(
-                audio.data() + samples_done,
-                actual_chunk_size,
+                audio.data() + N,
+                n,
                 sample_rate
             );
-            samples_done += actual_chunk_size;
+            N += n;
         }
         rec->To();
 
         std::string text;
         rec->Text(&text);
         stt.DestroyRecognizer(rec);
-        SIO_INFO << audio_id << " -> " << samples_done << " samples decoded: " << text;
+        SIO_INFO << audio_id << " -> " << N << " samples decoded: " << text;
     }
 
     return 0;
