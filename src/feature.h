@@ -22,7 +22,7 @@ struct FeatureExtractorConfig {
 
 class FeatureExtractor {
  public:
-  FeatureExtractor(const FeatureExtractorConfig& config) :
+  explicit FeatureExtractor(const FeatureExtractorConfig& config) :
     kaldi_feat_info_(config.kaldi_feat_config)
   { 
     kaldi_feat_pipe_ = new kaldi::OnlineNnet2FeaturePipeline(kaldi_feat_info_);

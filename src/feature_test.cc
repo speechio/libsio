@@ -10,8 +10,8 @@ namespace sio {
 
 TEST(Feature, ExtractorAndMeanVarNorm) {
   Map<Str, int> audio_to_frames = {
-      {"testdata/MINI/audio/audio1.wav", 126},
-      {"testdata/MINI/audio/audio2.wav", 522}
+    {"testdata/MINI/audio/audio1.wav", 126},
+    {"testdata/MINI/audio/audio2.wav", 522}
   };
 
   FeatureExtractorConfig config;
