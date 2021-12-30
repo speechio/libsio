@@ -48,9 +48,9 @@ TEST(StructLoader, Basic) {
       "online": true,
       "feature": {
         "type": "fbank",
-        "fbank_config": "testdata/fbank.cfg"
+        "fbank_config": "testdata/fbank.cfg",
+        "mean_var_norm_file": "testdata/mean_var_norm_80dim.txt"
       },
-      "mean_var_norm_file": "testdata/mean_var_norm_80dim.txt",
       "num_workers": 8,
       "foo": {
         "foo_str": "this is foo string",

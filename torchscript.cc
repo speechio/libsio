@@ -15,14 +15,16 @@ int main() {
     //torch::jit::IValue o2 = model.run_method("subsampling_rate");
     //std::cout << "subsampling_rate: " << o2.toInt() << "\n";
 
-    torch::jit::script::Module module;
-    module = torch::jit::load("model.pt");
+    torch::jit::script::Module model;
+    model = torch::jit::load("model.pt");
+    model.eval();
+
     // Create a vector of inputs.
     std::vector<torch::jit::IValue> inputs;
     inputs.push_back(torch::ones({10, 20}));
 
     // Execute the model and turn its output into a tensor.
-    torch::Tensor output1 = module.forward(inputs).toTensor();
+    torch::Tensor output1 = model.forward(inputs).toTensor();
     std::cout << output1 << "\n";
 
     // try explicitly exported method rather than "forward"
@@ -30,7 +32,7 @@ int main() {
     // other methods follow their own prototype
     torch::Tensor input_a = torch::ones({10, 20});
     torch::Tensor input_b = torch::ones({10, 20});
-    torch::Tensor output2 = module.run_method("another_forward", input_a, input_b).toTensor();
+    torch::Tensor output2 = model.run_method("another_forward", input_a, input_b).toTensor();
     std::cout << output2 << "\n";
 
     return 0;

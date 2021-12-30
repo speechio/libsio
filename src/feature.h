@@ -7,6 +7,7 @@
 #include "sio/struct_loader.h"
 #include "sio/mean_var_norm.h"
 namespace sio {
+
 struct FeatureExtractorConfig {
   kaldi::OnlineNnet2FeaturePipelineConfig kaldi_feat_config;
   std::string mean_var_norm_file;
