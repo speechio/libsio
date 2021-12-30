@@ -13,19 +13,19 @@ class Link {
   Link* Prev() { return prev_; }
   Link* Next() { return next_; }
 
-  void  InsertBefore(Link* ref) {
-    prev_ = ref->prev_;
-    next_ = ref;
+  void  InsertBefore(Link* position) {
+    prev_ = position->prev_;
+    next_ = position;
 
     prev_->next_ = this;
-    ref->prev_  = this;
+    position->prev_  = this;
   }
 
-  void  InsertAfter(Link* ref) {
-    prev_ = ref;
-    next_ = ref->next_;
+  void  InsertAfter(Link* position) {
+    prev_ = position;
+    next_ = position->next_;
 
-    ref->next_  = this;
+    position->next_  = this;
     next_->prev_ = this;
   }
 
@@ -76,14 +76,14 @@ public:
     LinkOf(node)->InsertBefore(&origin_);
   }
 
-  void InsertBefore(T* node, T* ref) {
+  void InsertBefore(T* node, T* position) {
     UnlinkNode(node);
-    LinkOf(node)->InsertBefore(LinkOf(ref));
+    LinkOf(node)->InsertBefore(LinkOf(position));
   }
 
-  void InsertAfter(T* node, T* ref) {
+  void InsertAfter(T* node, T* position) {
     UnlinkNode(node);
-    LinkOf(node)->InsertAfter(LinkOf(ref));
+    LinkOf(node)->InsertAfter(LinkOf(position));
   }
 
   void UnlinkNode(T* node) {
