@@ -73,6 +73,7 @@ class FeatureExtractor {
 
  private:
   kaldi::OnlineNnet2FeaturePipelineInfo kaldi_feat_info_;
+  // we need to use pointer here because kaldi class doesn't provide Reset() functionality
   Owner<kaldi::OnlineNnet2FeaturePipeline*> kaldi_feat_pipe_;
   Optional<Owner<MeanVarNorm*>> mean_var_norm_;
 }; // class FeatureExtractor
