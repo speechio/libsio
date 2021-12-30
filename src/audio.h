@@ -27,6 +27,7 @@ inline Error ReadAudio(const std::string& audio_path, std::vector<float>* audio,
   *sample_rate = wave_data.SampFreq();
 
   kaldi::SubVector<float> ch0(wave_data.Data(), 0);
+  audio->clear();
   audio->resize(ch0.Dim(), 0.0f);
   for (int i = 0; i < ch0.Dim(); i++) {
     (*audio)[i] = ch0(i);
