@@ -2,6 +2,7 @@
 #define SIO_STRUCT_LOADER
 
 #include <map>
+#include <fstream>
 
 #include "sio/base.h"
 #include "sio/vec.h"
@@ -11,7 +12,7 @@
 namespace sio {
 class StructLoader {
  public:
-  void Load(const Json& j) {
+  Error Load(const Json& j) {
     for (const auto& kv : bool_map_) {
       auto& k = kv.first;
       auto& v = kv.second;
@@ -47,8 +48,23 @@ class StructLoader {
         *v = node->get<Str>();
       }
     }
+
+    return Error::OK;
   }
 
+  Error Load(const Str& json_file) {
+    Json j;
+
+    std::ifstream json_stream(json_file);
+    if (!json_stream.good()) {
+      SIO_FATAL(Error::InvalidFileHandle) << "Can't open json file: " << json_file;
+    }
+
+    json_stream >> j;
+    Load(j);
+
+    return Error::OK;
+  }
 
   void AddEntry(const StrView prefix, const StrView field, bool* p) {
     bool_map_[absl::StrCat(prefix, field)] = p;
