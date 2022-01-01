@@ -33,7 +33,7 @@ struct SpeechToText {
   Optional<Recognizer*> CreateRecognizer() {
     try {
       return new Recognizer(
-        config.feature,
+        config.feature_extractor,
         model
       ); 
     } catch (...) {

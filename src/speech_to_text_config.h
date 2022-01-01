@@ -11,7 +11,7 @@ namespace sio {
 struct SpeechToTextConfig {
   bool online = true;
 
-  FeatureExtractorConfig feature;
+  FeatureExtractorConfig feature_extractor;
 
   std::string tokenizer;
   std::string model;
@@ -23,7 +23,7 @@ struct SpeechToTextConfig {
   Error Register(StructLoader* loader, const std::string module = "") {
     loader->AddEntry(module, ".online", &online);
 
-    feature.Register(loader, "feature");
+    feature_extractor.Register(loader, "feature_extractor");
 
     loader->AddEntry(module, ".tokenizer", &tokenizer);
     loader->AddEntry(module, ".model", &model);

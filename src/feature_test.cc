@@ -15,8 +15,10 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
   };
 
   FeatureExtractorConfig config;
-  config.kaldi_feat_config.feature_type = "fbank";
-  config.kaldi_feat_config.fbank_config = "testdata/fbank.cfg";
+  config.type = "fbank";
+  config.fbank.frame_opts.samp_freq = 16000;
+  config.fbank.frame_opts.dither = 1.0;
+  config.fbank.mel_opts.num_bins = 80;
   config.mean_var_norm_file = "testdata/mean_var_norm.txt";
 
   FeatureExtractor feature_extractor(config);
@@ -32,7 +34,7 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
     feature_extractor.EndOfAudio();
     EXPECT_EQ(num_frames, feature_extractor.NumFrames());
 
-    kaldi::Vector<float> one_frame(feature_extractor.FeatureDim());
+    kaldi::Vector<float> one_frame(feature_extractor.Dim());
     for (int f = 0; f < feature_extractor.NumFrames(); f++) {
       feature_extractor.GetFrame(f, &one_frame);
     }

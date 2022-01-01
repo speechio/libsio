@@ -1,7 +1,7 @@
 #ifndef SIO_FEATURE_H
 #define SIO_FEATURE_H
 
-#include "online2/online-nnet2-feature-pipeline.h"
+#include "feat/online-feature.h"
 
 #include "sio/base.h"
 #include "sio/struct_loader.h"
@@ -9,12 +9,15 @@
 namespace sio {
 
 struct FeatureExtractorConfig {
-  kaldi::OnlineNnet2FeaturePipelineConfig kaldi_feat_config;
+  std::string type; // support "fbank" only for now
+  kaldi::FbankOptions fbank;
   std::string mean_var_norm_file;
 
   Error Register(StructLoader* loader, const std::string module = "") {
-    loader->AddEntry(module, ".type", &kaldi_feat_config.feature_type);
-    loader->AddEntry(module, ".fbank_config", &kaldi_feat_config.fbank_config);
+    loader->AddEntry(module, ".type", &type);
+    loader->AddEntry(module, ".sample_rate",  &fbank.frame_opts.samp_freq);
+    loader->AddEntry(module, ".dither",       &fbank.frame_opts.dither);
+    loader->AddEntry(module, ".num_mel_bins", &fbank.mel_opts.num_bins);
     loader->AddEntry(module, ".mean_var_norm_file", &mean_var_norm_file);
     return Error::OK;
   }
@@ -23,9 +26,10 @@ struct FeatureExtractorConfig {
 class FeatureExtractor {
  public:
   explicit FeatureExtractor(const FeatureExtractorConfig& config) :
-    kaldi_feat_info_(config.kaldi_feat_config)
+    config_(config)
   { 
-    kaldi_feat_pipe_ = new kaldi::OnlineNnet2FeaturePipeline(kaldi_feat_info_);
+    SIO_CHECK_EQ(config_.type, "fbank");
+    fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
 
     if (config.mean_var_norm_file != "") {
       mean_var_norm_ = new MeanVarNorm(config.mean_var_norm_file);
@@ -35,48 +39,55 @@ class FeatureExtractor {
   }
 
   ~FeatureExtractor() {
-    delete kaldi_feat_pipe_;
+    delete fbank_extractor_;
     if (mean_var_norm_) {
       delete mean_var_norm_;
     }
   }
 
-  i32 FeatureDim() {
-    return kaldi_feat_pipe_->Dim();
+  i32 Dim() {
+    return fbank_extractor_->Dim();
   }
 
   void PushAudio(const float* samples, size_t num_samples, float sample_rate) {
-    kaldi_feat_pipe_->AcceptWaveform(
+    fbank_extractor_->AcceptWaveform(
       sample_rate, 
       kaldi::SubVector<float>(samples, num_samples)
     );
   }
 
   void EndOfAudio() {
-    kaldi_feat_pipe_->InputFinished();
+    fbank_extractor_->InputFinished();
   }
 
   i32 NumFrames() const {
-    return kaldi_feat_pipe_->NumFramesReady();
+    return fbank_extractor_->NumFramesReady();
   }
 
   void GetFrame(i32 frame_idx, kaldi::VectorBase<float>* frame) {
-    kaldi_feat_pipe_->GetFrame(frame_idx, frame);
+    fbank_extractor_->GetFrame(frame_idx, frame);
     if (mean_var_norm_) {
       mean_var_norm_->Normalize(frame);
     }
   }
 
   void Reset() {
-    delete kaldi_feat_pipe_;
-    kaldi_feat_pipe_ = new kaldi::OnlineNnet2FeaturePipeline(kaldi_feat_info_);
+    SIO_CHECK_EQ(config_.type, "fbank");
+    delete fbank_extractor_;
+    fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
+  }
+
+  float FrameShiftInSeconds() const {
+    SIO_CHECK_EQ(config_.type, "fbank");
+    return config_.fbank.frame_opts.frame_shift_ms / 1000.0f;
   }
 
  private:
-  kaldi::OnlineNnet2FeaturePipelineInfo kaldi_feat_info_;
-  // we need to use pointer here because kaldi class doesn't provide Reset() functionality
-  Owner<kaldi::OnlineNnet2FeaturePipeline*> kaldi_feat_pipe_;
-  Optional<Owner<MeanVarNorm*>> mean_var_norm_;
+  const FeatureExtractorConfig& config_;
+
+  // need pointer here because we want Reset() functionality
+  Optional<Owner<kaldi::OnlineBaseFeature*>> fbank_extractor_ = nullptr;
+  Optional<Owner<MeanVarNorm*>> mean_var_norm_ = nullptr;
 }; // class FeatureExtractor
 
 }  // namespace sio

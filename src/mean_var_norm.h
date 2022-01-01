@@ -53,7 +53,7 @@ struct MeanVarNorm {
 
   void Normalize(kaldi::VectorBase<float> *frame) const {
     SIO_CHECK(frame != nullptr) << "null input to mvn ?";
-    SIO_CHECK_EQ(frame->Dim(), dim) << "input dimension should be consistent with mvn dim";
+    SIO_CHECK_EQ(frame->Dim(), dim) << "feature dim inconsistent with mvn dim";
     for (int i = 0; i < dim; i++) {
       // use quote for elem referencing, see:
       // https://github.com/kaldi-asr/kaldi/blob/master/src/matrix/kaldi-vector.h#L82

@@ -29,7 +29,7 @@ TEST(StructLoader, Basic) {
     Error Register(StructLoader* loader, const Str module = "") {
       loader->AddEntry(module, ".online", &online);
       loader->AddEntry(module, ".num_workers", &num_workers);
-      loader->AddEntry(module, ".sample_rate", &sample_rate);
+      loader->AddEntry(module, ".feature_extractor.sample_rate", &sample_rate);
       loader->AddEntry(module, ".model", &model);
       foo.Register(loader, module + ".foo");
       return Error::OK;
@@ -43,13 +43,14 @@ TEST(StructLoader, Basic) {
   Json j = R"(
     { 
       "model": "model_dir/model.bin",
-      "sample_rate": 16000.0,
       "weights": [1.0, 2.0, 3.0],
       "online": true,
-      "feature": {
+      "feature_extractor": {
         "type": "fbank",
-        "fbank_config": "testdata/fbank.cfg",
-        "mean_var_norm_file": "testdata/mean_var_norm_80dim.txt"
+        "sample_rate": 16000.0,
+        "dither": 1.0,
+        "num_mel_bins": 80,
+        "mean_var_norm_file": "testdata/mean_var_norm.txt"
       },
       "num_workers": 8,
       "foo": {

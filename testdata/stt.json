@@ -1,8 +1,10 @@
 { 
     "online": true,
-    "feature": {
+    "feature_extractor": {
         "type": "fbank",
-        "fbank_config": "testdata/fbank.cfg",
+        "sample_rate": 16000.0,
+        "dither": 1.0,
+        "num_mel_bins": 80,
         "mean_var_norm_file": "testdata/mean_var_norm.txt"
     },
     "tokenizer": "testdata/sentencepiece.model",
