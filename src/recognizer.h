@@ -7,7 +7,7 @@
 #include <torch/script.h>
 
 #include "sio/base.h"
-#include "sio/feature.h"
+#include "sio/feature_extractor.h"
 #include "sio/mean_var_norm.h"
 
 namespace sio {

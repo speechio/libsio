@@ -4,7 +4,7 @@
 #include "sio/base.h"
 #include "sio/audio.h"
 #include "sio/mean_var_norm.h"
-#include "sio/feature.h"
+#include "sio/feature_extractor.h"
 
 namespace sio {
 

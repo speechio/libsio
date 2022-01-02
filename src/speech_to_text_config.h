@@ -4,7 +4,7 @@
 #include <fstream>
 
 #include "sio/base.h"
-#include "sio/feature.h"
+#include "sio/feature_extractor.h"
 #include "sio/struct_loader.h"
 
 namespace sio {

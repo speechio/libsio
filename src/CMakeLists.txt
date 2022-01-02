@@ -11,7 +11,7 @@ add_executable(unittest
   linked_list_test.cc
   heap_test.cc
   audio_test.cc
-  feature_test.cc
+  feature_extractor_test.cc
   dbg_test.cc
   struct_loader_test.cc
 )
