@@ -45,7 +45,7 @@ class FeatureExtractor {
     }
   }
 
-  i32 Dim() {
+  size_t Dim() {
     return fbank_extractor_->Dim();
   }
 
@@ -60,12 +60,12 @@ class FeatureExtractor {
     fbank_extractor_->InputFinished();
   }
 
-  i32 NumFrames() const {
+  size_t NumFrames() const {
     return fbank_extractor_->NumFramesReady();
   }
 
-  void GetFrame(i32 frame_idx, kaldi::VectorBase<float>* frame) {
-    fbank_extractor_->GetFrame(frame_idx, frame);
+  void GetFrame(index_t f, kaldi::VectorBase<float>* frame) {
+    fbank_extractor_->GetFrame(f, frame);
     if (mean_var_norm_) {
       mean_var_norm_->Normalize(frame);
     }
