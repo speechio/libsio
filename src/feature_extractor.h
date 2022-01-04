@@ -100,7 +100,10 @@ class FeatureExtractor {
 
   // need pointer here because we want Reset() functionality
   Optional<Owner<kaldi::OnlineBaseFeature*>> fbank_extractor_ = nullptr;
-  index_t cur_frame_; // [0, cur_frame_) + [cur_frame_, cur_frame_ + Frames()) = [0, NumFramesReady())
+
+  // popped:                [0         , cur_frame_)
+  // NumFrames() remaining: [cur_frame_, fbank_extractor->NumFramesReady())
+  index_t cur_frame_;
 
   // sometimes mvn is incoporated into nnet itself, so leave this nullptr
   Optional<Owner<MeanVarNorm*>> mean_var_norm_ = nullptr;
