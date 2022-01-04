@@ -12,33 +12,41 @@ namespace sio {
 
 struct SpeechToText {
   SpeechToTextConfig config;
-  torch::jit::script::Module model;
+  torch::jit::script::Module nnet;
   Tokenizer tokenizer;
+  Optional<Owner<MeanVarNorm*>> mean_var_norm = nullptr;
 
  public:
   Error Load(std::string config_file) { 
     config.Load(config_file);
 
-    tokenizer.Load(config.tokenizer_vocab);
-    dbg(tokenizer.index_to_token);
-    dbg(tokenizer.token_to_index);
+    if (config.mean_var_norm_file != "") {
+      mean_var_norm = new MeanVarNorm;
+      mean_var_norm->Load(config.mean_var_norm_file);
+    } else {
+      mean_var_norm = nullptr;
+    }
 
-    SIO_CHECK(config.model != "") << "Need to provide a stt model.";
-    SIO_INFO << "Loading torchscript model from: " << config.model;
-    model = torch::jit::load(config.model);
+    tokenizer.Load(config.tokenizer_vocab);
+
+    SIO_CHECK(config.nnet != "") << "stt nnet is required";
+    SIO_INFO << "Loading torchscript nnet from: " << config.nnet; 
+    nnet = torch::jit::load(config.nnet);
 
     return Error::OK;
   }
 
-  ~SpeechToText() { }
+  ~SpeechToText() { 
+    if (mean_var_norm != nullptr) {
+      delete mean_var_norm;
+    }
+  }
 
   Optional<Recognizer*> CreateRecognizer() {
     try {
       return new Recognizer(
-        config.feature_extractor,
-        tokenizer,
-        config.scorer,
-        model
+        /* frontend */ config.feature_extractor, mean_var_norm,
+        /* scorer */ tokenizer, config.scorer, nnet
       ); 
     } catch (...) {
       return nullptr;

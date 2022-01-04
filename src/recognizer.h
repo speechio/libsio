@@ -17,35 +17,22 @@ namespace sio {
 class Recognizer {
  public:
   Recognizer(
-    const FeatureExtractorConfig& feature_extractor_config,
-    const Tokenizer& tokenizer,
-    const ScorerConfig& scorer_config, 
-    torch::jit::script::Module& model
+    const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mean_var_norm,
+    const Tokenizer& tokenizer, const ScorerConfig& scorer_config, torch::jit::script::Module& nnet
   ) :
-    feature_extractor_(feature_extractor_config),
+    feature_extractor_(feature_extractor_config, mean_var_norm),
     tokenizer_(tokenizer),
-    scorer_(tokenizer, scorer_config, model)
+    scorer_(tokenizer, scorer_config, nnet)
   { }
 
   Error Speech(const float* samples, size_t num_samples, float sample_rate) {
-    feature_extractor_.PushAudio(samples, num_samples, sample_rate);
-    while (feature_extractor_.NumFrames() > 0) {
-      Vec<float> frame;
-      feature_extractor_.PopFeat(&frame);
-      scorer_.PushFeat(frame);
-    }
-    return Error::OK;
+    SIO_CHECK(samples != nullptr && num_samples != 0);
+    return Proceed(samples, num_samples, sample_rate);
   }
 
   Error To() { 
-    feature_extractor_.EndOfAudio();
-    while (feature_extractor_.NumFrames() > 0) {
-      Vec<float> frame;
-      feature_extractor_.PopFeat(&frame);
-      scorer_.PushFeat(frame);
-    }    
-    scorer_.EndOfFeats();
-    return Error::OK;
+    Error err = Proceed(nullptr, 0, 8000.16000 /*fake sample rate*/);
+    return err;
   }
 
   Error Text(std::string* result) { 
@@ -60,6 +47,31 @@ class Recognizer {
   }
 
  private:
+  Error Proceed(const float* samples, size_t num_samples, float sample_rate) {
+    bool no_more_input = false;
+    if (samples == nullptr && num_samples == 0) {
+      no_more_input = true;
+    }
+
+    if (no_more_input) {
+      feature_extractor_.EndOfAudio();
+    } else {
+      feature_extractor_.PushAudio(samples, num_samples, sample_rate);
+    }
+
+    while (feature_extractor_.NumFrames() > 0) {
+      Vec<float> frame;
+      feature_extractor_.PopFeat(&frame);
+      scorer_.PushFeat(frame);
+    }
+
+    if (no_more_input) {
+      scorer_.EndOfFeats();
+    }
+
+    return Error::OK;
+  }
+
   FeatureExtractor feature_extractor_;
   const Tokenizer& tokenizer_;
   Scorer scorer_;

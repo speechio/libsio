@@ -11,39 +11,34 @@ namespace sio {
 struct FeatureExtractorConfig {
   std::string type; // support "fbank" only for now
   kaldi::FbankOptions fbank;
-  std::string mean_var_norm_file;
 
   Error Register(StructLoader* loader, const std::string module = "") {
     loader->AddEntry(module, ".type", &type);
     loader->AddEntry(module, ".sample_rate",  &fbank.frame_opts.samp_freq);
     loader->AddEntry(module, ".dither",       &fbank.frame_opts.dither);
     loader->AddEntry(module, ".num_mel_bins", &fbank.mel_opts.num_bins);
-    loader->AddEntry(module, ".mean_var_norm_file", &mean_var_norm_file);
+
     return Error::OK;
   }
 };
 
 class FeatureExtractor {
  public:
-  explicit FeatureExtractor(const FeatureExtractorConfig& config) :
-    config_(config)
+  explicit FeatureExtractor(
+    const FeatureExtractorConfig& config,
+    const MeanVarNorm* mean_var_norm
+  ) :
+    config_(config),
+    mean_var_norm_(mean_var_norm)
   { 
     SIO_CHECK_EQ(config_.type, "fbank");
     fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
     cur_frame_ = 0;
-
-    if (config.mean_var_norm_file != "") {
-      mean_var_norm_ = new MeanVarNorm(config.mean_var_norm_file);
-    } else {
-      mean_var_norm_ = nullptr;
-    }
   }
 
   ~FeatureExtractor() {
     delete fbank_extractor_;
-    if (mean_var_norm_) {
-      delete mean_var_norm_;
-    }
+    /* feature extractor doesn't have ownership of mean_var_norm */
   }
 
   size_t Dim() {
@@ -106,7 +101,7 @@ class FeatureExtractor {
   index_t cur_frame_;
 
   // sometimes mvn is incoporated into nnet itself, so leave this nullptr
-  Optional<Owner<MeanVarNorm*>> mean_var_norm_ = nullptr;
+  Optional<const MeanVarNorm*> mean_var_norm_ = nullptr;
 }; // class FeatureExtractor
 
 }  // namespace sio

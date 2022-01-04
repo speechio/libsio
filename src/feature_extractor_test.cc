@@ -8,7 +8,7 @@
 
 namespace sio {
 
-TEST(Feature, ExtractorAndMeanVarNorm) {
+TEST(Feature, Extractor) {
   Map<Str, int> audio_to_frames = {
     {"testdata/MINI/audio/audio1.wav", 126},
     {"testdata/MINI/audio/audio2.wav", 522}
@@ -19,9 +19,8 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
   config.fbank.frame_opts.samp_freq = 16000;
   config.fbank.frame_opts.dither = 1.0;
   config.fbank.mel_opts.num_bins = 80;
-  config.mean_var_norm_file = "testdata/mean_var_norm.txt";
 
-  FeatureExtractor feature_extractor(config);
+  FeatureExtractor feature_extractor(config, nullptr); /* nullptr: no mvn */
   for (const auto& kv : audio_to_frames) {
     Str audio_file = kv.first;
     int num_frames = kv.second;

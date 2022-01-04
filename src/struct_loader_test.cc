@@ -23,14 +23,14 @@ TEST(StructLoader, Basic) {
     bool online;
     int num_workers;
     float sample_rate;
-    Str model;
+    Str nnet;
     Foo foo;
 
     Error Register(StructLoader* loader, const Str module = "") {
       loader->AddEntry(module, ".online", &online);
       loader->AddEntry(module, ".num_workers", &num_workers);
       loader->AddEntry(module, ".feature_extractor.sample_rate", &sample_rate);
-      loader->AddEntry(module, ".model", &model);
+      loader->AddEntry(module, ".nnet", &nnet);
       foo.Register(loader, module + ".foo");
       return Error::OK;
     }
@@ -42,16 +42,16 @@ TEST(StructLoader, Basic) {
 
   Json j = R"(
     { 
-      "model": "model_dir/model.bin",
+      "nnet": "model_dir/nnet.bin",
       "weights": [1.0, 2.0, 3.0],
       "online": true,
       "feature_extractor": {
         "type": "fbank",
         "sample_rate": 16000.0,
         "dither": 1.0,
-        "num_mel_bins": 80,
-        "mean_var_norm_file": "testdata/mean_var_norm.txt"
+        "num_mel_bins": 80
       },
+      "mean_var_norm_file": "testdata/mean_var_norm.txt",
       "num_workers": 8,
       "foo": {
         "foo_str": "this is foo string",
@@ -67,7 +67,7 @@ TEST(StructLoader, Basic) {
   EXPECT_EQ(bar.online, true);
   EXPECT_EQ(bar.num_workers, 8);
   EXPECT_EQ(bar.sample_rate, 16000.0);
-  EXPECT_EQ(bar.model, "model_dir/model.bin");
+  EXPECT_EQ(bar.nnet, "model_dir/nnet.bin");
   EXPECT_EQ(bar.foo.foo_str, "this is foo string");
   EXPECT_EQ(bar.foo.foo_int, 12345);
 }

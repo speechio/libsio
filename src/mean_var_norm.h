@@ -23,7 +23,8 @@ struct MeanVarNorm {
   0.6330024600028992 0.49299687147140503 0.37579503655433655
 
   */
-  explicit MeanVarNorm(std::string mean_var_norm_file) {
+
+  Error Load(std::string mean_var_norm_file) {
     std::ifstream is(mean_var_norm_file);
 
     std::string line;
@@ -49,6 +50,8 @@ struct MeanVarNorm {
     for (int i = 0; i != dim; i++) {
       v_norm_scale.push_back(std::stod(cols[i]));
     }
+
+    return Error::OK;
   }
 
   void Normalize(kaldi::VectorBase<float> *frame) const {

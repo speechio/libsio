@@ -2,6 +2,7 @@
 #define SIO_TOKENIZER_H
 
 #include "sio/base.h"
+//#include "sio/dbg.h"
 
 namespace sio {
 struct Tokenizer {
@@ -18,6 +19,9 @@ struct Tokenizer {
       index_to_token[index] = token;
       token_to_index[token] = index;
     }
+
+    //dbg(index_to_token);
+    //dbg(token_to_index);
   }
 
   size_t Size() {

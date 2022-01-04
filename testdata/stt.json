@@ -4,14 +4,14 @@
         "type": "fbank",
         "sample_rate": 16000.0,
         "dither": 1.0,
-        "num_mel_bins": 80,
-        "mean_var_norm_file": "testdata/mean_var_norm.txt"
+        "num_mel_bins": 80
     },
+    "mean_var_norm_file": "testdata/mean_var_norm.txt",
     "tokenizer": {
         "vocab": "testdata/tokenizer.vocab",
         "model": "testdata/tokenizer.model"
     },
-    "model": "testdata/model.pts",
+    "nnet": "testdata/model.pts",
     "graph": "testdata/graph.fsa",
     "context": "testdata/context.json",
     "sample_rate": 16000.0,
