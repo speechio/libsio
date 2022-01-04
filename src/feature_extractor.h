@@ -68,14 +68,14 @@ class FeatureExtractor {
     frame->resize(Dim(), 0.0f);
     kaldi::SubVector<float> kframe(frame->data(), frame->size());
 
-    index_t index_to_pop = cur_frame_;
+    index_t frame_idx = cur_frame_;
     fbank_extractor_->GetFrame(cur_frame_++, &kframe);
 
     if (mean_var_norm_) {
       mean_var_norm_->Normalize(&kframe);
     }
 
-    return index_to_pop;
+    return frame_idx;
   }
 
   void Reset() {
