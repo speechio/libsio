@@ -86,16 +86,16 @@ class StructLoader {
   void Print() {
     SIO_INFO << "--------------------";
     for (const auto& kv : bool_map_) {
-      SIO_INFO << kv.first << " : " << *kv.second;
+      SIO_INFO << kv.first << " : " << *kv.second << " (bool) ";
     }
     for (const auto& kv : int_map_) {
-      SIO_INFO << kv.first << " : " << *kv.second;
+      SIO_INFO << kv.first << " : " << *kv.second << " (int) ";
     }
     for (const auto& kv : float_map_) {
-      SIO_INFO << kv.first << " : " << *kv.second;
+      SIO_INFO << kv.first << " : " << *kv.second << " (float) ";
     }
     for (const auto& kv : string_map_) {
-      SIO_INFO << kv.first << " : " << *kv.second;
+      SIO_INFO << kv.first << " : " << *kv.second << " (string) ";
     }
     SIO_INFO << "====================";
   }

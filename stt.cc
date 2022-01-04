@@ -11,6 +11,8 @@ int main() {
         samples_per_chunk = 1000;
     }
 
+    sio::Recognizer* rec = stt.CreateRecognizer(); assert(rec != nullptr);
+
     std::ifstream wav_scp("testdata/MINI/wav.scp");
     std::string line;
     while (std::getline(wav_scp, line)) {
@@ -25,8 +27,6 @@ int main() {
         float sample_rate;
         sio::ReadAudio(audio_path, &audio, &sample_rate);
 
-        sio::Recognizer* rec = stt.CreateRecognizer();
-        assert(rec != nullptr);
 
         int N = 0;
         while (N < audio.size()) {
@@ -42,9 +42,11 @@ int main() {
 
         std::string text;
         rec->Text(&text);
-        stt.DestroyRecognizer(rec);
+        rec->Reset();
         SIO_INFO << audio_id << " -> " << N << " samples decoded: " << text;
     }
+
+    stt.DestroyRecognizer(rec);
 
     return 0;
 }

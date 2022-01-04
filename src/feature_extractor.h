@@ -30,6 +30,7 @@ class FeatureExtractor {
   { 
     SIO_CHECK_EQ(config_.type, "fbank");
     fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
+    cur_frame_ = 0;
 
     if (config.mean_var_norm_file != "") {
       mean_var_norm_ = new MeanVarNorm(config.mean_var_norm_file);
@@ -61,20 +62,32 @@ class FeatureExtractor {
   }
 
   size_t NumFrames() const {
-    return fbank_extractor_->NumFramesReady();
+    SIO_CHECK_LE(cur_frame_, fbank_extractor_->NumFramesReady());
+    return fbank_extractor_->NumFramesReady() - cur_frame_;
   }
 
-  void GetFrame(index_t f, kaldi::VectorBase<float>* frame) {
-    fbank_extractor_->GetFrame(f, frame);
+  index_t PopFeat(Vec<float>* frame) {
+    SIO_CHECK_GT(NumFrames(), 0);
+
+    frame->clear();
+    frame->resize(Dim(), 0.0f);
+    kaldi::SubVector<float> kframe(frame->data(), frame->size());
+
+    index_t index_to_pop = cur_frame_;
+    fbank_extractor_->GetFrame(cur_frame_++, &kframe);
+
     if (mean_var_norm_) {
-      mean_var_norm_->Normalize(frame);
+      mean_var_norm_->Normalize(&kframe);
     }
+
+    return index_to_pop;
   }
 
   void Reset() {
     SIO_CHECK_EQ(config_.type, "fbank");
     delete fbank_extractor_;
     fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
+    cur_frame_ = 0;
   }
 
   float FrameShiftInSeconds() const {
@@ -87,6 +100,9 @@ class FeatureExtractor {
 
   // need pointer here because we want Reset() functionality
   Optional<Owner<kaldi::OnlineBaseFeature*>> fbank_extractor_ = nullptr;
+  index_t cur_frame_; // [0, cur_frame_) + [cur_frame_, cur_frame_ + Frames()) = [0, NumFramesReady())
+
+  // sometimes mvn is incoporated into nnet itself, so leave this nullptr
   Optional<Owner<MeanVarNorm*>> mean_var_norm_ = nullptr;
 }; // class FeatureExtractor
 

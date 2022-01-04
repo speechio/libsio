@@ -7,10 +7,17 @@
         "num_mel_bins": 80,
         "mean_var_norm_file": "testdata/mean_var_norm.txt"
     },
-    "tokenizer": "testdata/sentencepiece.model",
+    "tokenizer": {
+        "vocab": "testdata/tokenizer.vocab",
+        "model": "testdata/tokenizer.model"
+    },
     "model": "testdata/model.pts",
     "graph": "testdata/graph.fsa",
     "context": "testdata/context.json",
     "sample_rate": 16000.0,
-    "end_pointing": false
+    "end_pointing": false,
+    "scorer": {
+        "chunk_size": -1,
+        "num_left_chunks": -1
+    }
 }

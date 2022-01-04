@@ -34,9 +34,10 @@ TEST(Feature, ExtractorAndMeanVarNorm) {
     feature_extractor.EndOfAudio();
     EXPECT_EQ(num_frames, feature_extractor.NumFrames());
 
-    kaldi::Vector<float> one_frame(feature_extractor.Dim());
-    for (int f = 0; f < feature_extractor.NumFrames(); f++) {
-      feature_extractor.GetFrame(f, &one_frame);
+    Vec<float> frame;
+    int i;
+    while(feature_extractor.NumFrames() > 0) {
+      feature_extractor.PopFeat(&frame);
     }
     feature_extractor.Reset();
   }
