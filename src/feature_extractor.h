@@ -9,17 +9,17 @@
 namespace sio {
 
 struct FeatureExtractorConfig {
-  std::string type; // support "fbank" only for now
-  kaldi::FbankOptions fbank;
+	std::string type; // support "fbank" only for now
+	kaldi::FbankOptions fbank;
 
-  Error Register(StructLoader* loader, const std::string module = "") {
-    loader->AddEntry(module, ".type", &type);
-    loader->AddEntry(module, ".sample_rate",  &fbank.frame_opts.samp_freq);
-    loader->AddEntry(module, ".dither",       &fbank.frame_opts.dither);
-    loader->AddEntry(module, ".num_mel_bins", &fbank.mel_opts.num_bins);
+	Error Register(StructLoader* loader, const std::string module = "") {
+		loader->AddEntry(module, ".type", &type);
+		loader->AddEntry(module, ".sample_rate",  &fbank.frame_opts.samp_freq);
+		loader->AddEntry(module, ".dither",       &fbank.frame_opts.dither);
+		loader->AddEntry(module, ".num_mel_bins", &fbank.mel_opts.num_bins);
 
-    return Error::OK;
-  }
+		return Error::OK;
+	}
 };
 
 class FeatureExtractor {
