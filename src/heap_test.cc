@@ -3,7 +3,7 @@
 
 namespace sio {
 
-TEST(Heap, ArenaAllocator) {
+TEST(Heap, SlabAllocator) {
 
 	struct S {
 		char c;
@@ -11,8 +11,8 @@ TEST(Heap, ArenaAllocator) {
 		void *p;
 	};
 
-	size_t num_elems_per_slab = 2;
-	Owner<ArenaAllocator<S>*> p = new ArenaAllocator<S>(num_elems_per_slab);
+	size_t elems_per_cache = 2;
+	Owner<SlabAllocator<S>*> p = new SlabAllocator<S>(elems_per_cache);
 	EXPECT_TRUE(p->NumUsed() == 0);
 	EXPECT_TRUE(p->NumFree() == 0);
 

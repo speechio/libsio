@@ -7,27 +7,27 @@
 namespace sio {
 
 template <typename T>
-class ArenaAllocator {
+class SlabAllocator {
 public:
-	ArenaAllocator(size_t elems_per_slab) {
+	SlabAllocator(size_t elems_per_cache) {
 		static_assert(sizeof(T) >= sizeof(FreeNode*) && "element size should be larger than a pointer");
-		SIO_CHECK_GE(elems_per_slab, 1);
+		SIO_CHECK_GE(elems_per_cache, 1);
 		elem_bytes_ = sizeof(T);
-		elems_per_slab_ = elems_per_slab;
+		elems_per_cache_ = elems_per_cache;
 		num_used_ = 0;
 	}
 
-	~ArenaAllocator() {
-		for(int i = 0; i < slabs_.size(); i++) {
-			delete[] slabs_[i];
+	~SlabAllocator() {
+		for(int i = 0; i < caches_.size(); i++) {
+			delete[] caches_[i];
 		}
 	}
 
 	inline T* Alloc() {
 		if (free_list_.IsEmpty()) {
-			char* p = new char[elem_bytes_ * elems_per_slab_];
-			slabs_.push_back( (Owner<char*>)p );
-			for (int i = 0; i < elems_per_slab_; i++) {
+			char* p = new char[elem_bytes_ * elems_per_cache_];
+			caches_.push_back( (Owner<char*>)p );
+			for (int i = 0; i < elems_per_cache_; i++) {
 				free_list_.Push((FreeNode*)(p + i * elem_bytes_));
 			}
 		}
@@ -79,8 +79,8 @@ private:
 
 private:
 	size_t elem_bytes_;
-	size_t elems_per_slab_;
-	std::vector<Owner<char*>> slabs_;
+	size_t elems_per_cache_;
+	std::vector<Owner<char*>> caches_;
 
 	FreeList free_list_;
 	size_t num_used_;
