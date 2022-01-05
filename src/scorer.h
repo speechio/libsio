@@ -14,24 +14,24 @@ namespace sio {
 struct ScorerConfig {
   int chunk_size = 8;
   int num_left_chunks = -1;
+  int num_threads = 1;
 
   Error Register(StructLoader* loader, const std::string module = "") {
     loader->AddEntry(module, ".chunk_size", &chunk_size);
     loader->AddEntry(module, ".num_left_chunks", &num_left_chunks);
+    loader->AddEntry(module, ".num_threads", &num_threads);
     return Error::OK;
   }
 };
 
 class Scorer {
  public:
-  Scorer(const ScorerConfig & config, torch::jit::script::Module& nnet, int num_threads = 1) : 
+  Scorer(const ScorerConfig & config, torch::jit::script::Module& nnet) : 
     config_(config),
-    nnet_(nnet),
-    cur_iframe_(0),
-    cur_oframe_(0)
+    nnet_(nnet)
   { 
-    //torch::set_num_threads(1); ?
-    //at::set_num_threads(num_threads);
+    torch::set_num_threads(config_.num_threads);
+    //at::set_num_threads(config_.num_threads);
 
     torch::NoGradGuard no_grad;
     nnet_.eval();
@@ -41,6 +41,9 @@ class Scorer {
 
     right_context_ = nnet_.run_method("right_context").toInt(); 
     SIO_DEBUG << "right context: " << right_context_;
+
+    cur_iframe_ = 0;
+    cur_oframe_ = 0;
   }
 
   void PushFeat(const Vec<float>& frame) {

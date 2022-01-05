@@ -13,8 +13,10 @@ int main() {
 
     sio::Recognizer* rec = stt.CreateRecognizer(); assert(rec != nullptr);
 
-    std::ifstream wav_scp("testdata/MINI/wav.scp");
+    //std::ifstream wav_scp("testdata/MINI/wav.scp");
+    std::ifstream wav_scp("testdata/aishell1-test.scp");
     std::string line;
+    int k = 0;
     while (std::getline(wav_scp, line)) {
         std::vector<std::string> fields = absl::StrSplit(line, absl::ByAnyChar(" \t,:;"));
         if (fields.size() != 2) continue;
@@ -43,7 +45,8 @@ int main() {
         std::string text;
         rec->Text(&text);
         rec->Reset();
-        SIO_INFO << audio_id << " -> " << N << " samples decoded: " << text;
+        SIO_DEBUG << audio_id << " -> " << N << " samples decoded: " << text;
+        SIO_INFO << k++ << "\t" << audio_id << "\t" << text;
     }
 
     stt.DestroyRecognizer(rec);

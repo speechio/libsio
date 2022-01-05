@@ -18,6 +18,7 @@
     "end_pointing": false,
     "scorer": {
         "chunk_size": -1,
-        "num_left_chunks": -1
+        "num_left_chunks": -1,
+        "num_threads": 1
     }
 }
