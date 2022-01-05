@@ -42,21 +42,21 @@ TEST(StructLoader, Basic) {
 
 	Json j = R"(
 		{ 
-		"nnet": "model_dir/nnet.bin",
-		"weights": [1.0, 2.0, 3.0],
-		"online": true,
-		"feature_extractor": {
-			"type": "fbank",
-			"sample_rate": 16000.0,
-			"dither": 1.0,
-			"num_mel_bins": 80
-		},
-		"mean_var_norm_file": "testdata/mean_var_norm.txt",
-		"num_workers": 8,
-		"foo": {
-			"foo_str": "this is foo string",
-			"foo_int": 12345
-		}
+			"nnet": "model_dir/nnet.bin",
+			"weights": [1.0, 2.0, 3.0],
+			"online": true,
+			"feature_extractor": {
+				"type": "fbank",
+				"sample_rate": 16000.0,
+				"dither": 1.0,
+				"num_mel_bins": 80
+			},
+			"mean_var_norm_file": "testdata/mean_var_norm.txt",
+			"num_workers": 8,
+			"foo": {
+				"foo_str": "this is foo string",
+				"foo_int": 12345
+			}
 		}
 	)"_json;
 
