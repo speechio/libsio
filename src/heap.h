@@ -70,7 +70,7 @@ private:
 		}
 
 		inline FreeNode* Pop() {
-			SIO_CHECK(!IsEmpty()); // grow should happen outside, in Alloc()
+			SIO_CHECK(!IsEmpty()); // caches should grow outside Pop(), in Alloc()
 			FreeNode* p = head;
 			head = head->next;
 			return p;
