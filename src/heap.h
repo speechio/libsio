@@ -70,7 +70,7 @@ private:
 		}
 
 		inline FreeNode* Pop() {
-			SIO_CHECK(!IsEmpty()); // Exhausted arena should grow in Alloc()
+			SIO_CHECK(!IsEmpty()); // grow should happen outside, in Alloc()
 			FreeNode* p = head;
 			head = head->next;
 			return p;
