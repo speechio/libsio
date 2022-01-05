@@ -52,7 +52,7 @@ class FeatureExtractor {
     );
   }
 
-  void EndOfAudio() {
+  void EOS() {
     fbank_extractor_->InputFinished();
   }
 

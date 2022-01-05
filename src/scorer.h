@@ -36,7 +36,7 @@ class Scorer {
     offset_(0)
   { 
     //torch::set_num_threads(1); ?
-    at::set_num_threads(num_threads);
+    //at::set_num_threads(num_threads);
 
     torch::NoGradGuard no_grad;
     nnet_.eval();
@@ -52,7 +52,7 @@ class Scorer {
     feat_cache_.emplace_back(frame);
   }
 
-  void EndOfFeats() { 
+  void EOS() {
     torch::NoGradGuard no_grad;
 
     // init empty feature tensor
@@ -89,7 +89,7 @@ class Scorer {
       conformer_cnn_cache_
     };
 
-    // encoder forward
+    // Forward encoder layers
     auto r = nnet_.get_method("forward_encoder_chunk")(inputs).toTuple()->elements();
     SIO_CHECK_EQ(r.size(), 4);
 
@@ -103,26 +103,21 @@ class Scorer {
 
     offset_ += encoder_out.size(1);
 
-    torch::Tensor scores = nnet_.run_method("ctc_activation", encoder_out).toTensor()[0];
+    // how this move semantic actually acts for a slice of tensor, i.e. toTensor()[0]
+    scores_.push_back(
+      std::move(
+        nnet_.run_method("ctc_activation", encoder_out).toTensor()[0]
+      )
+    );
     encoder_outs_.push_back(std::move(encoder_out));
-    //dbg(ctc_log_probscoress.size(0), ctc_log_probscoress.size(1));
-
-    // greedy search
-    for (index_t f = 0; f != scores.size(0); f++) {
-      std::tuple<torch::Tensor, torch::Tensor> top1 = scores[f].topk(1);
-      f32 score = std::get<0>(top1).item<f32>();
-      i32 index = std::get<1>(top1).item<i32>();
-      if (index != 0) {
-        result_ += tokenizer_.index_to_token.at(index);
-        SIO_DEBUG << " frame:" << f 
-                  << " score:" << score 
-                  << " index:" << index 
-                  << " token:" << tokenizer_.index_to_token.at(index);
-      }
-    }
+    //dbg(scores_.size(0), scores_.size(1));
   }
 
-  void PopScore(Vec<float>* score) { }
+  size_t Empty() const {
+    return scores_.empty();
+  }
+
+  Vec<torch::Tensor> PopScore() { return std::move(scores_); }
 
   void Reset() {
     feat_cache_.clear();
@@ -131,11 +126,9 @@ class Scorer {
     elayers_output_cache_ = std::move(torch::jit::IValue());
     conformer_cnn_cache_ = std::move(torch::jit::IValue());
     encoder_outs_.clear();
+    scores_.clear();
     offset_; // this is offset of subsampled caches
-    result_ = "";
   }
-
-  Str Result() { return result_; }
 
  private:
   ScorerConfig config_;
@@ -153,7 +146,7 @@ class Scorer {
   Vec<torch::Tensor> encoder_outs_;
   i64 offset_;
 
-  Str result_;
+  Vec<torch::Tensor> scores_;
 };
 
 } // namespace sio

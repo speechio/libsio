@@ -6,6 +6,7 @@
 
 namespace sio {
 
+/*
 TEST(Audio, LoaderAndResampler) {
 
   std::string audio_path = "testdata/MINI/audio/audio1.wav";
@@ -24,5 +25,6 @@ TEST(Audio, LoaderAndResampler) {
   EXPECT_EQ(resampler.TargetSampleRate(), 8000.0);
   EXPECT_EQ(output.Dim(), 10240);
 }
+*/
 
 } // namespace sio

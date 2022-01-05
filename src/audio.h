@@ -5,7 +5,7 @@
 #include <string>
 
 #include "feat/wave-reader.h"
-#include "feat/resample.h"
+//#include "feat/resample.h"
 
 #include "sio/base.h"
 
@@ -49,6 +49,10 @@ struct AudioSegment {
 };
 */
 
+/* 
+  Kaldi online feature supports internal resampler:
+    https://github.com/kaldi-asr/kaldi/blob/d366a93aad98127683b010fd01e145093c1e9e08/src/feat/online-feature.cc#L143
+  so the following class is probably not necessary
 class Resampler {
  public:
   Resampler(float source_sample_rate, float target_sample_rate) :
@@ -79,6 +83,8 @@ class Resampler {
   kaldi::LinearResample resampler_;
 
 }; // class Resampler
+
+*/
 
 }  // namespace sio
 #endif

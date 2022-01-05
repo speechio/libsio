@@ -30,7 +30,7 @@ TEST(Feature, Extractor) {
     ReadAudio(audio_file, &audio, &sample_rate);
 
     feature_extractor.PushAudio(audio.data(), audio.size(), sample_rate);
-    feature_extractor.EndOfAudio();
+    feature_extractor.EOS();
     EXPECT_EQ(num_frames, feature_extractor.NumFrames());
 
     Vec<float> frame;

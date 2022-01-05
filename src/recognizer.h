@@ -10,6 +10,7 @@
 #include "sio/feature_extractor.h"
 #include "sio/tokenizer.h"
 #include "sio/scorer.h"
+#include "sio/beam_search.h"
 
 #include "sio/dbg.h"
 
@@ -18,45 +19,48 @@ class Recognizer {
  public:
   Recognizer(
     const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mean_var_norm,
-    const Tokenizer& tokenizer, const ScorerConfig& scorer_config, torch::jit::script::Module& nnet
+    const ScorerConfig& scorer_config, torch::jit::script::Module& nnet,
+    const Tokenizer& tokenizer
   ) :
     feature_extractor_(feature_extractor_config, mean_var_norm),
-    tokenizer_(tokenizer),
-    scorer_(tokenizer, scorer_config, nnet)
+    scorer_(tokenizer, scorer_config, nnet),
+    search_(),
+    tokenizer_(tokenizer)
   { }
 
   Error Speech(const float* samples, size_t num_samples, float sample_rate) {
     SIO_CHECK(samples != nullptr && num_samples != 0);
-    return Proceed(samples, num_samples, sample_rate);
+    return Advance(samples, num_samples, sample_rate, false /*eos*/);
   }
 
   Error To() { 
-    Error err = Proceed(nullptr, 0, 8000.16000 /*fake sample rate*/);
+    Error err = Advance(nullptr, 0, 123.456 /*dont care sample rate*/, true /*eos*/);
     return err;
   }
 
   Error Text(std::string* result) { 
-    *result = scorer_.Result();
+    auto best_path = search_.BestPath();
+    for (index_t i = 0; i < best_path.size(); i++) {
+      *result += tokenizer_.index_to_token.at(best_path[i]);
+    }
     return Error::OK;
   }
 
   Error Reset() { 
     feature_extractor_.Reset();
     scorer_.Reset();
+    search_.Reset();
     return Error::OK; 
   }
 
  private:
-  Error Proceed(const float* samples, size_t num_samples, float sample_rate) {
-    bool no_more_input = false;
-    if (samples == nullptr && num_samples == 0) {
-      no_more_input = true;
+  Error Advance(const float* samples, size_t num_samples, float sample_rate, bool eos) {
+    if (samples != nullptr && num_samples != 0) {
+      feature_extractor_.PushAudio(samples, num_samples, sample_rate);
     }
 
-    if (no_more_input) {
-      feature_extractor_.EndOfAudio();
-    } else {
-      feature_extractor_.PushAudio(samples, num_samples, sample_rate);
+    if (eos) {
+      feature_extractor_.EOS();
     }
 
     while (feature_extractor_.NumFrames() > 0) {
@@ -65,16 +69,26 @@ class Recognizer {
       scorer_.PushFeat(frame);
     }
 
-    if (no_more_input) {
-      scorer_.EndOfFeats();
+    if (eos) {
+      scorer_.EOS();
+    }
+
+    while (!scorer_.Empty()) {
+      Vec<torch::Tensor> scores = scorer_.PopScore();
+      search_.PushScore(scores);
+    }
+    
+    if (eos) {
+      search_.EOS();
     }
 
     return Error::OK;
   }
 
   FeatureExtractor feature_extractor_;
-  const Tokenizer& tokenizer_;
   Scorer scorer_;
+  BeamSearch search_;
+  const Tokenizer& tokenizer_;
 
 }; // class Recognizer
 }  // namespace sio
