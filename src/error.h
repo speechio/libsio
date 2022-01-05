@@ -8,12 +8,12 @@
 namespace sio {
 
 enum class Error : int {
-  OK = 0,
-  OutOfMemory,
-  Unreachable,
-  AssertionFailure,
-  InvalidFileHandle,
-  Unknown,
+	OK = 0,
+	OutOfMemory,
+	Unreachable,
+	AssertionFailure,
+	InvalidFileHandle,
+	Unknown,
 }; // enum class Error
 
 bool operator!(Error err);
