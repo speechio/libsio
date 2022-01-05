@@ -24,10 +24,7 @@ struct FeatureExtractorConfig {
 
 class FeatureExtractor {
  public:
-  explicit FeatureExtractor(
-    const FeatureExtractorConfig& config,
-    const MeanVarNorm* mean_var_norm
-  ) :
+  explicit FeatureExtractor(const FeatureExtractorConfig& config, const MeanVarNorm* mean_var_norm) :
     config_(config),
     mean_var_norm_(mean_var_norm)
   { 
@@ -96,11 +93,13 @@ class FeatureExtractor {
   // need pointer here because we want Reset() functionality
   Optional<Owner<kaldi::OnlineBaseFeature*>> fbank_extractor_ = nullptr;
 
-  // popped:                [0         , cur_frame_)
-  // NumFrames() remaining: [cur_frame_, fbank_extractor->NumFramesReady())
+  /*
+    [0, cur_frame_) already popped out frames.
+    [cur_frame_, cur_frame_ + NumFrames()) remainder frames.
+  */
   index_t cur_frame_;
 
-  // sometimes mvn is incoporated into nnet itself, so leave this nullptr
+  // some model incorporates global mvn into nnet, so it's optional with nullptr
   Optional<const MeanVarNorm*> mean_var_norm_ = nullptr;
 }; // class FeatureExtractor
 

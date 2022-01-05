@@ -24,16 +24,11 @@ struct ScorerConfig {
 
 class Scorer {
  public:
-  Scorer(
-    const Tokenizer& tokenizer,
-    const ScorerConfig & config,
-    torch::jit::script::Module& nnet, 
-    int num_threads = 1
-  ) : 
-    tokenizer_(tokenizer),
+  Scorer(const ScorerConfig & config, torch::jit::script::Module& nnet, int num_threads = 1) : 
     config_(config),
     nnet_(nnet),
-    offset_(0)
+    cur_iframe_(0),
+    cur_oframe_(0)
   { 
     //torch::set_num_threads(1); ?
     //at::set_num_threads(num_threads);
@@ -50,6 +45,7 @@ class Scorer {
 
   void PushFeat(const Vec<float>& frame) {
     feat_cache_.emplace_back(frame);
+    ++cur_iframe_;
   }
 
   void EOS() {
@@ -82,7 +78,7 @@ class Scorer {
     int requried_cache_size = config_.chunk_size * config_.num_left_chunks;
     std::vector<torch::jit::IValue> inputs = {
       feats,
-      offset_,
+      cur_oframe_,
       requried_cache_size,
       subsampling_cache_,
       elayers_output_cache_,
@@ -91,62 +87,66 @@ class Scorer {
 
     // Forward encoder layers
     auto r = nnet_.get_method("forward_encoder_chunk")(inputs).toTuple()->elements();
+
     SIO_CHECK_EQ(r.size(), 4);
-
-    // what is "assign" semantics for torch::Tensor? ref-counted shared ownership?
-    torch::Tensor encoder_out = r[0].toTensor();
-
+    torch::Tensor acoustic_encoding = r[0].toTensor();
     // what is "assign" semantics for torch::jit:IValue ?
     subsampling_cache_ = r[1];
     elayers_output_cache_ = r[2];
     conformer_cnn_cache_ = r[3];
+    acoustic_encoding_cache_.push_back(acoustic_encoding);
 
-    offset_ += encoder_out.size(1);
+    torch::Tensor scores = 
+      nnet_.run_method("ctc_activation", acoustic_encoding).toTensor()[0]; // batch_size(i.e. dim0) = 1
+    // scores: [frames, nnet_odim]
 
-    // how this move semantic actually acts for a slice of tensor, i.e. toTensor()[0]
-    scores_.push_back(
-      std::move(
-        nnet_.run_method("ctc_activation", encoder_out).toTensor()[0]
-      )
-    );
-    encoder_outs_.push_back(std::move(encoder_out));
-    //dbg(scores_.size(0), scores_.size(1));
+    scores_cache_.push_back(scores);
+    cur_oframe_ += scores.size(1);
+    //dbg(scores_cache_.size(0), scores_cache_.size(1));
   }
 
-  size_t Empty() const {
-    return scores_.empty();
+  size_t NumChunks() const {
+    return scores_cache_.size();
   }
 
-  Vec<torch::Tensor> PopScore() { return std::move(scores_); }
+  torch::Tensor PopScore() { 
+    torch::Tensor one_chunk_scores = scores_cache_.front();
+    scores_cache_.pop_front();
+    return one_chunk_scores;
+  }
 
   void Reset() {
     feat_cache_.clear();
+    cur_iframe_ = 0;
 
     subsampling_cache_ = std::move(torch::jit::IValue());
     elayers_output_cache_ = std::move(torch::jit::IValue());
     conformer_cnn_cache_ = std::move(torch::jit::IValue());
-    encoder_outs_.clear();
-    scores_.clear();
-    offset_; // this is offset of subsampled caches
+    acoustic_encoding_cache_.clear();
+    scores_cache_.clear();
+    cur_oframe_ = 0;
   }
 
  private:
   ScorerConfig config_;
-  const Tokenizer& tokenizer_;
   torch::jit::script::Module& nnet_;
 
   int subsampling_factor_;
   int right_context_;
 
+  // nnet input cache
   std::deque<Vec<float>> feat_cache_;
+  index_t cur_iframe_; // feats[0, cur_iframe_) pushed
 
+  // nnet internal cache
   torch::jit::IValue subsampling_cache_;
   torch::jit::IValue elayers_output_cache_;
   torch::jit::IValue conformer_cnn_cache_;
-  Vec<torch::Tensor> encoder_outs_;
-  i64 offset_;
+  Vec<torch::Tensor> acoustic_encoding_cache_;
 
-  Vec<torch::Tensor> scores_;
+  // nnet output cache
+  std::deque<torch::Tensor> scores_cache_;
+  index_t cur_oframe_; // scores[0, cur_oframe_) ready, notice: output frame counts is subsampled
 };
 
 } // namespace sio

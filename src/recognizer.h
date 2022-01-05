@@ -23,18 +23,18 @@ class Recognizer {
     const Tokenizer& tokenizer
   ) :
     feature_extractor_(feature_extractor_config, mean_var_norm),
-    scorer_(tokenizer, scorer_config, nnet),
+    scorer_(scorer_config, nnet),
     search_(),
     tokenizer_(tokenizer)
   { }
 
   Error Speech(const float* samples, size_t num_samples, float sample_rate) {
     SIO_CHECK(samples != nullptr && num_samples != 0);
-    return Advance(samples, num_samples, sample_rate, false /*eos*/);
+    return Advance(samples, num_samples, sample_rate, /*eos*/false);
   }
 
   Error To() { 
-    Error err = Advance(nullptr, 0, 123.456 /*dont care sample rate*/, true /*eos*/);
+    Error err = Advance(nullptr, 0, /*dont care sample rate*/123.456, /*eos*/true);
     return err;
   }
 
@@ -73,9 +73,9 @@ class Recognizer {
       scorer_.EOS();
     }
 
-    while (!scorer_.Empty()) {
-      Vec<torch::Tensor> scores = scorer_.PopScore();
-      search_.PushScore(scores);
+    while (scorer_.NumChunks() > 0) {
+      torch::Tensor chunk_scores = scorer_.PopScore();
+      search_.PushScore(chunk_scores);
     }
     
     if (eos) {
