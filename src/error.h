@@ -36,6 +36,8 @@ public:
 			abort();
 		}
 	}
+
+	// This is used to concat a logger object with more specific messages, see usage in check.h
 	void operator&(const Logger &) { }
 
 private:
