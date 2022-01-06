@@ -1,7 +1,7 @@
 #ifndef SIO_BEAM_SEARCH_H
 #define SIO_BEAM_SEARCH_H
 
-#include "sio/base.h"
+#include "sio/common.h"
 //#include "sio/dbg.h"
 
 namespace sio {

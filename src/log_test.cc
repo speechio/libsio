@@ -1,4 +1,5 @@
 #include <gtest/gtest.h>
+
 #include "sio/log.h"
 #include "sio/str.h"
 

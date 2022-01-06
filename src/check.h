@@ -1,7 +1,7 @@
 #ifndef SIO_CHECK_H
 #define SIO_CHECK_H
 
-#include "sio/macro.h"
+#include "sio/base.h"
 #include "sio/error.h"
 #include "sio/log.h"
 namespace sio {

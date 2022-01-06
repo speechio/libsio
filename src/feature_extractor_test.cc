@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <iostream>
 
-#include "sio/base.h"
+#include "sio/common.h"
 #include "sio/audio.h"
 #include "sio/mean_var_norm.h"
 #include "sio/feature_extractor.h"

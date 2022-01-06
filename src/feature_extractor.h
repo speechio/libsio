@@ -3,7 +3,7 @@
 
 #include "feat/online-feature.h"
 
-#include "sio/base.h"
+#include "sio/common.h"
 #include "sio/struct_loader.h"
 #include "sio/mean_var_norm.h"
 namespace sio {

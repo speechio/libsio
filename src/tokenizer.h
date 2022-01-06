@@ -2,7 +2,7 @@
 #define SIO_TOKENIZER_H
 
 //#include <sentencepiece_processor.h>
-#include "sio/base.h"
+#include "sio/common.h"
 //#include "sio/dbg.h"
 
 /*

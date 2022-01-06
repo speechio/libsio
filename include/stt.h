@@ -1,7 +1,7 @@
 #ifndef SIO_STT_H
 #define SIO_STT_H
 
-#include "sio/macro.h"
+#include "sio/base.h"
 #include "sio/type.h"
 #include "sio/error.h"
 #include "sio/log.h"

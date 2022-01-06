@@ -6,7 +6,7 @@
 #include <torch/torch.h>
 #include <torch/script.h>
 
-#include "sio/base.h"
+#include "sio/common.h"
 #include "sio/feature_extractor.h"
 #include "sio/tokenizer.h"
 #include "sio/scorer.h"

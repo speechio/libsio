@@ -4,7 +4,7 @@
 #include "torch/script.h"
 #include "torch/torch.h"
 
-#include "sio/base.h"
+#include "sio/common.h"
 #include "sio/tokenizer.h"
 
 //#include "sio/dbg.h"
