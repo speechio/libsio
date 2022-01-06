@@ -52,8 +52,8 @@ inline LogSeverity CurrentLogVerbosity() {
 /* Logging utils */
 class Logger {
 public:
-	Logger(std::ostream& ostream, const char *file, size_t line, const char *func, LogSeverity severity)
-	: ostream_(ostream), file_(file), line_(line), func_(func), severity_(severity)
+	Logger(std::ostream& ostream, const char *file, size_t line, const char *func, LogSeverity severity) :
+		ostream_(ostream), file_(file), line_(line), func_(func), severity_(severity)
 	{
 		if (severity_ >= CurrentLogVerbosity()) {
 			buf_ << LogSeverityRepr(severity_);
