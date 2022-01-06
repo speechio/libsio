@@ -11,52 +11,52 @@
 namespace sio {
 
 struct SpeechToText {
-	SpeechToTextConfig config;
-	torch::jit::script::Module nnet;
-	Tokenizer tokenizer;
-	Optional<Owner<MeanVarNorm*>> mean_var_norm = nullptr;
+    SpeechToTextConfig config;
+    torch::jit::script::Module nnet;
+    Tokenizer tokenizer;
+    Optional<Owner<MeanVarNorm*>> mean_var_norm = nullptr;
 
-	Error Load(std::string config_file) { 
-		config.Load(config_file);
+    Error Load(std::string config_file) { 
+        config.Load(config_file);
 
-		if (config.mean_var_norm_file != "") {
-			mean_var_norm = new MeanVarNorm;
-			mean_var_norm->Load(config.mean_var_norm_file);
-		} else {
-			mean_var_norm = nullptr;
-		}
+        if (config.mean_var_norm_file != "") {
+            mean_var_norm = new MeanVarNorm;
+            mean_var_norm->Load(config.mean_var_norm_file);
+        } else {
+            mean_var_norm = nullptr;
+        }
 
-		tokenizer.Load(config.tokenizer_vocab);
+        tokenizer.Load(config.tokenizer_vocab);
 
-		SIO_CHECK(config.nnet != "") << "stt nnet is required";
-		SIO_INFO << "Loading torchscript nnet from: " << config.nnet; 
-		nnet = torch::jit::load(config.nnet);
+        SIO_CHECK(config.nnet != "") << "stt nnet is required";
+        SIO_INFO << "Loading torchscript nnet from: " << config.nnet; 
+        nnet = torch::jit::load(config.nnet);
 
-		return Error::OK;
-	}
+        return Error::OK;
+    }
 
-	~SpeechToText() { 
-		if (mean_var_norm != nullptr) {
-			delete mean_var_norm;
-		}
-	}
+    ~SpeechToText() { 
+        if (mean_var_norm != nullptr) {
+            delete mean_var_norm;
+        }
+    }
 
-	Optional<Recognizer*> CreateRecognizer() {
-		try {
-			return new Recognizer(
-			/* feature */ config.feature_extractor, mean_var_norm,
-			/* scorer */ config.scorer, nnet,
-			/* tokenizer */ tokenizer
-			); 
-		} catch (...) {
-			return nullptr;
-		}
-	}
+    Optional<Recognizer*> CreateRecognizer() {
+        try {
+            return new Recognizer(
+            /* feature */ config.feature_extractor, mean_var_norm,
+            /* scorer */ config.scorer, nnet,
+            /* tokenizer */ tokenizer
+            ); 
+        } catch (...) {
+            return nullptr;
+        }
+    }
 
-	void DestroyRecognizer(Recognizer* rec) {
-		SIO_CHECK(rec != nullptr);
-		delete rec;
-	}
+    void DestroyRecognizer(Recognizer* rec) {
+        SIO_CHECK(rec != nullptr);
+        delete rec;
+    }
 }; // class SpeechToText
 }  // namespace sio
 

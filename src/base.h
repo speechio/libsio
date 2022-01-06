@@ -21,9 +21,9 @@ namespace sio {
 */
 
 constexpr const char* Basename(const char* fname, int offset) {
-	return offset == 0 || fname[offset - 1] == '/' || fname[offset - 1] == '\\'
-             ? fname + offset
-             : Basename(fname, offset - 1);
+    return offset == 0 || fname[offset - 1] == '/' || fname[offset - 1] == '\\'
+               ? fname + offset
+               : Basename(fname, offset - 1);
 }
 #define SIO__FILE__  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
 

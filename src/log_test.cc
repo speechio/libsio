@@ -5,14 +5,14 @@
 
 namespace sio {
 
-	TEST(Log, Basic) {
-	Str msg = "This is a log message.";
+    TEST(Log, Basic) {
+    Str msg = "This is a log message.";
 
-	SIO_DEBUG   << msg;
-	SIO_INFO    << msg;
-	SIO_WARNING << msg;
-	SIO_ERROR   << msg;
-	SIO_FATAL   << msg;
+    SIO_DEBUG   << msg;
+    SIO_INFO    << msg;
+    SIO_WARNING << msg;
+    SIO_ERROR   << msg;
+    SIO_FATAL   << msg;
 }
 
 } // namespace sio

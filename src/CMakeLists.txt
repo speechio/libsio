@@ -1,27 +1,27 @@
 # libsio
 add_library(sio SHARED
-	error.cc
+    error.cc
 )
 
 # libsio unittest
 add_executable(unittest 
-	error_test.cc
-	log_test.cc
-	check_test.cc
-	linked_list_test.cc
-	heap_test.cc
-	audio_test.cc
-	feature_extractor_test.cc
-	dbg_test.cc
-	struct_loader_test.cc
+    error_test.cc
+    log_test.cc
+    check_test.cc
+    linked_list_test.cc
+    heap_test.cc
+    audio_test.cc
+    feature_extractor_test.cc
+    dbg_test.cc
+    struct_loader_test.cc
 )
 
 target_link_libraries(unittest
-	gtest_main
-	sio
-	absl::base
-	absl::strings
-	${KALDI_LIBS}
+    gtest_main
+    sio
+    absl::base
+    absl::strings
+    ${KALDI_LIBS}
 )
 
 include(GoogleTest)

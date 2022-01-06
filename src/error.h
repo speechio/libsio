@@ -10,47 +10,47 @@
 namespace sio {
 
 enum class Error : int {
-	OK = 0,
-	OutOfMemory,
-	Unreachable,
-	AssertionFailure,
-	InvalidFileHandle,
-	Unknown,
+    OK = 0,
+    OutOfMemory,
+    Unreachable,
+    AssertionFailure,
+    InvalidFileHandle,
+    Unknown,
 }; // enum class Error
 
 const char *error_cstr(Error err);
 
 inline bool operator!(Error err) { 
-	return (err == Error::OK);
+    return (err == Error::OK);
 }
 
 inline bool error_is_fatal(Error err) {
-	return (static_cast<int>(err) > 0);
+    return (static_cast<int>(err) > 0);
 }
 
 class Logger;
 class Panic {
 public:
-	Panic(const char* file, size_t line, const char* func, Error err) :
-		file_(file), line_(line), func_(func), err_(err) 
-	{ }
+    Panic(const char* file, size_t line, const char* func, Error err) :
+        file_(file), line_(line), func_(func), err_(err) 
+    { }
 
-	~Panic() {
-		fprintf(stderr, "[panic](%s:%d:%s) %s\n", file_, line_, func_, error_cstr(err_));
-		fflush(stderr);
-		if (error_is_fatal(err_)) {
-			abort();
-		}
-	}
+    ~Panic() {
+        fprintf(stderr, "[panic](%s:%d:%s) %s\n", file_, line_, func_, error_cstr(err_));
+        fflush(stderr);
+        if (error_is_fatal(err_)) {
+            abort();
+        }
+    }
 
-	// This is used to concat a logger object with more specific messages, see usage in check.h
-	void operator&(const Logger &) { }
+    // This is used to concat a logger object with more specific messages, see usage in check.h
+    void operator&(const Logger &) { }
 
 private:
-	const char* file_;
-	size_t line_;
-	const char* func_;
-	Error err_;
+    const char* file_;
+    size_t line_;
+    const char* func_;
+    Error err_;
 };
 
 #define SIO_PANIC(err) ::sio::Panic(SIO__FILE__, __LINE__, SIO__FUNC__, err)
