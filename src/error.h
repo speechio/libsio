@@ -2,6 +2,8 @@
 #define SIO_ERROR_H
 
 #include <stddef.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 #include "sio/base.h"
 
@@ -16,11 +18,15 @@ enum class Error : int {
 	Unknown,
 }; // enum class Error
 
-bool operator!(Error err);
-
 const char *error_cstr(Error err);
 
-bool error_is_fatal(Error err);
+inline bool operator!(Error err) { 
+	return (err == Error::OK);
+}
+
+inline bool error_is_fatal(Error err) {
+	return (static_cast<int>(err) > 0);
+}
 
 class Logger;
 class Panic {
