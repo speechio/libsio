@@ -57,7 +57,8 @@ public:
 
 		std::ifstream json_stream(json_file);
 		if (!json_stream.good()) {
-			SIO_FATAL(Error::InvalidFileHandle) << "Can't open json file: " << json_file;
+			SIO_FATAL << "Can't open json file: " << json_file;
+			SIO_PANIC(Error::InvalidFileHandle);
 		}
 
 		json_stream >> j;

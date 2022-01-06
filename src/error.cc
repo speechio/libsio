@@ -17,20 +17,12 @@ const char *error_cstr(Error err) {
 	SIO_UNREACHABLE();
 }
 
-bool fatal(Error err) {
+bool error_is_fatal(Error err) {
 	return (static_cast<int>(err) > 0);
 }
 
 bool operator!(Error err) {
 	return (err == Error::OK);
-}
-
-void panic(const char* file, size_t line, const char* func, Error err) {
-	fprintf(stderr, "[panic](%s:%d:%s) %s\n", file, line, func, error_cstr(err));
-	fflush(stderr);
-	if (fatal(err)) {
-		abort();
-	}
 }
 
 } // namespace sio

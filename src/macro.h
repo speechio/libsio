@@ -9,8 +9,7 @@ namespace sio {
 #define SIO_LIKELY   ABSL_PREDICT_TRUE
 #define SIO_UNLIKELY ABSL_PREDICT_FALSE
 
-/* SIO_FUNC_REPR */
-#define SIO_FUNC_REPR __func__
+#define SIO__FUNC__ __func__
 /*
 #if defined(_MSC_VER)
 #define SIO_FUNC_REPR __FUNCSIG__
@@ -21,13 +20,12 @@ namespace sio {
 #endif
 */
 
-/* SIO_FILE_REPR */
 constexpr const char* Basename(const char* fname, int offset) {
 	return offset == 0 || fname[offset - 1] == '/' || fname[offset - 1] == '\\'
              ? fname + offset
              : Basename(fname, offset - 1);
 }
-#define SIO_FILE_REPR  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
+#define SIO__FILE__  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
 
 } // namespace sio
 #endif

@@ -10,8 +10,8 @@ namespace sio {
 	SIO_DEBUG   << msg;
 	SIO_INFO    << msg;
 	SIO_WARNING << msg;
-	SIO_ERROR(Error::OK)   << msg;
-	SIO_FATAL(Error::OK)   << msg; // non-fatal errors won't abort()
+	SIO_ERROR   << msg;
+	SIO_FATAL   << msg;
 }
 
 } // namespace sio
