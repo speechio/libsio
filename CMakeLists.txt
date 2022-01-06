@@ -16,8 +16,8 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
 
 # abseil
-include_directories(deps/abseil-cpp)
-add_subdirectory(deps/abseil-cpp)
+include_directories(${CMAKE_SOURCE_DIR}/deps/abseil-cpp)
+add_subdirectory(${CMAKE_SOURCE_DIR}/deps/abseil-cpp)
 
 # kaldi
 set(KALDI_CMAKE_DIST "${CMAKE_SOURCE_DIR}/deps/kaldi_dist")

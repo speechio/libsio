@@ -12,7 +12,7 @@
 #include "sio/scorer.h"
 #include "sio/beam_search.h"
 
-#include "sio/dbg.h"
+//#include "sio/dbg.h"
 
 namespace sio {
 class Recognizer {

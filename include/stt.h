@@ -17,6 +17,7 @@
 #include "sio/audio.h"
 #include "sio/mean_var_norm.h"
 #include "sio/feature_extractor.h"
+#include "sio/tokenizer.h"
 #include "sio/speech_to_text_config.h"
 #include "sio/recognizer.h"
 #include "sio/speech_to_text.h"
