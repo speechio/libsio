@@ -25,7 +25,7 @@ public:
         tokenizer_(tokenizer),
         feature_extractor_(feature_extractor_config, mean_var_norm),
         scorer_(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_.Size()),
-        search_()
+        beam_search_()
     { }
 
     Error Speech(const float* samples, size_t num_samples, float sample_rate) {
@@ -39,7 +39,7 @@ public:
     }
 
     Error Text(std::string* result) { 
-        auto best_path = search_.BestPath();
+        auto best_path = beam_search_.BestPath();
         for (index_t i = 0; i < best_path.size(); i++) {
             *result += tokenizer_.index_to_token.at(best_path[i]);
         }
@@ -49,7 +49,7 @@ public:
     Error Reset() { 
         feature_extractor_.Reset();
         scorer_.Reset();
-        search_.Reset();
+        beam_search_.Reset();
         return Error::OK; 
     }
 
@@ -74,11 +74,11 @@ private:
 
         while (scorer_.Len() > 0) {
             auto score_frame = scorer_.Pop();
-            search_.Push(score_frame);
+            beam_search_.Push(score_frame);
         }
         
         if (eos) {
-            search_.PushEnd();
+            beam_search_.PushEnd();
         }
 
         return Error::OK;
@@ -87,7 +87,7 @@ private:
     const Tokenizer& tokenizer_;
     FeatureExtractor feature_extractor_;
     Scorer scorer_;
-    BeamSearch search_;
+    BeamSearch beam_search_;
 
 }; // class Recognizer
 }  // namespace sio
