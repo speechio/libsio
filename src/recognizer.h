@@ -18,14 +18,14 @@ namespace sio {
 class Recognizer {
 public:
     Recognizer(
+        const Tokenizer& tokenizer,
         const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mean_var_norm,
-        const ScorerConfig& scorer_config, torch::jit::script::Module& nnet,
-        const Tokenizer& tokenizer
+        const ScorerConfig& scorer_config, torch::jit::script::Module& nnet
     ) :
+        tokenizer_(tokenizer),
         feature_extractor_(feature_extractor_config, mean_var_norm),
-        scorer_(scorer_config, nnet),
-        search_(),
-        tokenizer_(tokenizer)
+        scorer_(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_.Size()),
+        search_()
     { }
 
     Error Speech(const float* samples, size_t num_samples, float sample_rate) {
@@ -56,39 +56,38 @@ public:
 private:
     Error Advance(const float* samples, size_t num_samples, float sample_rate, bool eos) {
         if (samples != nullptr && num_samples != 0) {
-            feature_extractor_.PushAudio(samples, num_samples, sample_rate);
+            feature_extractor_.Push(samples, num_samples, sample_rate);
         }
 
         if (eos) {
-            feature_extractor_.EOS();
+            feature_extractor_.PushEnd();
         }
 
-        while (feature_extractor_.NumFrames() > 0) {
-            Vec<float> frame;
-            feature_extractor_.PopFeat(&frame);
-            scorer_.PushFeat(frame);
+        while (feature_extractor_.Len() > 0) {
+            auto feat_frame = feature_extractor_.Pop();
+            scorer_.Push(feat_frame);
         }
 
         if (eos) {
-            scorer_.EOS();
+            scorer_.PushEnd();
         }
 
-        while (scorer_.NumChunks() > 0) {
-            torch::Tensor chunk_scores = scorer_.PopScore();
-            search_.PushScore(chunk_scores);
+        while (scorer_.Len() > 0) {
+            auto score_frame = scorer_.Pop();
+            search_.Push(score_frame);
         }
         
         if (eos) {
-            search_.EOS();
+            search_.PushEnd();
         }
 
         return Error::OK;
     }
 
+    const Tokenizer& tokenizer_;
     FeatureExtractor feature_extractor_;
     Scorer scorer_;
     BeamSearch search_;
-    const Tokenizer& tokenizer_;
 
 }; // class Recognizer
 }  // namespace sio

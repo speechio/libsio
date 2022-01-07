@@ -29,14 +29,12 @@ TEST(Feature, Extractor) {
         float sample_rate;
         ReadAudio(audio_file, &audio, &sample_rate);
 
-        feature_extractor.PushAudio(audio.data(), audio.size(), sample_rate);
-        feature_extractor.EOS();
-        EXPECT_EQ(num_frames, feature_extractor.NumFrames());
+        feature_extractor.Push(audio.data(), audio.size(), sample_rate);
+        feature_extractor.PushEnd();
+        EXPECT_EQ(num_frames, feature_extractor.Len());
 
-        Vec<float> frame;
-        int i;
-        while(feature_extractor.NumFrames() > 0) {
-            feature_extractor.PopFeat(&frame);
+        while(feature_extractor.Len() > 0) {
+            auto frame = feature_extractor.Pop();
         }
         feature_extractor.Reset();
     }

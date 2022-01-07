@@ -40,7 +40,7 @@ struct Tokenizer {
     //    return Error::OK;
     //}
 
-    size_t Size() {
+    size_t Size() const {
         return index_to_token.size();
     }
 }; // class Tokenizer

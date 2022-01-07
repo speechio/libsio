@@ -44,9 +44,9 @@ struct SpeechToText {
     Optional<Recognizer*> CreateRecognizer() {
         try {
             return new Recognizer(
+            /* tokenizer */ tokenizer,
             /* feature */ config.feature_extractor, mean_var_norm,
-            /* scorer */ config.scorer, nnet,
-            /* tokenizer */ tokenizer
+            /* scorer */ config.scorer, nnet
             ); 
         } catch (...) {
             return nullptr;

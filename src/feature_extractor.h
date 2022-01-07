@@ -38,41 +38,29 @@ public:
         /* feature extractor doesn't have ownership of mean_var_norm */
     }
 
-    size_t Dim() {
-        return fbank_extractor_->Dim();
-    }
-
-    void PushAudio(const float* samples, size_t num_samples, float sample_rate) {
+    void Push(const float* samples, size_t num_samples, float sample_rate) {
         fbank_extractor_->AcceptWaveform(
             sample_rate, 
             kaldi::SubVector<float>(samples, num_samples)
         );
     }
 
-    void EOS() {
+    void PushEnd() {
         fbank_extractor_->InputFinished();
     }
 
-    size_t NumFrames() const {
-        SIO_CHECK_LE(cur_frame_, fbank_extractor_->NumFramesReady());
-        return fbank_extractor_->NumFramesReady() - cur_frame_;
-    }
+    Vec<float> Pop() {
+        SIO_CHECK_GT(Len(), 0);
+        Vec<float> feat_frame(Dim(), 0.0f);
+        kaldi::SubVector<float> kaldi_frame(feat_frame.data(), feat_frame.size());
+        // kaldi_frame is a helper frame view, no underlying data ownership
 
-    index_t PopFeat(Vec<float>* frame) {
-        SIO_CHECK_GT(NumFrames(), 0);
-
-        frame->clear();
-        frame->resize(Dim(), 0.0f);
-        kaldi::SubVector<float> kframe(frame->data(), frame->size());
-
-        index_t frame_idx = cur_frame_;
-        fbank_extractor_->GetFrame(cur_frame_++, &kframe);
-
+        fbank_extractor_->GetFrame(cur_frame_++, &kaldi_frame);
         if (mean_var_norm_) {
-            mean_var_norm_->Normalize(&kframe);
+            mean_var_norm_->Normalize(&kaldi_frame);
         }
 
-        return frame_idx;
+        return std::move(feat_frame);
     }
 
     void Reset() {
@@ -82,9 +70,24 @@ public:
         cur_frame_ = 0;
     }
 
-    float FrameShiftInSeconds() const {
+    size_t Dim() const {
         SIO_CHECK_EQ(config_.type, "fbank");
-        return config_.fbank.frame_opts.frame_shift_ms / 1000.0f;
+        return fbank_extractor_->Dim();
+    }
+
+    size_t Len() const {
+        SIO_CHECK_LE(cur_frame_, fbank_extractor_->NumFramesReady());
+        return fbank_extractor_->NumFramesReady() - cur_frame_;
+    }
+
+    float SampleRate() const {
+        SIO_CHECK_EQ(config_.type, "fbank");
+        return config_.fbank.frame_opts.samp_freq;
+    }
+
+    float FrameRate() const {
+        SIO_CHECK_EQ(config_.type, "fbank");
+        return 1000.0f / config_.fbank.frame_opts.frame_shift_ms;
     }
 
 private:
