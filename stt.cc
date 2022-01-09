@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "stt.h"
-#include "sio/dbg.h"
+//#include "sio/dbg.h"
 
 int main() {
     sio::SpeechToText stt;
