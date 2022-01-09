@@ -24,7 +24,7 @@ struct FeatureExtractorConfig {
 
 class FeatureExtractor {
 public:
-    explicit FeatureExtractor(const FeatureExtractorConfig& config, const MeanVarNorm* mean_var_norm) :
+    FeatureExtractor(const FeatureExtractorConfig& config, const MeanVarNorm* mean_var_norm) :
         config_(config),
         mean_var_norm_(mean_var_norm)
     { 
@@ -35,7 +35,10 @@ public:
 
     ~FeatureExtractor() {
         delete fbank_extractor_;
-        /* feature extractor doesn't have ownership of mean_var_norm */
+        /* 
+         mean_var_norm_ has no ownership here,
+         it's stateless, thread-safe, owned by SpeechToText
+        */
     }
 
     void Push(const float* samples, size_t num_samples, float sample_rate) {
