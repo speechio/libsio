@@ -47,7 +47,7 @@ public:
         config_ = config;
 
         if (fbank_extractor_ != SIO_UNDEF_PTR) {
-            SIO_WARNING << "Setup non-empty FeatureExtractor, forced to releasing existing extractor.";
+            SIO_WARNING << "Try to setup already defined FeatureExtractor, have to release existing resource.";
             delete fbank_extractor_; fbank_extractor_ = nullptr;
         }
         fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
