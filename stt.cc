@@ -5,7 +5,7 @@
 
 int main() {
     sio::SpeechToText stt;
-    stt.Load("testdata/stt.json");
+    stt.Setup("testdata/stt.json");
 
     int samples_per_chunk = std::numeric_limits<int>::max();
     if (stt.config.online == true) {

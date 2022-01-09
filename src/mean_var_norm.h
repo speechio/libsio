@@ -11,20 +11,24 @@
 
 namespace sio {
 struct MeanVarNorm {
-    /*
-    Format of mean_var_norm file, three lines:
-    line1: norm_vector_dimension
-    line2: m_norm_shift vector, no brackets, elements seperated by comma or whitespaces
-    line3: v_nrom_scale vector, same as above
+    int dim = 0;
+    std::vector<double> m_norm_shift;
+    std::vector<double> v_norm_scale;
 
-    Example mean_var_norm.txt:
-    3
-    -8.505237579345703 -8.91793441772461 -10.091235160827637
-    0.6330024600028992 0.49299687147140503 0.37579503655433655
 
-    */
+    Error Setup(std::string mean_var_norm_file) {
+        /*
+        Format of mean_var_norm file, three lines:
+        line1: norm_vector_dimension
+        line2: m_norm_shift vector, no brackets, elements seperated by comma or whitespaces
+        line3: v_nrom_scale vector, same as above
 
-    Error Load(std::string mean_var_norm_file) {
+        Example mean_var_norm.txt:
+        3
+        -8.505237579345703 -8.91793441772461 -10.091235160827637
+        0.6330024600028992 0.49299687147140503 0.37579503655433655
+
+        */
         std::ifstream is(mean_var_norm_file);
 
         std::string line;
@@ -54,6 +58,7 @@ struct MeanVarNorm {
         return Error::OK;
     }
 
+
     void Normalize(kaldi::VectorBase<float> *frame) const {
         SIO_CHECK(frame != nullptr) << "null input to mvn ?";
         SIO_CHECK_EQ(frame->Dim(), dim) << "feature dim inconsistent with mvn dim";
@@ -65,9 +70,6 @@ struct MeanVarNorm {
         }
     }
 
-    int dim = 0;
-    std::vector<double> m_norm_shift;
-    std::vector<double> v_norm_scale;
 }; // class MeanVarNorm
 }  // namespace sio
 #endif

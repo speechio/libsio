@@ -20,7 +20,8 @@ TEST(Feature, Extractor) {
     config.fbank.frame_opts.dither = 1.0;
     config.fbank.mel_opts.num_bins = 80;
 
-    FeatureExtractor feature_extractor(config, nullptr); /* nullptr: no mvn */
+    FeatureExtractor feature_extractor;
+    feature_extractor.Setup(config);
     for (const auto& kv : audio_to_frames) {
         Str audio_file = kv.first;
         int num_frames = kv.second;

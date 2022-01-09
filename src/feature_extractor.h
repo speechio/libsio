@@ -7,7 +7,6 @@
 #include "sio/struct_loader.h"
 #include "sio/mean_var_norm.h"
 namespace sio {
-
 struct FeatureExtractorConfig {
     std::string type; // support "fbank" only for now
     kaldi::FbankOptions fbank;
@@ -23,23 +22,47 @@ struct FeatureExtractorConfig {
 };
 
 class FeatureExtractor {
+private:
+    FeatureExtractorConfig config_;
+
+    // need pointer here because we want Reset() functionality
+    Owner<kaldi::OnlineBaseFeature*> fbank_extractor_ = nullptr;
+
+    Optional<const MeanVarNorm*> mean_var_norm_ = nullptr;
+
+    index_t cur_frame_ = 0; //[0, cur_frame_) popped, [cur_frame_, NumFramesReady()) remainder.
+
 public:
-    FeatureExtractor(const FeatureExtractorConfig& config, const MeanVarNorm* mean_var_norm) :
-        config_(config),
-        mean_var_norm_(mean_var_norm)
-    { 
-        SIO_CHECK_EQ(config_.type, "fbank");
-        fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
-        cur_frame_ = 0;
+    ~FeatureExtractor() noexcept {
+        delete fbank_extractor_; fbank_extractor_ = nullptr;
     }
 
-    ~FeatureExtractor() {
-        delete fbank_extractor_;
-        /* 
-         mean_var_norm_ has no ownership here,
-         it's stateless, thread-safe, owned by SpeechToText
-        */
+
+    Error Setup(const FeatureExtractorConfig& config, const MeanVarNorm* mean_var_norm = nullptr) { 
+        SIO_CHECK_EQ(config.type, "fbank");
+
+        config_ = config;
+
+        if (fbank_extractor_ != nullptr) {
+            delete fbank_extractor_; fbank_extractor_ = nullptr;
+        }
+        fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
+
+        cur_frame_ = 0;
+        mean_var_norm_ = mean_var_norm;
+
+        return Error::OK;
     }
+
+
+    Error Reset() {
+        delete fbank_extractor_;
+        fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
+        cur_frame_ = 0;
+
+        return Error::OK;
+    }
+
 
     void Push(const float* samples, size_t num_samples, float sample_rate) {
         fbank_extractor_->AcceptWaveform(
@@ -48,9 +71,11 @@ public:
         );
     }
 
+
     void PushEnd() {
         fbank_extractor_->InputFinished();
     }
+
 
     Vec<float> Pop() {
         SIO_CHECK_GT(Len(), 0);
@@ -66,45 +91,26 @@ public:
         return std::move(feat_frame);
     }
 
-    void Reset() {
-        SIO_CHECK_EQ(config_.type, "fbank");
-        delete fbank_extractor_;
-        fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
-        cur_frame_ = 0;
-    }
 
     size_t Dim() const {
-        SIO_CHECK_EQ(config_.type, "fbank");
         return fbank_extractor_->Dim();
     }
 
+
     size_t Len() const {
-        SIO_CHECK_LE(cur_frame_, fbank_extractor_->NumFramesReady());
         return fbank_extractor_->NumFramesReady() - cur_frame_;
     }
 
+
     float SampleRate() const {
-        SIO_CHECK_EQ(config_.type, "fbank");
         return config_.fbank.frame_opts.samp_freq;
     }
 
+
     float FrameRate() const {
-        SIO_CHECK_EQ(config_.type, "fbank");
         return 1000.0f / config_.fbank.frame_opts.frame_shift_ms;
     }
 
-private:
-    const FeatureExtractorConfig& config_;
-
-    // need pointer here because we want Reset() functionality
-    Optional<Owner<kaldi::OnlineBaseFeature*>> fbank_extractor_ = nullptr;
-
-    // [0, cur_frame_) already popped out frames.
-    // [cur_frame_, cur_frame_ + NumFrames()) remainder frames.
-    index_t cur_frame_;
-
-    Optional<const MeanVarNorm*> mean_var_norm_ = nullptr;
 }; // class FeatureExtractor
-
 }  // namespace sio
 #endif

@@ -16,17 +16,25 @@ struct SpeechToText {
     Tokenizer tokenizer;
     Optional<Owner<MeanVarNorm*>> mean_var_norm = nullptr;
 
-    Error Load(std::string config_file) { 
-        config.Load(config_file);
+
+    ~SpeechToText() noexcept { 
+        if (mean_var_norm != nullptr) {
+            delete mean_var_norm; mean_var_norm = nullptr;
+        }
+    }
+
+
+    Error Setup(std::string config_file) { 
+        config.Setup(config_file);
 
         if (config.mean_var_norm_file != "") {
             mean_var_norm = new MeanVarNorm;
-            mean_var_norm->Load(config.mean_var_norm_file);
+            mean_var_norm->Setup(config.mean_var_norm_file);
         } else {
             mean_var_norm = nullptr;
         }
 
-        tokenizer.Load(config.tokenizer_vocab);
+        tokenizer.Setup(config.tokenizer_vocab);
 
         SIO_CHECK(config.nnet != "") << "stt nnet is required";
         SIO_INFO << "Loading torchscript nnet from: " << config.nnet; 
@@ -35,28 +43,27 @@ struct SpeechToText {
         return Error::OK;
     }
 
-    ~SpeechToText() { 
-        if (mean_var_norm != nullptr) {
-            delete mean_var_norm;
-        }
-    }
 
     Optional<Recognizer*> CreateRecognizer() {
         try {
-            return new Recognizer(
-            /* tokenizer */ tokenizer,
-            /* feature */ config.feature_extractor, mean_var_norm,
-            /* scorer */ config.scorer, nnet
+            Recognizer* rec = new Recognizer;
+            rec->Setup(
+                tokenizer, /* tokenizer */ 
+                config.feature_extractor, mean_var_norm, /* feature */
+                config.scorer, nnet /* scorer */
             ); 
+            return rec;
         } catch (...) {
             return nullptr;
         }
     }
 
+
     void DestroyRecognizer(Recognizer* rec) {
         SIO_CHECK(rec != nullptr);
         delete rec;
     }
+
 }; // class SpeechToText
 }  // namespace sio
 

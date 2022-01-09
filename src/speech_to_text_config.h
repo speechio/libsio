@@ -17,12 +17,13 @@ struct SpeechToTextConfig {
 
     std::string tokenizer_vocab;
     std::string tokenizer_model;
+
     std::string nnet;
+    ScorerConfig scorer;
+
     std::string graph;
     std::string context;
     bool do_endpointing = false;
-
-    ScorerConfig scorer;
 
 
     Error Register(StructLoader* loader, const std::string module = "") {
@@ -33,17 +34,19 @@ struct SpeechToTextConfig {
 
         loader->AddEntry(module + ".tokenizer.vocab", &tokenizer_vocab);
         loader->AddEntry(module + ".tokenizer.model", &tokenizer_model);
+
         loader->AddEntry(module + ".nnet", &nnet);
+        scorer.Register(loader, module + ".scorer");
+
         loader->AddEntry(module + ".graph", &graph);
         loader->AddEntry(module + ".context", &context);
         loader->AddEntry(module + ".do_endpointing", &do_endpointing);
 
-        scorer.Register(loader, module + ".scorer");
-
         return Error::OK;
     }
 
-    Error Load(const std::string& config_file) {
+
+    Error Setup(const std::string& config_file) {
         StructLoader loader;
         Register(&loader);
         loader.Load(config_file);

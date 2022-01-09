@@ -16,35 +16,45 @@
 
 namespace sio {
 class Recognizer {
+private:
+    const Tokenizer* tokenizer_ = nullptr;
+    FeatureExtractor feature_extractor_;
+    Scorer scorer_;
+    BeamSearch beam_search_;
+
 public:
-    Recognizer(
+    Error Setup(
         const Tokenizer& tokenizer,
         const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mean_var_norm,
         const ScorerConfig& scorer_config, torch::jit::script::Module& nnet
-    ) :
-        tokenizer_(tokenizer),
-        feature_extractor_(feature_extractor_config, mean_var_norm),
-        scorer_(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_.Size()),
-        beam_search_()
-    { }
+    ) { 
+        tokenizer_ = &tokenizer;
+        feature_extractor_.Setup(feature_extractor_config, mean_var_norm);
+        scorer_.Setup(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_->Size());
+        return Error::OK;
+    }
+
 
     Error Speech(const float* samples, size_t num_samples, float sample_rate) {
         SIO_CHECK(samples != nullptr && num_samples != 0);
         return Advance(samples, num_samples, sample_rate, /*eos*/false);
     }
 
+
     Error To() { 
         Error err = Advance(nullptr, 0, /*dont care sample rate*/123.456, /*eos*/true);
         return err;
     }
 
+
     Error Text(std::string* result) { 
         auto best_path = beam_search_.BestPath();
         for (index_t i = 0; i < best_path.size(); i++) {
-            *result += tokenizer_.index_to_token.at(best_path[i]);
+            *result += tokenizer_->Token(best_path[i]);
         }
         return Error::OK;
     }
+
 
     Error Reset() { 
         feature_extractor_.Reset();
@@ -83,11 +93,6 @@ private:
 
         return Error::OK;
     }
-
-    const Tokenizer& tokenizer_;
-    FeatureExtractor feature_extractor_;
-    Scorer scorer_;
-    BeamSearch beam_search_;
 
 }; // class Recognizer
 }  // namespace sio

@@ -13,11 +13,13 @@ SentencePiece C++ API reference:
 
 namespace sio {
 struct Tokenizer {
+private:
     Map<int, Str> index_to_token;
     Map<Str, int> token_to_index;
     //sentencepiece::SentencePieceProcessor spm;
 
-    void Load(const Str& tokenizer_vocab) {
+public:
+    void Setup(const Str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
         Str line;
         for (int index = 0; std::getline(is, line); index++) {
@@ -40,9 +42,21 @@ struct Tokenizer {
     //    return Error::OK;
     //}
 
+
     size_t Size() const {
         return index_to_token.size();
     }
+
+
+    const Str& Token(index_t index) const {
+        return index_to_token.at(index);
+    }
+
+
+    index_t Index(const Str& token) const {
+        return token_to_index.at(token);
+    }
+
 }; // class Tokenizer
 }  // namespace sio
 #endif
