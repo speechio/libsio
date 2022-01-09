@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "stt.h"
+#include "sio/stt.h"
 //#include "sio/dbg.h"
 
 int main() {
