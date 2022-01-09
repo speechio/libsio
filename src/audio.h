@@ -19,40 +19,43 @@ enum class AudioFormat: int {
 };
 */
 
-inline Error ReadAudio(const std::string& audio_path, std::vector<float>* audio, float* sample_rate) {
-    kaldi::WaveData wave_data;
-    std::ifstream is(audio_path, std::ifstream::binary);
-    wave_data.Read(is);
+inline Error ReadAudio(const std::string& filepath, std::vector<float>* audio, float* sample_rate) {
+    kaldi::WaveData kaldi_wave;
+    std::ifstream is(filepath, std::ifstream::binary);
+    kaldi_wave.Read(is);
+    *sample_rate = kaldi_wave.SampFreq();
+    kaldi::SubVector<float> ch0(kaldi_wave.Data(), 0);
 
-    *sample_rate = wave_data.SampFreq();
-
-    kaldi::SubVector<float> ch0(wave_data.Data(), 0);
-    audio->clear();
+    SIO_CHECK(audio != nullptr);
+    if (!audio->empty()) {
+        audio->clear();
+    }
     audio->resize(ch0.Dim(), 0.0f);
+
     for (int i = 0; i < ch0.Dim(); i++) {
         (*audio)[i] = ch0(i);
     }
     return Error::OK;
 }
 
-/*
-// AudioSegment has no ownership
-template <typename SampleType>
+template <typename SampleT>
 struct AudioSegment {
-    SampleType* data = nullptr;
+    SampleT* data = nullptr; // no ownership
     size_t len = 0;
     float sample_rate = 0;
 
-    AudioSegment(SampleType* data, size_t len, float sample_rate) :
-        data(data), len(len), sample_rate(sample_rate)
-    { }
+    void Set(SampleT* samples, size_t n, float sample_rate) { 
+        data = samples;
+        len = n;
+        sample_rate = sample_rate;
+    }
 };
-*/
 
 /* 
-  Kaldi online feature supports internal resampler:
-    https://github.com/kaldi-asr/kaldi/blob/d366a93aad98127683b010fd01e145093c1e9e08/src/feat/online-feature.cc#L143
-  so the following class is probably not necessary
+//Kaldi online feature supports internal resampler:
+//  https://github.com/kaldi-asr/kaldi/blob/d366a93aad98127683b010fd01e145093c1e9e08/src/feat/online-feature.cc#L143
+//so the following class is probably not necessary
+
 class Resampler {
 public:
     Resampler(float source_sample_rate, float target_sample_rate) :
@@ -83,7 +86,6 @@ private:
     kaldi::LinearResample resampler_;
 
 }; // class Resampler
-
 */
 
 }  // namespace sio
