@@ -19,9 +19,9 @@ add_executable(unittest
 target_link_libraries(unittest
     gtest_main
     sio
-    absl::base
-    absl::strings
-    ${KALDI_LIBS}
+    ${TORCH_LIBRARIES}
+    ${KALDI_LIBRARIES}
+    ${ABSL_LIBRARIES}
 )
 
 include(GoogleTest)
