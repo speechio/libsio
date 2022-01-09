@@ -26,19 +26,19 @@ struct SpeechToTextConfig {
 
 
     Error Register(StructLoader* loader, const std::string module = "") {
-        loader->AddEntry(module, ".online", &online);
+        loader->AddEntry(module + ".online", &online);
 
-        feature_extractor.Register(loader, "feature_extractor");
-        loader->AddEntry(module, ".mean_var_norm_file", &mean_var_norm_file);
+        feature_extractor.Register(loader, module + ".feature_extractor");
+        loader->AddEntry(module + ".mean_var_norm_file", &mean_var_norm_file);
 
-        loader->AddEntry(module, ".tokenizer.vocab", &tokenizer_vocab);
-        loader->AddEntry(module, ".tokenizer.model", &tokenizer_model);
-        loader->AddEntry(module, ".nnet", &nnet);
-        loader->AddEntry(module, ".graph", &graph);
-        loader->AddEntry(module, ".context", &context);
-        loader->AddEntry(module, ".do_endpointing", &do_endpointing);
+        loader->AddEntry(module + ".tokenizer.vocab", &tokenizer_vocab);
+        loader->AddEntry(module + ".tokenizer.model", &tokenizer_model);
+        loader->AddEntry(module + ".nnet", &nnet);
+        loader->AddEntry(module + ".graph", &graph);
+        loader->AddEntry(module + ".context", &context);
+        loader->AddEntry(module + ".do_endpointing", &do_endpointing);
 
-        scorer.Register(loader, "scorer");
+        scorer.Register(loader, module + ".scorer");
 
         return Error::OK;
     }

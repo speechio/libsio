@@ -64,22 +64,10 @@ public:
         return Error::OK;
     }
 
-    void AddEntry(const StrView prefix, const StrView field, bool* p) {
-        bool_map_[absl::StrCat(prefix, field)] = p;
-    }
-
-    void AddEntry(const StrView prefix, const StrView field, int* p) {
-        int_map_[absl::StrCat(prefix, field)] = p;
-    }
-
-    void AddEntry(const StrView prefix, const StrView field, float* p) {
-        float_map_[absl::StrCat(prefix, field)] = p;
-    }
-
-    void AddEntry(const StrView prefix, const StrView field, Str* p) {
-        string_map_[absl::StrCat(prefix, field)] = p;
-    }
-
+    void AddEntry(const Str& e, bool* addr) { bool_map_[e] = addr; }
+    void AddEntry(const Str& e, int* addr) { int_map_[e] = addr; }
+    void AddEntry(const Str& e, float* addr) { float_map_[e] = addr; }
+    void AddEntry(const Str& e, std::string* addr) { string_map_[e] = addr; }
 
     void Print() {
         SIO_INFO << "--------------------";

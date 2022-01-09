@@ -13,8 +13,8 @@ TEST(StructLoader, Basic) {
         int foo_int;
 
         Error Register(StructLoader* loader, const Str module = "") {
-            loader->AddEntry(module, ".foo_str", &foo_str);
-            loader->AddEntry(module, ".foo_int", &foo_int);
+            loader->AddEntry(module + ".foo_str", &foo_str);
+            loader->AddEntry(module + ".foo_int", &foo_int);
             return Error::OK;
         }
     };
@@ -27,10 +27,10 @@ TEST(StructLoader, Basic) {
         Foo foo;
 
         Error Register(StructLoader* loader, const Str module = "") {
-            loader->AddEntry(module, ".online", &online);
-            loader->AddEntry(module, ".num_workers", &num_workers);
-            loader->AddEntry(module, ".feature_extractor.sample_rate", &sample_rate);
-            loader->AddEntry(module, ".nnet", &nnet);
+            loader->AddEntry(module + ".online", &online);
+            loader->AddEntry(module + ".num_workers", &num_workers);
+            loader->AddEntry(module + ".feature_extractor.sample_rate", &sample_rate);
+            loader->AddEntry(module + ".nnet", &nnet);
             foo.Register(loader, module + ".foo");
             return Error::OK;
         }

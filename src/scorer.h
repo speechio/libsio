@@ -17,9 +17,9 @@ struct ScorerConfig {
     int num_threads = 1;
 
     Error Register(StructLoader* loader, const std::string module = "") {
-        loader->AddEntry(module, ".chunk_size", &chunk_size);
-        loader->AddEntry(module, ".num_left_chunks", &num_left_chunks);
-        loader->AddEntry(module, ".num_threads", &num_threads);
+        loader->AddEntry(module + ".chunk_size", &chunk_size);
+        loader->AddEntry(module + ".num_left_chunks", &num_left_chunks);
+        loader->AddEntry(module + ".num_threads", &num_threads);
         return Error::OK;
     }
 };
