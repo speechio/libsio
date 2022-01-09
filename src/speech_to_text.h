@@ -48,8 +48,8 @@ struct SpeechToText {
         try {
             Recognizer* rec = new Recognizer;
             rec->Setup(
-                tokenizer, /* tokenizer */ 
                 config.feature_extractor, mean_var_norm, /* feature */
+                tokenizer, /* tokenizer */ 
                 config.scorer, nnet /* scorer */
             ); 
             return rec;

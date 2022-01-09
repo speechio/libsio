@@ -25,12 +25,12 @@ private:
 public:
 
     Error Setup(
-        const Tokenizer& tokenizer,
         const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mean_var_norm,
+        const Tokenizer& tokenizer,
         const ScorerConfig& scorer_config, torch::jit::script::Module& nnet
     ) { 
-        tokenizer_ = &tokenizer;
         feature_extractor_.Setup(feature_extractor_config, mean_var_norm);
+        tokenizer_ = &tokenizer;
         scorer_.Setup(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_->Size());
         return Error::OK;
     }
