@@ -26,11 +26,13 @@ private:
     FeatureExtractorConfig config_;
 
     // need pointer here because we want Reset() functionality
-    Owner<kaldi::OnlineBaseFeature*> fbank_extractor_ = nullptr;
+    Owner<kaldi::OnlineBaseFeature*> fbank_extractor_ = SIO_UNDEF_PTR;
 
+    // mvn object is stateless, so no need to claim ownership here, owned by SpeechToText
     Optional<const MeanVarNorm*> mean_var_norm_ = nullptr;
 
-    index_t cur_frame_ = 0; //[0, cur_frame_) popped, [cur_frame_, NumFramesReady()) remainder.
+    //[0, cur_frame_) popped frames, [cur_frame_, NumFramesReady()) remainder frames.
+    index_t cur_frame_ = 0;
 
 public:
 
@@ -44,13 +46,15 @@ public:
 
         config_ = config;
 
-        if (fbank_extractor_ != nullptr) {
+        if (fbank_extractor_ != SIO_UNDEF_PTR) {
+            SIO_WARNING << "Setup non-empty FeatureExtractor, forced to releasing existing extractor.";
             delete fbank_extractor_; fbank_extractor_ = nullptr;
         }
         fbank_extractor_ = new kaldi::OnlineFbank(config_.fbank);
 
-        cur_frame_ = 0;
         mean_var_norm_ = mean_var_norm;
+
+        cur_frame_ = 0;
 
         return Error::OK;
     }
@@ -81,9 +85,9 @@ public:
     Vec<float> Pop() {
         SIO_CHECK_GT(Len(), 0);
         Vec<float> feat_frame(Dim(), 0.0f);
-        kaldi::SubVector<float> kaldi_frame(feat_frame.data(), feat_frame.size());
-        // kaldi_frame is a helper frame view, no underlying data ownership
 
+        // kaldi_frame is a helper frame view, no underlying data ownership
+        kaldi::SubVector<float> kaldi_frame(feat_frame.data(), feat_frame.size());
         fbank_extractor_->GetFrame(cur_frame_++, &kaldi_frame);
         if (mean_var_norm_) {
             mean_var_norm_->Normalize(&kaldi_frame);

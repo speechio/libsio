@@ -17,7 +17,7 @@
 namespace sio {
 class Recognizer {
 private:
-    const Tokenizer* tokenizer_ = nullptr;
+    const Tokenizer* tokenizer_ = SIO_UNDEF_PTR;
     FeatureExtractor feature_extractor_;
     Scorer scorer_;
     BeamSearch beam_search_;

@@ -26,7 +26,7 @@ struct ScorerConfig {
 struct Scorer {
 private:
     ScorerConfig config_;
-    torch::jit::script::Module* nnet_ = nullptr;
+    torch::jit::script::Module* nnet_ = SIO_UNDEF_PTR;
     int nnet_idim_ = 0;
     int nnet_odim_ = 0;
 
@@ -50,6 +50,7 @@ private:
 public:
 
     Error Setup(const ScorerConfig& config, torch::jit::script::Module& nnet, int nnet_idim, int nnet_odim) { 
+        SIO_CHECK(nnet_ == SIO_UNDEF_PTR) << "Try to setup already defined nnet pointer";
         config_ = config;
         nnet_ = &nnet;
         nnet_idim_ = nnet_idim;
