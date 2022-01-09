@@ -19,6 +19,7 @@ private:
     //sentencepiece::SentencePieceProcessor spm;
 
 public:
+
     void Setup(const Str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
         Str line;

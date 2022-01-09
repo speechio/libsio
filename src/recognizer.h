@@ -23,6 +23,7 @@ private:
     BeamSearch beam_search_;
 
 public:
+
     Error Setup(
         const Tokenizer& tokenizer,
         const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mean_var_norm,
@@ -32,6 +33,14 @@ public:
         feature_extractor_.Setup(feature_extractor_config, mean_var_norm);
         scorer_.Setup(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_->Size());
         return Error::OK;
+    }
+
+
+    Error Reset() { 
+        feature_extractor_.Reset();
+        scorer_.Reset();
+        beam_search_.Reset();
+        return Error::OK; 
     }
 
 
@@ -55,15 +64,8 @@ public:
         return Error::OK;
     }
 
-
-    Error Reset() { 
-        feature_extractor_.Reset();
-        scorer_.Reset();
-        beam_search_.Reset();
-        return Error::OK; 
-    }
-
 private:
+
     Error Advance(const float* samples, size_t num_samples, float sample_rate, bool eos) {
         if (samples != nullptr && num_samples != 0) {
             feature_extractor_.Push(samples, num_samples, sample_rate);

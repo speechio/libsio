@@ -48,6 +48,7 @@ private:
     index_t cur_score_frame_ = 0; // scores[0, cur_score_frame_) ready, notice: output frame counts is subsampled
 
 public:
+
     Error Setup(const ScorerConfig& config, torch::jit::script::Module& nnet, int nnet_idim, int nnet_odim) { 
         config_ = config;
         nnet_ = &nnet;
@@ -68,6 +69,21 @@ public:
 
         right_context_ = nnet_->run_method("right_context").toInt(); 
         SIO_DEBUG << "right context: " << right_context_;
+
+        return Error::OK;
+    }
+
+
+    Error Reset() {
+        feat_cache_.clear();
+        cur_feat_frame_ = 0;
+
+        subsampling_cache_ = std::move(torch::jit::IValue());
+        elayers_output_cache_ = std::move(torch::jit::IValue());
+        conformer_cnn_cache_ = std::move(torch::jit::IValue());
+        acoustic_encoding_cache_.clear();
+        scores_cache_.clear();
+        cur_score_frame_ = 0;
 
         return Error::OK;
     }
@@ -141,21 +157,6 @@ public:
         torch::Tensor score_frame = scores_cache_.front();
         scores_cache_.pop_front();
         return score_frame;
-    }
-
-
-    Error Reset() {
-        feat_cache_.clear();
-        cur_feat_frame_ = 0;
-
-        subsampling_cache_ = std::move(torch::jit::IValue());
-        elayers_output_cache_ = std::move(torch::jit::IValue());
-        conformer_cnn_cache_ = std::move(torch::jit::IValue());
-        acoustic_encoding_cache_.clear();
-        scores_cache_.clear();
-        cur_score_frame_ = 0;
-
-        return Error::OK;
     }
 
 

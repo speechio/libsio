@@ -33,6 +33,7 @@ private:
     index_t cur_frame_ = 0; //[0, cur_frame_) popped, [cur_frame_, NumFramesReady()) remainder.
 
 public:
+
     ~FeatureExtractor() noexcept {
         delete fbank_extractor_; fbank_extractor_ = nullptr;
     }
