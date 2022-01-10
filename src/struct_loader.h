@@ -17,40 +17,40 @@ struct StructLoader {
     std::map<Str, Str*> string_map;
 
 
-    Error Load(const Json& j) {
+    Error Load(const Json& json) {
         for (const auto& kv : bool_map) {
-            auto& k = kv.first;
-            auto& v = kv.second;
-            const Json *node = FindEntry(j, k);
+            auto& e = kv.first;
+            auto& p = kv.second;
+            const Json *node = FindEntry(json, e);
             if (node) {
-            *v = node->get<bool>();
+                *p = node->get<bool>();
             }
         }
 
         for (const auto& kv : int_map) {
-            auto& k = kv.first;
-            auto& v = kv.second;
-            const Json *node = FindEntry(j, k);
+            auto& e = kv.first;
+            auto& p = kv.second;
+            const Json *node = FindEntry(json, e);
             if (node) {
-                *v = node->get<int>();
+                *p = node->get<int>();
             }
         }
 
         for (const auto& kv : float_map) {
-            auto& k = kv.first;
-            auto& v = kv.second;
-            const Json *node = FindEntry(j, k);
+            auto& e = kv.first;
+            auto& p = kv.second;
+            const Json *node = FindEntry(json, e);
             if (node) {
-                *v = node->get<float>();
+                *p = node->get<float>();
             }
         }
 
         for (const auto& kv : string_map) {
-            auto& k = kv.first;
-            auto& v = kv.second;
-            const Json *node = FindEntry(j, k);
+            auto& e = kv.first;
+            auto& p = kv.second;
+            const Json *node = FindEntry(json, e);
             if (node) {
-                *v = node->get<Str>();
+                *p = node->get<Str>();
             }
         }
 
