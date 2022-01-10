@@ -10,15 +10,11 @@ SentencePiece C++ API reference:
     https://github.com/google/sentencepiece/blob/master/doc/api.md
 */
 
-
 namespace sio {
 struct Tokenizer {
-private:
     Map<int, Str> index_to_token;
     Map<Str, int> token_to_index;
     //sentencepiece::SentencePieceProcessor spm;
-
-public:
 
     void Setup(const Str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
