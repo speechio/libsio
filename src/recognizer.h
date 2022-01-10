@@ -10,7 +10,7 @@
 #include "sio/feature_extractor.h"
 #include "sio/tokenizer.h"
 #include "sio/scorer.h"
-#include "sio/beam_search.h"
+#include "sio/search.h"
 
 //#include "sio/dbg.h"
 
@@ -19,7 +19,7 @@ struct Recognizer {
     const Tokenizer* tokenizer = nullptr;
     FeatureExtractor feature_extractor;
     Scorer scorer;
-    BeamSearch beam_search;
+    Search search;
 
 
     Error Setup(
@@ -38,7 +38,7 @@ struct Recognizer {
     Error Reset() { 
         feature_extractor.Reset();
         scorer.Reset();
-        beam_search.Reset();
+        search.Reset();
         return Error::OK; 
     }
 
@@ -55,7 +55,7 @@ struct Recognizer {
 
 
     Error Text(std::string* result) { 
-        auto best_path = beam_search.BestPath();
+        auto best_path = search.BestPath();
         for (index_t i = 0; i < best_path.size(); i++) {
             *result += tokenizer->Token(best_path[i]);
         }
@@ -84,11 +84,11 @@ private:
 
         while (scorer.Len() > 0) {
             auto score_frame = scorer.Pop();
-            beam_search.Push(score_frame);
+            search.Push(score_frame);
         }
         
         if (eos) {
-            beam_search.PushEnd();
+            search.PushEnd();
         }
 
         return Error::OK;

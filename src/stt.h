@@ -18,6 +18,8 @@
 #include "sio/mean_var_norm.h"
 #include "sio/feature_extractor.h"
 #include "sio/tokenizer.h"
+#include "sio/scorer.h"
+#include "sio/search.h"
 #include "sio/speech_to_text_config.h"
 #include "sio/recognizer.h"
 #include "sio/speech_to_text.h"

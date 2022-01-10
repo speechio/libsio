@@ -19,7 +19,9 @@ int main() {
     std::string line;
     int k = 0;
     while (std::getline(wav_scp, line)) {
-        std::vector<std::string> fields = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
+        std::vector<std::string> fields = absl::StrSplit(
+            line, absl::ByAnyChar(" \t"), absl::SkipWhitespace()
+        );
         if (fields.size() != 2) continue;
 
         std::string& audio_id   = fields[0];

@@ -5,7 +5,7 @@
 //#include "sio/dbg.h"
 
 namespace sio {
-class BeamSearch {
+class Search {
 public:
     void Push(const torch::Tensor frame_score) {
         std::tuple<torch::Tensor, torch::Tensor> best = frame_score.topk(1);
@@ -31,6 +31,6 @@ public:
 private:
     Vec<index_t> best_path_tokens_;
     Vec<float> best_path_scores_;
-}; // class BeamSearch
+}; // class Search
 }  // namespace sio
 #endif
