@@ -10,10 +10,15 @@
 #include "sio/json.h"
 
 namespace sio {
-class StructLoader {
-public:
+struct StructLoader {
+    std::map<Str, bool*> bool_map;
+    std::map<Str, int*> int_map;
+    std::map<Str, float*> float_map;
+    std::map<Str, Str*> string_map;
+
+
     Error Load(const Json& j) {
-        for (const auto& kv : bool_map_) {
+        for (const auto& kv : bool_map) {
             auto& k = kv.first;
             auto& v = kv.second;
             const Json *node = FindEntry(j, k);
@@ -22,7 +27,7 @@ public:
             }
         }
 
-        for (const auto& kv : int_map_) {
+        for (const auto& kv : int_map) {
             auto& k = kv.first;
             auto& v = kv.second;
             const Json *node = FindEntry(j, k);
@@ -31,7 +36,7 @@ public:
             }
         }
 
-        for (const auto& kv : float_map_) {
+        for (const auto& kv : float_map) {
             auto& k = kv.first;
             auto& v = kv.second;
             const Json *node = FindEntry(j, k);
@@ -40,7 +45,7 @@ public:
             }
         }
 
-        for (const auto& kv : string_map_) {
+        for (const auto& kv : string_map) {
             auto& k = kv.first;
             auto& v = kv.second;
             const Json *node = FindEntry(j, k);
@@ -51,6 +56,7 @@ public:
 
         return Error::OK;
     }
+
 
     Error Load(const Str& json_file) {
         Json j;
@@ -64,23 +70,25 @@ public:
         return Error::OK;
     }
 
-    void AddEntry(const Str& e, bool* addr) { bool_map_[e] = addr; }
-    void AddEntry(const Str& e, int* addr) { int_map_[e] = addr; }
-    void AddEntry(const Str& e, float* addr) { float_map_[e] = addr; }
-    void AddEntry(const Str& e, std::string* addr) { string_map_[e] = addr; }
+
+    void AddEntry(const Str& e, bool* addr) { bool_map[e] = addr; }
+    void AddEntry(const Str& e, int* addr) { int_map[e] = addr; }
+    void AddEntry(const Str& e, float* addr) { float_map[e] = addr; }
+    void AddEntry(const Str& e, std::string* addr) { string_map[e] = addr; }
+
 
     void Print() {
         SIO_INFO << "--------------------";
-        for (const auto& kv : bool_map_) {
+        for (const auto& kv : bool_map) {
             SIO_INFO << kv.first << " : " << *kv.second << " (bool) ";
         }
-        for (const auto& kv : int_map_) {
+        for (const auto& kv : int_map) {
             SIO_INFO << kv.first << " : " << *kv.second << " (int) ";
         }
-        for (const auto& kv : float_map_) {
+        for (const auto& kv : float_map) {
             SIO_INFO << kv.first << " : " << *kv.second << " (float) ";
         }
-        for (const auto& kv : string_map_) {
+        for (const auto& kv : string_map) {
             SIO_INFO << kv.first << " : " << *kv.second << " (string) ";
         }
         SIO_INFO << "====================";
@@ -111,11 +119,6 @@ private:
         }
     }
 
-private:
-    std::map<Str, bool*> bool_map_;
-    std::map<Str, int*> int_map_;
-    std::map<Str, float*> float_map_;
-    std::map<Str, Str*> string_map_;
 }; // End of class StructLoader
 }  // End of namespace sio
 
