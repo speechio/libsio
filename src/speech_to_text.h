@@ -9,7 +9,6 @@
 #include "sio/tokenizer.h"
 
 namespace sio {
-
 struct SpeechToText {
     SpeechToTextConfig config;
     torch::jit::script::Module nnet;
@@ -19,7 +18,7 @@ struct SpeechToText {
 
     ~SpeechToText() noexcept { 
         if (mean_var_norm != nullptr) {
-            delete mean_var_norm; mean_var_norm = nullptr;
+            Delete(mean_var_norm);
         }
     }
 

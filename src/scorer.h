@@ -23,6 +23,7 @@ struct ScorerConfig {
     }
 };
 
+
 struct Scorer {
 private:
     ScorerConfig config_;

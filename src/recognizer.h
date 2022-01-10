@@ -15,32 +15,30 @@
 //#include "sio/dbg.h"
 
 namespace sio {
-class Recognizer {
-private:
-    const Tokenizer* tokenizer_ = nullptr;
-    FeatureExtractor feature_extractor_;
-    Scorer scorer_;
-    BeamSearch beam_search_;
+struct Recognizer {
+    const Tokenizer* tokenizer = nullptr;
+    FeatureExtractor feature_extractor;
+    Scorer scorer;
+    BeamSearch beam_search;
 
-public:
 
     Error Setup(
-        const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mean_var_norm,
-        const Tokenizer& tokenizer,
-        const ScorerConfig& scorer_config, torch::jit::script::Module& nnet
+        const FeatureExtractorConfig& f, const MeanVarNorm* mvn,
+        const Tokenizer& t,
+        const ScorerConfig& s, torch::jit::script::Module& nnet
     ) {
-        SIO_CHECK(tokenizer_ == nullptr) << "Tokenizer alrady initialized inside Setup().";
-        feature_extractor_.Setup(feature_extractor_config, mean_var_norm);
-        tokenizer_ = &tokenizer;
-        scorer_.Setup(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_->Size());
+        SIO_CHECK(tokenizer == nullptr) << "Tokenizer alrady initialized inside Setup().";
+        feature_extractor.Setup(f, mvn);
+        tokenizer = &t;
+        scorer.Setup(s, nnet, feature_extractor.Dim(), tokenizer->Size());
         return Error::OK;
     }
 
 
     Error Reset() { 
-        feature_extractor_.Reset();
-        scorer_.Reset();
-        beam_search_.Reset();
+        feature_extractor.Reset();
+        scorer.Reset();
+        beam_search.Reset();
         return Error::OK; 
     }
 
@@ -52,15 +50,14 @@ public:
 
 
     Error To() { 
-        Error err = Advance(nullptr, 0, /*dont care sample rate*/123.456, /*eos*/true);
-        return err;
+        return Advance(nullptr, 0, /*dont care sample rate*/123.456, /*eos*/true);
     }
 
 
     Error Text(std::string* result) { 
-        auto best_path = beam_search_.BestPath();
+        auto best_path = beam_search.BestPath();
         for (index_t i = 0; i < best_path.size(); i++) {
-            *result += tokenizer_->Token(best_path[i]);
+            *result += tokenizer->Token(best_path[i]);
         }
         return Error::OK;
     }
@@ -69,29 +66,29 @@ private:
 
     Error Advance(const float* samples, size_t num_samples, float sample_rate, bool eos) {
         if (samples != nullptr && num_samples != 0) {
-            feature_extractor_.Push(samples, num_samples, sample_rate);
+            feature_extractor.Push(samples, num_samples, sample_rate);
         }
 
         if (eos) {
-            feature_extractor_.PushEnd();
+            feature_extractor.PushEnd();
         }
 
-        while (feature_extractor_.Len() > 0) {
-            auto feat_frame = feature_extractor_.Pop();
-            scorer_.Push(feat_frame);
+        while (feature_extractor.Len() > 0) {
+            auto feat_frame = feature_extractor.Pop();
+            scorer.Push(feat_frame);
         }
 
         if (eos) {
-            scorer_.PushEnd();
+            scorer.PushEnd();
         }
 
-        while (scorer_.Len() > 0) {
-            auto score_frame = scorer_.Pop();
-            beam_search_.Push(score_frame);
+        while (scorer.Len() > 0) {
+            auto score_frame = scorer.Pop();
+            beam_search.Push(score_frame);
         }
         
         if (eos) {
-            beam_search_.PushEnd();
+            beam_search.PushEnd();
         }
 
         return Error::OK;

@@ -8,9 +8,12 @@
 
 namespace sio {
 
+/* branching prediction */
 #define SIO_LIKELY   ABSL_PREDICT_TRUE
 #define SIO_UNLIKELY ABSL_PREDICT_FALSE
 
+
+/* file, line, func representation */
 /*
 #if defined(_MSC_VER)
 #define SIO_FUNC_REPR __FUNCSIG__
@@ -30,18 +33,32 @@ constexpr const char* Basename(const char* fname, int offset) {
 #define SIO__FILE__  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
 
 
-//#define SIO_UNDEF_BYTE 0xAA  /* Zig uses 0xAA */
-#define SIO_UNDEF_BYTE 0x00
+/* "undefined" related stuff */
+#define SIO_UNDEF_BYTE 0x00 /* Zig uses 0xAA */
 
 template<typename T>
-constexpr T make_undef_value() {
+constexpr T MakeUndefValueOf() {
     T t;
     memset(&t, SIO_UNDEF_BYTE, sizeof(t));
     return t;
 }
-#define SIO_UNDEF_VALUE(x)  ::sio::make_undef_value<decltype(x)>()
+#define SIO_UNDEF_VAL(x) ::sio::MakeUndefValueOf<decltype(x)>()
 
-#define SIO_UNDEFINED(x) ((x) == SIO_UNDEF_VALUE(x))
+#define SIO_UNDEFINED(x) ((x) == SIO_UNDEF_VAL(x))
+
+
+/* delete macros */
+template<typename T>
+inline void Delete(T& p) {
+    delete p;
+    p = nullptr;
+}
+
+template <typename T>
+inline void DeleteArray(T& p) {
+    delete [] p;
+    p = nullptr;
+}
 
 } // namespace sio
 #endif
