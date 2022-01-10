@@ -6,6 +6,7 @@
 #include "sio/common.h"
 #include "sio/struct_loader.h"
 #include "sio/mean_var_norm.h"
+
 namespace sio {
 struct FeatureExtractorConfig {
     std::string type; // support "fbank" only for now
@@ -28,7 +29,7 @@ struct FeatureExtractor {
     // need pointer here because we want Reset() functionality
     Owner<kaldi::OnlineBaseFeature*> extractor = nullptr;
 
-    // mvn object is stateless, so no need to claim ownership here, owned by SpeechToText
+    // mvn object is stateless, owned outside, not here
     Optional<const MeanVarNorm*> mean_var_norm = nullptr;
 
     //[0, cur_frame) popped frames, [cur_frame, NumFramesReady()) remainder frames.
@@ -37,7 +38,6 @@ struct FeatureExtractor {
 
     ~FeatureExtractor() noexcept {
         Delete(extractor);
-        mean_var_norm = nullptr;
     }
 
 
