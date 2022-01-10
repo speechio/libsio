@@ -9,7 +9,7 @@ namespace sio {
 #define SIO_CHECK(cond) \
     SIO_LIKELY(cond) ? (void)0 : \
         SIO_PANIC(::sio::Error::AssertionFailure) & SIO_FATAL \
-         << "Check {" #cond "} failed. "
+            << "Check {" #cond "} failed. "
   
 // CAUTION: operands evaluate more than once.
 #define SIO_CHECK_PRED2(op, x, y) \
