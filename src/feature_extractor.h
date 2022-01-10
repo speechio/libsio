@@ -26,7 +26,7 @@ private:
     FeatureExtractorConfig config_;
 
     // need pointer here because we want Reset() functionality
-    Owner<kaldi::OnlineBaseFeature*> fbank_extractor_ = SIO_UNDEF_PTR;
+    Owner<kaldi::OnlineBaseFeature*> fbank_extractor_ = nullptr;
 
     // mvn object is stateless, so no need to claim ownership here, owned by SpeechToText
     Optional<const MeanVarNorm*> mean_var_norm_ = nullptr;
@@ -46,7 +46,7 @@ public:
 
         config_ = config;
 
-        if (fbank_extractor_ != SIO_UNDEF_PTR) {
+        if (fbank_extractor_ != nullptr) {
             SIO_WARNING << "Try to setup already defined FeatureExtractor, have to release existing resource.";
             delete fbank_extractor_; fbank_extractor_ = nullptr;
         }

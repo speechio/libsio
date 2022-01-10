@@ -17,7 +17,7 @@
 namespace sio {
 class Recognizer {
 private:
-    const Tokenizer* tokenizer_ = SIO_UNDEF_PTR;
+    const Tokenizer* tokenizer_ = nullptr;
     FeatureExtractor feature_extractor_;
     Scorer scorer_;
     BeamSearch beam_search_;
@@ -28,7 +28,8 @@ public:
         const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mean_var_norm,
         const Tokenizer& tokenizer,
         const ScorerConfig& scorer_config, torch::jit::script::Module& nnet
-    ) { 
+    ) {
+        SIO_CHECK(tokenizer_ == nullptr) << "Tokenizer alrady initialized inside Setup().";
         feature_extractor_.Setup(feature_extractor_config, mean_var_norm);
         tokenizer_ = &tokenizer;
         scorer_.Setup(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_->Size());

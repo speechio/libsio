@@ -1,6 +1,8 @@
 #ifndef SIO_BASE_H
 #define SIO_BASE_H
 
+#include <string.h>
+
 #include <absl/base/optimization.h>
 #include <absl/base/attributes.h>
 
@@ -26,6 +28,22 @@ constexpr const char* Basename(const char* fname, int offset) {
                : Basename(fname, offset - 1);
 }
 #define SIO__FILE__  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
+
+
+//#define SIO_UNDEF_BYTE 0xAA  /* Zig uses 0xAA */
+#define SIO_UNDEF_BYTE 0x00
+
+template<typename T>
+constexpr T undefined_value() {
+    T t;
+    memset(&t, SIO_UNDEF_BYTE, sizeof(t));
+    return t;
+}
+
+#define SIO_UNDEFINED_VALUE(x)  ::sio::undefined_value<decltype(x)>()
+
+#define SIO_DEFINED(x)   ((x) != SIO_UNDEFINED_VALUE(x))
+#define SIO_UNDEFINED(x) ((x) == SIO_UNDEFINED_VALUE(x))
 
 } // namespace sio
 #endif

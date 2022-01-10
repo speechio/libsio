@@ -34,7 +34,6 @@ template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::
 using Ref = T;
 */
 
-#define SIO_UNDEF_PTR nullptr
-};
+}
 
 #endif
