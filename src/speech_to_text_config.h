@@ -13,7 +13,7 @@ struct SpeechToTextConfig {
     bool online = true;
 
     FeatureExtractorConfig feature_extractor;
-    std::string mean_var_norm_file;
+    std::string mean_var_norm;
 
     std::string tokenizer_vocab;
     std::string tokenizer_model;
@@ -30,7 +30,7 @@ struct SpeechToTextConfig {
         loader->AddEntry(module + ".online", &online);
 
         feature_extractor.Register(loader, module + ".feature_extractor");
-        loader->AddEntry(module + ".mean_var_norm_file", &mean_var_norm_file);
+        loader->AddEntry(module + ".mean_var_norm", &mean_var_norm);
 
         loader->AddEntry(module + ".tokenizer.vocab", &tokenizer_vocab);
         loader->AddEntry(module + ".tokenizer.model", &tokenizer_model);

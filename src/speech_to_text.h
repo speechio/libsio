@@ -26,9 +26,9 @@ struct SpeechToText {
     Error Load(std::string config_file) { 
         config.Load(config_file);
 
-        if (config.mean_var_norm_file != "") {
+        if (config.mean_var_norm != "") {
             mean_var_norm = new MeanVarNorm;
-            mean_var_norm->Load(config.mean_var_norm_file);
+            mean_var_norm->Load(config.mean_var_norm);
         } else {
             mean_var_norm = nullptr;
         }

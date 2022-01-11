@@ -6,7 +6,7 @@
         "dither": 1.0,
         "num_mel_bins": 80
     },
-    "mean_var_norm_file": "testdata/mean_var_norm.txt",
+    "mean_var_norm": "testdata/mean_var_norm.txt",
     "tokenizer": {
         "vocab": "testdata/tokenizer.vocab",
         "model": "testdata/tokenizer.model"
