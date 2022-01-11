@@ -41,18 +41,18 @@ struct MeanVarNorm {
         cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
         SIO_CHECK_EQ(cols.size(), dim) << "mean norm dim should be consistent with header line";
         m_norm_shift.clear();
-        m_norm_shift.reserve(dim);
+        m_norm_shift.resize(dim, 0.0);
         for (int i = 0; i != dim; i++) {
-            m_norm_shift.push_back(std::stod(cols[i]));
+            m_norm_shift[i] = std::stod(cols[i]);
         }
 
         std::getline(is, line);
         cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
         SIO_CHECK_EQ(cols.size(), dim) << "var norm dim should be consistent with header line";
         v_norm_scale.clear();
-        v_norm_scale.reserve(dim);
+        v_norm_scale.resize(dim, 0.0);
         for (int i = 0; i != dim; i++) {
-            v_norm_scale.push_back(std::stod(cols[i]));
+            v_norm_scale[i] = std::stod(cols[i]);
         }
 
         return Error::OK;
