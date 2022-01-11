@@ -24,7 +24,7 @@ struct FeatureExtractorConfig {
 
 
 struct FeatureExtractor {
-    FeatureExtractorConfig config;
+    const FeatureExtractorConfig* config = nullptr;
 
     // need pointer here because we want Reset() functionality
     Owner<kaldi::OnlineBaseFeature*> extractor = nullptr;
@@ -44,13 +44,13 @@ struct FeatureExtractor {
     Error Load(const FeatureExtractorConfig& c, const MeanVarNorm* mvn = nullptr) { 
         SIO_CHECK_EQ(c.type, "fbank");
 
-        config = c;
+        config = &c;
 
         if (extractor != nullptr) {
             SIO_WARNING << "Feature extractor existed, releasing old one.";
             Delete(extractor);
         }
-        extractor = new kaldi::OnlineFbank(config.fbank);
+        extractor = new kaldi::OnlineFbank(config->fbank);
 
         mean_var_norm = mvn;
 
@@ -62,7 +62,7 @@ struct FeatureExtractor {
 
     Error Reset() {
         Delete(extractor);
-        extractor = new kaldi::OnlineFbank(config.fbank);
+        extractor = new kaldi::OnlineFbank(config->fbank);
         cur_frame = 0;
 
         return Error::OK;
@@ -108,12 +108,14 @@ struct FeatureExtractor {
 
 
     float SampleRate() const {
-        return config.fbank.frame_opts.samp_freq;
+        SIO_CHECK(config != nullptr);
+        return config->fbank.frame_opts.samp_freq;
     }
 
 
     float FrameRate() const {
-        return 1000.0f / config.fbank.frame_opts.frame_shift_ms;
+        SIO_CHECK(config != nullptr);
+        return 1000.0f / config->fbank.frame_opts.frame_shift_ms;
     }
 
 }; // struct FeatureExtractor
