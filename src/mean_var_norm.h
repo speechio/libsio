@@ -16,7 +16,7 @@ struct MeanVarNorm {
     std::vector<double> v_norm_scale;
 
 
-    Error Setup(std::string mean_var_norm_file) {
+    Error Load(std::string mean_var_norm_file) {
         /*
         Format of mean_var_norm file, three lines:
         line1: norm_vector_dimension

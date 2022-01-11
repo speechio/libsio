@@ -41,7 +41,7 @@ struct FeatureExtractor {
     }
 
 
-    Error Setup(const FeatureExtractorConfig& c, const MeanVarNorm* mvn = nullptr) { 
+    Error Load(const FeatureExtractorConfig& c, const MeanVarNorm* mvn = nullptr) { 
         SIO_CHECK_EQ(c.type, "fbank");
 
         config = c;

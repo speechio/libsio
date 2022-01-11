@@ -23,17 +23,17 @@ struct SpeechToText {
     }
 
 
-    Error Setup(std::string config_file) { 
-        config.Setup(config_file);
+    Error Load(std::string config_file) { 
+        config.Load(config_file);
 
         if (config.mean_var_norm_file != "") {
             mean_var_norm = new MeanVarNorm;
-            mean_var_norm->Setup(config.mean_var_norm_file);
+            mean_var_norm->Load(config.mean_var_norm_file);
         } else {
             mean_var_norm = nullptr;
         }
 
-        tokenizer.Setup(config.tokenizer_vocab);
+        tokenizer.Load(config.tokenizer_vocab);
 
         SIO_CHECK(config.nnet != "") << "stt nnet is required";
         SIO_INFO << "Loading torchscript nnet from: " << config.nnet; 
@@ -46,7 +46,7 @@ struct SpeechToText {
     Optional<Recognizer*> CreateRecognizer() {
         try {
             Recognizer* rec = new Recognizer;
-            rec->Setup(
+            rec->Load(
                 config.feature_extractor, mean_var_norm, /* feature */
                 tokenizer, /* tokenizer */ 
                 config.scorer, nnet /* scorer */

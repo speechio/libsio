@@ -16,7 +16,7 @@ struct Tokenizer {
     Map<Str, int> token_to_index;
     //sentencepiece::SentencePieceProcessor spm;
 
-    void Setup(const Str& tokenizer_vocab) {
+    void Load(const Str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
         Str line;
         for (int index = 0; std::getline(is, line); index++) {

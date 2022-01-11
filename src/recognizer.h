@@ -22,15 +22,15 @@ struct Recognizer {
     Search search;
 
 
-    Error Setup(
+    Error Load(
         const FeatureExtractorConfig& f, const MeanVarNorm* mvn,
         const Tokenizer& t,
         const ScorerConfig& s, torch::jit::script::Module& nnet
     ) {
-        SIO_CHECK(tokenizer == nullptr) << "Tokenizer alrady initialized inside Setup().";
-        feature_extractor.Setup(f, mvn);
+        SIO_CHECK(tokenizer == nullptr) << "Tokenizer alrady initialized.";
+        feature_extractor.Load(f, mvn);
         tokenizer = &t;
-        scorer.Setup(s, nnet, feature_extractor.Dim(), tokenizer->Size());
+        scorer.Load(s, nnet, feature_extractor.Dim(), tokenizer->Size());
         return Error::OK;
     }
 

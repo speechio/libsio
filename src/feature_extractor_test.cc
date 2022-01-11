@@ -21,7 +21,7 @@ TEST(Feature, Extractor) {
     config.fbank.mel_opts.num_bins = 80;
 
     FeatureExtractor feature_extractor;
-    feature_extractor.Setup(config);
+    feature_extractor.Load(config);
     for (const auto& kv : audio_to_frames) {
         Str audio_file = kv.first;
         int num_frames = kv.second;

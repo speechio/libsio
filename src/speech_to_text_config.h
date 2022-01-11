@@ -46,7 +46,7 @@ struct SpeechToTextConfig {
     }
 
 
-    Error Setup(const std::string& config_file) {
+    Error Load(const std::string& config_file) {
         StructLoader loader;
         Register(&loader);
         loader.Load(config_file);
