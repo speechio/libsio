@@ -13,24 +13,18 @@ struct SpeechToText {
     SpeechToTextConfig config;
     torch::jit::script::Module nnet;
     Tokenizer tokenizer;
-    Optional<Owner<MeanVarNorm*>> mean_var_norm = nullptr;
-
-
-    ~SpeechToText() noexcept { 
-        if (mean_var_norm != nullptr) {
-            Delete(mean_var_norm);
-        }
-    }
+    std::unique_ptr<MeanVarNorm> mean_var_norm;
 
 
     Error Load(std::string config_file) { 
         config.Load(config_file);
 
         if (config.mean_var_norm != "") {
-            mean_var_norm = new MeanVarNorm;
+            SIO_CHECK(!mean_var_norm) << "mean_var_norm initialized already.";
+            mean_var_norm = make_unique<MeanVarNorm>();
             mean_var_norm->Load(config.mean_var_norm);
         } else {
-            mean_var_norm = nullptr;
+            mean_var_norm.reset();
         }
 
         tokenizer.Load(config.tokenizer_vocab);
@@ -47,7 +41,7 @@ struct SpeechToText {
         try {
             Recognizer* rec = new Recognizer;
             rec->Load(
-                config.feature_extractor, mean_var_norm, /* feature */
+                config.feature_extractor, mean_var_norm.get(), /* feature */
                 tokenizer, /* tokenizer */ 
                 config.scorer, nnet /* scorer */
             ); 

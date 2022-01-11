@@ -1,6 +1,8 @@
 #ifndef SIO_FEATURE_H
 #define SIO_FEATURE_H
 
+#include <memory>
+
 #include "feat/online-feature.h"
 
 #include "sio/common.h"
@@ -27,30 +29,21 @@ struct FeatureExtractor {
     const FeatureExtractorConfig* config = nullptr;
 
     // need pointer here because we want Reset() functionality
-    Owner<kaldi::OnlineBaseFeature*> extractor = nullptr;
+    std::unique_ptr<kaldi::OnlineBaseFeature> extractor;
 
-    // mvn object is stateless, owned outside, not here
     Optional<const MeanVarNorm*> mean_var_norm = nullptr;
 
     //[0, cur_frame) popped frames, [cur_frame, NumFramesReady()) remainder frames.
     index_t cur_frame = 0;
 
 
-    ~FeatureExtractor() noexcept {
-        Delete(extractor);
-    }
-
-
-    Error Load(const FeatureExtractorConfig& c, const MeanVarNorm* mvn = nullptr) { 
+    Error Load(const FeatureExtractorConfig& c, Optional<const MeanVarNorm*> mvn = nullptr) { 
         SIO_CHECK_EQ(c.type, "fbank");
 
         config = &c;
 
-        if (extractor != nullptr) {
-            SIO_WARNING << "Feature extractor existed, releasing old one.";
-            Delete(extractor);
-        }
-        extractor = new kaldi::OnlineFbank(config->fbank);
+        SIO_CHECK(!extractor) << "Feature extractor initialized already.";
+        extractor = make_unique<kaldi::OnlineFbank>(config->fbank);
 
         mean_var_norm = mvn;
 
@@ -61,8 +54,8 @@ struct FeatureExtractor {
 
 
     Error Reset() {
-        Delete(extractor);
-        extractor = new kaldi::OnlineFbank(config->fbank);
+        SIO_CHECK_EQ(config->type, "fbank");
+        extractor.reset(new kaldi::OnlineFbank(config->fbank));
         cur_frame = 0;
 
         return Error::OK;

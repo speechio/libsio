@@ -22,6 +22,7 @@ include_directories(${CMAKE_SOURCE_DIR}/deps/abseil-cpp)
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/abseil-cpp)
 set(ABSL_LIBRARIES
     absl::base
+    absl::memory
     absl::strings
     absl::str_format
     absl::type_traits

@@ -27,7 +27,7 @@ struct Recognizer {
         const Tokenizer& t,
         const ScorerConfig& s, torch::jit::script::Module& nnet
     ) {
-        SIO_CHECK(tokenizer == nullptr) << "Tokenizer alrady initialized.";
+        SIO_CHECK(tokenizer == nullptr) << "Tokenizer initialized already.";
         feature_extractor.Load(f, mvn);
         tokenizer = &t;
         scorer.Load(s, nnet, feature_extractor.Dim(), tokenizer->Size());

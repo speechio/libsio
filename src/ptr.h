@@ -2,6 +2,7 @@
 #define SIO_PTR_H
 
 #include <absl/meta/type_traits.h>
+#include <absl/memory/memory.h>
 
 namespace sio {
 
@@ -33,6 +34,11 @@ using Optional = T;
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Ref = T;
 */
+
+
+/* smart pointers */
+using absl::make_unique;
+using std::make_shared;
 
 }
 
