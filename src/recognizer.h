@@ -68,7 +68,6 @@ private:
         if (samples != nullptr && num_samples != 0) {
             feature_extractor.Push(samples, num_samples, sample_rate);
         }
-
         if (eos) {
             feature_extractor.PushEnd();
         }
@@ -77,7 +76,6 @@ private:
             auto feat_frame = feature_extractor.Pop();
             scorer.Push(feat_frame);
         }
-
         if (eos) {
             scorer.PushEnd();
         }
@@ -86,7 +84,6 @@ private:
             auto score_frame = scorer.Pop();
             search.Push(score_frame);
         }
-        
         if (eos) {
             search.PushEnd();
         }
