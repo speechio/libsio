@@ -96,10 +96,10 @@ struct StructLoader {
 
 
 private:
-    static const Optional<Json*> FindEntry(const Json& json, const StrView entry) {
+    static Optional<const Json*> FindEntry(const Json& json, const StrView entry) {
         // longest path match
         Vec<Str> fields = absl::StrSplit(entry, ".", absl::SkipWhitespace());
-        const Json *node = &json;
+        const Json* node = &json;
         int k = 0;
         SIO_CHECK("Loop invariant: the path from root to node matches fields[0,k)");
         while(k != fields.size()) {
