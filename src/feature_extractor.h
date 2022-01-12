@@ -31,13 +31,13 @@ struct FeatureExtractor {
     // need pointer here to support multiple types of extractors (e.g. fbank, mfcc)
     Unique<kaldi::OnlineBaseFeature*> extractor;
 
-    Optional<const MeanVarNorm*> mean_var_norm = nullptr;
+    const Optional<MeanVarNorm*> mean_var_norm = nullptr;
 
     //[0, cur_frame) popped frames, [cur_frame, NumFramesReady()) remainder frames.
     index_t cur_frame = 0;
 
 
-    Error Load(const FeatureExtractorConfig& c, Optional<const MeanVarNorm*> mvn = nullptr) { 
+    Error Load(const FeatureExtractorConfig& c, const Optional<MeanVarNorm*> mvn = nullptr) { 
         SIO_CHECK_EQ(c.type, "fbank");
         config = &c;
 
