@@ -76,21 +76,6 @@ public:
     }
 
 
-    Error Reset() {
-        feat_cache_.clear();
-        cur_feat_frame_ = 0;
-
-        subsampling_cache_ = std::move(torch::jit::IValue());
-        elayers_output_cache_ = std::move(torch::jit::IValue());
-        conformer_cnn_cache_ = std::move(torch::jit::IValue());
-        acoustic_encoding_cache_.clear();
-        scores_cache_.clear();
-        cur_score_frame_ = 0;
-
-        return Error::OK;
-    }
-
-
     void Push(const Vec<float>& feat_frame) {
         feat_cache_.emplace_back(feat_frame);
         ++cur_feat_frame_;
@@ -159,6 +144,21 @@ public:
         torch::Tensor score_frame = scores_cache_.front();
         scores_cache_.pop_front();
         return score_frame;
+    }
+
+
+    Error Reset() {
+        feat_cache_.clear();
+        cur_feat_frame_ = 0;
+
+        subsampling_cache_ = std::move(torch::jit::IValue());
+        elayers_output_cache_ = std::move(torch::jit::IValue());
+        conformer_cnn_cache_ = std::move(torch::jit::IValue());
+        acoustic_encoding_cache_.clear();
+        scores_cache_.clear();
+        cur_score_frame_ = 0;
+
+        return Error::OK;
     }
 
 

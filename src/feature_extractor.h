@@ -52,16 +52,6 @@ struct FeatureExtractor {
     }
 
 
-    Error Reset() {
-        SIO_CHECK_EQ(config->type, "fbank");
-        extractor.reset();
-        extractor = make_unique<kaldi::OnlineFbank>(config->fbank);
-        cur_frame = 0;
-
-        return Error::OK;
-    }
-
-
     void Push(const float* samples, size_t num_samples, float sample_rate) {
         extractor->AcceptWaveform(
             sample_rate, 
@@ -87,6 +77,16 @@ struct FeatureExtractor {
         }
 
         return std::move(feat_frame);
+    }
+
+
+    Error Reset() {
+        SIO_CHECK_EQ(config->type, "fbank");
+        extractor.reset();
+        extractor = make_unique<kaldi::OnlineFbank>(config->fbank);
+        cur_frame = 0;
+
+        return Error::OK;
     }
 
 

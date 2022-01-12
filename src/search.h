@@ -17,15 +17,18 @@ public:
         }
     }
 
+
     void PushEnd() { }
 
-    const Vec<index_t>& BestPath() {
-        return best_path_tokens_;
-    }
 
     void Reset() {
         best_path_tokens_.clear();
         best_path_scores_.clear();
+    }
+
+
+    const Vec<index_t>& BestPath() {
+        return best_path_tokens_;
     }
 
 private:
