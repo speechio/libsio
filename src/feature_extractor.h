@@ -29,7 +29,7 @@ struct FeatureExtractor {
     const FeatureExtractorConfig* config = nullptr;
 
     // need pointer here because we want Reset() functionality
-    std::unique_ptr<kaldi::OnlineBaseFeature> extractor;
+    Unique<kaldi::OnlineBaseFeature*> extractor;
 
     Optional<const MeanVarNorm*> mean_var_norm = nullptr;
 

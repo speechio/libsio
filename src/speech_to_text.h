@@ -13,7 +13,7 @@ struct SpeechToText {
     SpeechToTextConfig config;
     torch::jit::script::Module nnet;
     Tokenizer tokenizer;
-    std::unique_ptr<MeanVarNorm> mean_var_norm;
+    Unique<MeanVarNorm*> mean_var_norm;
 
 
     Error Load(std::string config_file) { 

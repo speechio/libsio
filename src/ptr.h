@@ -1,19 +1,23 @@
 #ifndef SIO_PTR_H
 #define SIO_PTR_H
 
+#include <type_traits>
+
 #include <absl/meta/type_traits.h>
 #include <absl/memory/memory.h>
 
 namespace sio {
 
 /* 
+GSL-like (Guideline Supported Library) pointer annotations for old style-C:
+
 C pointers are great at pointing "things" but failing to express:
     - ownership
     - nullness
 Note that these two properties are orthogonal.
 
 To make things clear, annotation types are introduced here as a pointer-convention:
-    - T* or Ref<T*>       denotes pointers without ownership & cannot be null
+    - T*                  denotes pointers without ownership & cannot be null
     - Owner<T*>           denotes pointers with    ownership & cannot be null
     - Optional<T*>        denotes pointers without ownership & can    be null
     - Optional<Owner<T*>> denotes pointers with    ownership & can    be null
@@ -30,13 +34,14 @@ using Owner = T;
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Optional = T;
 
-/*
+
+/* Smart pointer aliasings */
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
-using Ref = T;
-*/
+using Unique = std::unique_ptr<typename std::remove_pointer<T>::type>;
 
+template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
+using Shared = std::shared_ptr<typename std::remove_pointer<T>::type>;
 
-/* smart pointers */
 using absl::make_unique;
 using std::make_shared;
 
