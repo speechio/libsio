@@ -39,7 +39,6 @@ struct FeatureExtractor {
 
     Error Load(const FeatureExtractorConfig& c, Optional<const MeanVarNorm*> mvn = nullptr) { 
         SIO_CHECK_EQ(c.type, "fbank");
-
         config = &c;
 
         SIO_CHECK(!extractor) << "Feature extractor initialized already.";
