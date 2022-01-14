@@ -9,23 +9,19 @@
 namespace sio {
 
 /* 
-GSL-like (Guideline Supported Library) pointer annotations for old style-C:
-
-C pointers are great at pointing "things" but failing to express:
-    - ownership
-    - nullability
-Note that these two properties are orthogonal.
-
-To make things clear, annotation types are introduced here as a pointer-convention:
-    - T*                  denotes pointers without ownership & cannot be null
-    - Owner<T*>           denotes pointers with    ownership & cannot be null
-    - Optional<T*>        denotes pointers without ownership & can    be null
-    - Optional<Owner<T*>> denotes pointers with    ownership & can    be null
-With consistent use of this convention, raw pointers (T*) have less semantic burden.
-
-Note these types are:
-    - merely annotations(via aliasing), rather than compiler guarentees.
-    - with zero runtime costs, can work seamlessly with C API/ABI
+ * GSL-like (Guideline Supported Library) pointer annotations for old style-C:
+ * 
+ * C pointers are great at pointing "things" but failing to express:
+ *     - ownership
+ *     - nullability
+ * Note that these two properties are orthogonal to each other.
+ * 
+ * So to make C pointers clearer, aliasing annotations are introduced throughout this library:
+ *     - T*                  denotes pointers without ownership & cannot be null
+ *     - Owner<T*>           denotes pointers with    ownership & cannot be null
+ *     - Optional<T*>        denotes pointers without ownership & can    be null
+ *     - Optional<Owner<T*>> denotes pointers with    ownership & can    be null
+ * With consistent use of this convention, raw pointers (T*) are just as safe as reference.
 */
 
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
@@ -35,7 +31,10 @@ template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::
 using Optional = T;
 
 
-/* Smart pointer aliasings */
+/*
+ * Other than above helpers to annotate C pointers, 
+ * Use C++11 smart pointers as an alternative if they simplify codes
+*/
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Unique = std::unique_ptr<typename std::remove_pointer<T>::type>;
 
@@ -48,3 +47,4 @@ using std::make_shared;
 }
 
 #endif
+
