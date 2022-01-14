@@ -13,7 +13,7 @@ GSL-like (Guideline Supported Library) pointer annotations for old style-C:
 
 C pointers are great at pointing "things" but failing to express:
     - ownership
-    - nullness
+    - nullability
 Note that these two properties are orthogonal.
 
 To make things clear, annotation types are introduced here as a pointer-convention:
