@@ -19,12 +19,12 @@ enum class AudioFormat: int {
 };
 */
 
-inline Error ReadAudio(const std::string& filepath, std::vector<float>* audio, float* sample_rate) {
+inline Error ReadAudio(const std::string& filepath, Vec<f32>* audio, f32* sample_rate) {
     kaldi::WaveData kaldi_wave;
     std::ifstream is(filepath, std::ifstream::binary);
     kaldi_wave.Read(is);
     *sample_rate = kaldi_wave.SampFreq();
-    kaldi::SubVector<float> ch0(kaldi_wave.Data(), 0);
+    kaldi::SubVector<f32> ch0(kaldi_wave.Data(), 0);
 
     SIO_CHECK(audio != nullptr);
     if (!audio->empty()) {
@@ -42,9 +42,9 @@ template <typename SampleT>
 struct AudioSegment {
     SampleT* data = nullptr; // no ownership
     size_t len = 0;
-    float sample_rate = 0;
+    f32 sample_rate = 0;
 
-    void Set(SampleT* samples, size_t n, float sample_rate) { 
+    void Set(SampleT* samples, size_t n, f32 sample_rate) { 
         data = samples;
         len = n;
         sample_rate = sample_rate;
@@ -58,7 +58,7 @@ struct AudioSegment {
 
 class Resampler {
 public:
-    Resampler(float source_sample_rate, float target_sample_rate) :
+    Resampler(f32 source_sample_rate, f32 target_sample_rate) :
         // https://github.com/kaldi-asr/kaldi/blob/master/src/feat/resample.cc#L368
         resampler_(
             source_sample_rate, target_sample_rate,
@@ -68,18 +68,18 @@ public:
     { }
 
     void Forward(
-        const float* data, size_t len, float sample_rate, 
-        kaldi::Vector<float> *output,
+        const f32* data, size_t len, f32 sample_rate, 
+        kaldi::Vector<f32> *output,
         bool flush
     ) {
         SIO_CHECK_EQ(sample_rate, resampler_.GetInputSamplingRate());
 
-        kaldi::SubVector<float> input(data, len);
+        kaldi::SubVector<f32> input(data, len);
         resampler_.Resample(input, flush, output);
     }
 
-    float SourceSampleRate() { return resampler_.GetInputSamplingRate(); }
-    float TargetSampleRate() { return resampler_.GetOutputSamplingRate(); }
+    f32 SourceSampleRate() { return resampler_.GetInputSamplingRate(); }
+    f32 TargetSampleRate() { return resampler_.GetOutputSamplingRate(); }
 
 private:
     // https://github.com/kaldi-asr/kaldi/blob/master/src/feat/resample.h#L147

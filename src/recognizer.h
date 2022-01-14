@@ -43,7 +43,7 @@ struct Recognizer {
     }
 
 
-    Error Speech(const float* samples, size_t num_samples, float sample_rate) {
+    Error Speech(const f32* samples, size_t num_samples, f32 sample_rate) {
         SIO_CHECK(samples != nullptr && num_samples != 0);
         return Advance(samples, num_samples, sample_rate, /*eos*/false);
     }
@@ -64,7 +64,7 @@ struct Recognizer {
 
 private:
 
-    Error Advance(const float* samples, size_t num_samples, float sample_rate, bool eos) {
+    Error Advance(const f32* samples, size_t num_samples, f32 sample_rate, bool eos) {
         if (samples != nullptr && num_samples != 0) {
             feature_extractor.Push(samples, num_samples, sample_rate);
         }

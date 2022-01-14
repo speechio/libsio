@@ -33,7 +33,7 @@ public:
 
 private:
     Vec<index_t> best_path_tokens_;
-    Vec<float> best_path_scores_;
+    Vec<f32> best_path_scores_;
 }; // class Search
 }  // namespace sio
 #endif

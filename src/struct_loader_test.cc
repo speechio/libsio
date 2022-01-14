@@ -22,7 +22,7 @@ TEST(StructLoader, Basic) {
     struct Bar {
         bool online;
         int num_workers;
-        float sample_rate;
+        f32 sample_rate;
         Str nnet;
         Foo foo;
 

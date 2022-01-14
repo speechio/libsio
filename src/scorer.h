@@ -35,7 +35,7 @@ private:
     int right_context_ = 0;
 
     // nnet input cache
-    std::deque<Vec<float>> feat_cache_;
+    std::deque<Vec<f32>> feat_cache_;
     index_t cur_feat_frame_ = 0; // feats[0, cur_feat_frame_) pushed
 
     // nnet internal cache
@@ -76,7 +76,7 @@ public:
     }
 
 
-    void Push(const Vec<float>& feat_frame) {
+    void Push(const Vec<f32>& feat_frame) {
         feat_cache_.emplace_back(feat_frame);
         ++cur_feat_frame_;
     }
@@ -109,7 +109,7 @@ public:
         // here offset refers to sub-sampled frames
         // assemble feature and caches as input
         int requried_cache_size = config_.chunk_size * config_.num_left_chunks;
-        std::vector<torch::jit::IValue> inputs = {
+        Vec<torch::jit::IValue> inputs = {
             feats,
             cur_score_frame_,
             requried_cache_size,

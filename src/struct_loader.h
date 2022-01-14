@@ -13,7 +13,7 @@ namespace sio {
 struct StructLoader {
     std::map<Str, bool*> bool_map;
     std::map<Str, int*> int_map;
-    std::map<Str, float*> float_map;
+    std::map<Str, f32*> float_map;
     std::map<Str, Str*> string_map;
 
 
@@ -41,7 +41,7 @@ struct StructLoader {
             auto& p = kv.second;
             const Json *node = FindEntry(json, e);
             if (node) {
-                *p = node->get<float>();
+                *p = node->get<f32>();
             }
         }
 
@@ -73,7 +73,7 @@ struct StructLoader {
 
     void AddEntry(const Str& e, bool* addr) { bool_map[e] = addr; }
     void AddEntry(const Str& e, int* addr) { int_map[e] = addr; }
-    void AddEntry(const Str& e, float* addr) { float_map[e] = addr; }
+    void AddEntry(const Str& e, f32* addr) { float_map[e] = addr; }
     void AddEntry(const Str& e, std::string* addr) { string_map[e] = addr; }
 
 

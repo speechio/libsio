@@ -12,8 +12,8 @@
 namespace sio {
 struct MeanVarNorm {
     int dim = 0;
-    std::vector<double> m_norm_shift;
-    std::vector<double> v_norm_scale;
+    Vec<f64> m_norm_shift;
+    Vec<f64> v_norm_scale;
 
 
     Error Load(std::string mean_var_norm_file) {
@@ -35,7 +35,7 @@ struct MeanVarNorm {
         std::getline(is, line);
         dim = std::stoi(line);
 
-        std::vector<std::string> cols;
+        Vec<std::string> cols;
 
         std::getline(is, line);
         cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
@@ -59,7 +59,7 @@ struct MeanVarNorm {
     }
 
 
-    void Normalize(kaldi::VectorBase<float> *frame) const {
+    void Normalize(kaldi::VectorBase<f32> *frame) const {
         SIO_CHECK(frame != nullptr) << "null input to mvn ?";
         SIO_CHECK_EQ(frame->Dim(), dim) << "feature dim inconsistent with mvn dim";
         for (int i = 0; i < dim; i++) {

@@ -3,6 +3,7 @@
 
 #include "sio/ptr.h"
 #include "sio/check.h"
+#include "sio/vec.h"
 
 namespace sio {
 
@@ -80,7 +81,7 @@ private:
 private:
     size_t elem_bytes_;
     size_t elems_per_cache_;
-    std::vector<Owner<char*>> caches_;
+    Vec<Owner<char*>> caches_;
 
     FreeList free_list_;
     size_t num_used_;

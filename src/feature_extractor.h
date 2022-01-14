@@ -52,10 +52,10 @@ struct FeatureExtractor {
     }
 
 
-    void Push(const float* samples, size_t num_samples, float sample_rate) {
+    void Push(const f32* samples, size_t num_samples, f32 sample_rate) {
         extractor->AcceptWaveform(
             sample_rate, 
-            kaldi::SubVector<float>(samples, num_samples)
+            kaldi::SubVector<f32>(samples, num_samples)
         );
     }
 
@@ -65,12 +65,12 @@ struct FeatureExtractor {
     }
 
 
-    Vec<float> Pop() {
+    Vec<f32> Pop() {
         SIO_CHECK_GT(Len(), 0);
-        Vec<float> feat_frame(Dim(), 0.0f);
+        Vec<f32> feat_frame(Dim(), 0.0f);
 
         // kaldi_frame is a helper frame view, no underlying data ownership
-        kaldi::SubVector<float> kaldi_frame(feat_frame.data(), feat_frame.size());
+        kaldi::SubVector<f32> kaldi_frame(feat_frame.data(), feat_frame.size());
         extractor->GetFrame(cur_frame++, &kaldi_frame);
         if (mean_var_norm) {
             mean_var_norm->Normalize(&kaldi_frame);
@@ -100,13 +100,13 @@ struct FeatureExtractor {
     }
 
 
-    float SampleRate() const {
+    f32 SampleRate() const {
         SIO_CHECK(config != nullptr);
         return config->fbank.frame_opts.samp_freq;
     }
 
 
-    float FrameRate() const {
+    f32 FrameRate() const {
         SIO_CHECK(config != nullptr);
         return 1000.0f / config->fbank.frame_opts.frame_shift_ms;
     }

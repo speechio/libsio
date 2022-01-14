@@ -26,8 +26,8 @@ TEST(Feature, Extractor) {
         Str audio_file = kv.first;
         int num_frames = kv.second;
 
-        std::vector<float> audio;
-        float sample_rate;
+        Vec<f32> audio;
+        f32 sample_rate;
         ReadAudio(audio_file, &audio, &sample_rate);
 
         feature_extractor.Push(audio.data(), audio.size(), sample_rate);
