@@ -19,6 +19,7 @@
 #include "sio/feature_extractor.h"
 #include "sio/tokenizer.h"
 #include "sio/scorer.h"
+#include "sio/fsm.h"
 #include "sio/search.h"
 #include "sio/speech_to_text_config.h"
 #include "sio/recognizer.h"

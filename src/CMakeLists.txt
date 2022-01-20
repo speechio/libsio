@@ -14,6 +14,7 @@ add_executable(unittest
     feature_extractor_test.cc
     dbg_test.cc
     struct_loader_test.cc
+    fsm_test.cc
 )
 
 target_link_libraries(unittest
