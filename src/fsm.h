@@ -123,6 +123,6 @@ struct Fsm {
         return 0;
     }
 
-}; // class Fsm
+}; // struct Fsm
 } // namespace sio
 #endif
