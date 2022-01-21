@@ -78,6 +78,7 @@ struct Fsm {
 
     ArcIterator GetArcIterator(StateId i) const {
         SIO_CHECK(!Empty());
+        SIO_CHECK_NE(i, states.size() - 1); // block external access to guardian state 
         return ArcIterator(
             &arcs[states[i].arcs_begin],
             &arcs[states[i+1].arcs_begin]
