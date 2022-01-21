@@ -86,10 +86,12 @@ struct Fsm {
     }
 
 
+    /*
     inline size_t NumArcsOf(StateId i) const {
         SIO_CHECK(!Empty());
         return states[i+1].arcs_begin - states[i].arcs_begin;
     }
+    */
 
 
     u64 NumStates() const {
