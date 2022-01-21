@@ -15,7 +15,7 @@ struct Fsm {
 
 
     struct State {
-        ArcId arcs = 0;
+        ArcId arcs_begin = 0;
     };
 
 
@@ -85,15 +85,15 @@ struct Fsm {
     ArcIterator GetArcIterator(StateId i) const {
         SIO_CHECK(!Empty());
         return ArcIterator(
-            &arcs[states[i].arcs],
-            &arcs[states[i+1].arcs]
+            &arcs[states[i].arcs_begin],
+            &arcs[states[i+1].arcs_begin]
         );
     }
 
 
     inline size_t NumArcsOf(StateId i) const {
         SIO_CHECK(!Empty());
-        return states[i+1].arcs - states[i].arcs;
+        return states[i+1].arcs_begin - states[i].arcs_begin;
     }
 
 
