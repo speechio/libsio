@@ -41,9 +41,12 @@ struct Fsm {
 
       public:
         ArcIterator(const Arc* begin, const Arc* end) : cur_(begin), end_(end) {}
-        bool Done() { return cur_ >= end_; }
-        void Next() { ++cur_; }
+
         const Arc& Value() { return *cur_; }
+
+        void Next() { ++cur_; }
+
+        bool Done() { return cur_ >= end_; }
     };
 
 
