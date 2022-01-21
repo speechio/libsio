@@ -73,7 +73,7 @@ struct Fsm {
     /*
     inline const State& GetState(StateId i) const {
         SIO_CHECK(!Empty());
-        SIO_CHECK_NE(i, states.size() - 1); // block external access to guardian state 
+        SIO_CHECK_NE(i, states.size() - 1); // block external access to sentinel
         return states[i];
     }
     */
@@ -81,7 +81,7 @@ struct Fsm {
 
     ArcIterator GetArcIterator(StateId i) const {
         SIO_CHECK(!Empty());
-        SIO_CHECK_NE(i, states.size() - 1); // block external access to guardian state 
+        SIO_CHECK_NE(i, states.size() - 1); // block external access to sentinel
         return ArcIterator(
             &arcs[states[i].arcs_begin],
             &arcs[states[i+1].arcs_begin]
@@ -134,9 +134,9 @@ struct Fsm {
         SIO_CHECK_EQ(final_state, num_states - 1); // conform to K2
 
         ExpectToken(is, binary, "<States>");
-        auto num_states_plus_one = num_states + 1; // one extra guardian-state at the end
-        states.resize(num_states_plus_one);
-        is.read(reinterpret_cast<char*>(states.data()), num_states_plus_one * sizeof(State));
+        auto num_states_plus_sentinel = num_states + 1; // one extra sentinel-state at the end
+        states.resize(num_states_plus_sentinel);
+        is.read(reinterpret_cast<char*>(states.data()), num_states_plus_sentinel * sizeof(State));
 
         ExpectToken(is, binary, "<NumArcs>");
         u64 num_arcs = 0;
@@ -174,8 +174,8 @@ struct Fsm {
         WriteBasicType(os, binary, NumArcs());
 
         WriteToken(os, binary, "<States>");
-        auto num_states_plus_one = NumStates() + 1; // one extra guardian-state at the end
-        os.write(reinterpret_cast<const char*>(states.data()), num_states_plus_one * sizeof(State));
+        auto num_states_plus_sentinel = NumStates() + 1; // one extra sentinel-state at the end
+        os.write(reinterpret_cast<const char*>(states.data()), num_states_plus_sentinel * sizeof(State));
 
         WriteToken(os, binary, "<Arcs>");
         os.write(reinterpret_cast<const char*>(arcs.data()), NumArcs() * sizeof(Arc));
