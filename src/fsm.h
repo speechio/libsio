@@ -99,7 +99,7 @@ struct Fsm {
 
     u64 NumStates() const {
         SIO_CHECK(!Empty());
-        return states.size() - 1;
+        return states.size() - 1; // -1: last sentinel is invalid Fsm state
     }
 
 
@@ -134,7 +134,7 @@ struct Fsm {
         SIO_CHECK_EQ(final_state, num_states - 1); // conform to K2
 
         ExpectToken(is, binary, "<States>");
-        auto num_states_plus_sentinel = num_states + 1; // one extra sentinel-state at the end
+        auto num_states_plus_sentinel = num_states + 1;
         states.resize(num_states_plus_sentinel);
         is.read(reinterpret_cast<char*>(states.data()), num_states_plus_sentinel * sizeof(State));
 
@@ -174,7 +174,7 @@ struct Fsm {
         WriteBasicType(os, binary, NumArcs());
 
         WriteToken(os, binary, "<States>");
-        auto num_states_plus_sentinel = NumStates() + 1; // one extra sentinel-state at the end
+        auto num_states_plus_sentinel = NumStates() + 1;
         os.write(reinterpret_cast<const char*>(states.data()), num_states_plus_sentinel * sizeof(State));
 
         WriteToken(os, binary, "<Arcs>");
