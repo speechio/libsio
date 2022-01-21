@@ -50,7 +50,7 @@ struct Fsm {
     /********** Data Members **********/
     Str version; // TODO: make version a part of binary header
 
-    StateId start_state = 0;  /* conform to K2 */
+    StateId start_state = 0;
     StateId final_state = 0;
 
     Vec<State> states;
@@ -117,7 +117,7 @@ struct Fsm {
 
         ExpectToken(is, binary, "<Start>");
         ReadBasicType(is, binary, &start_state);
-        SIO_CHECK(start_state == 0);
+        SIO_CHECK(start_state == 0); // conform to K2
 
         ExpectToken(is, binary, "<Final>");
         ReadBasicType(is, binary, &final_state);
@@ -125,7 +125,7 @@ struct Fsm {
         ExpectToken(is, binary, "<NumStates>");
         u64 num_states = 0;
         ReadBasicType(is, binary, &num_states);
-        SIO_CHECK_EQ(final_state, num_states - 1);
+        SIO_CHECK_EQ(final_state, num_states - 1); // conform to K2
 
         ExpectToken(is, binary, "<States>");
         auto num_states_plus_one = num_states + 1; // one extra guardian-state at the end
