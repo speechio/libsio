@@ -63,23 +63,17 @@ struct Fsm {
     }
 
 
-    StateId Start() const {
-        SIO_CHECK(!Empty());
-        return start_state;
-    }
+    inline StateId Start() const { SIO_CHECK(!Empty()); return start_state; }
+    inline StateId Final() const { SIO_CHECK(!Empty()); return final_state; }
 
 
-    inline StateId Final() const {
-        SIO_CHECK(!Empty());
-        return final_state;
-    }
-
-
+    /*
     inline const State& GetState(StateId i) const {
         SIO_CHECK(!Empty());
         SIO_CHECK_NE(i, states.size() - 1); // block external access to guardian state 
         return states[i];
     }
+    */
 
 
     ArcIterator GetArcIterator(StateId i) const {
