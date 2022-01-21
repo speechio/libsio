@@ -6,7 +6,5 @@
 namespace sio {
 TEST(Fsm, Basic) {
     Fsm fsa;
-    EXPECT_EQ(fsa.NumStates(), 0);
-    EXPECT_EQ(fsa.NumArcs(), 0);
 }
 }

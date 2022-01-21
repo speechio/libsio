@@ -29,42 +29,83 @@ struct Fsm {
         ArcAux aux;
     };
 
-    Str version_; // TODO: make version a part of binary header
+    class ArcIterator {
+      private:
+        const Arc* cur_ = nullptr;
+        const Arc* end_ = nullptr;
 
-    StateId start_ = 0;  /* conform to K2 */
+      public:
+        ArcIterator(const Arc* begin, const Arc* end) : cur_(begin), end_(end) {}
+        bool Done() { return cur_ >= end_; }
+        void Next() { ++cur_; }
+        const Arc& Value() { return *cur_; }
+    };
 
-    Vec<State> states_;
-    Vec<Arc> arcs_;
+    Str version; // TODO: make version a part of binary header
+
+    StateId start_state = 0;  /* conform to K2 */
+    StateId final_state = 0;
+
+    Vec<State> states;
+    Vec<Arc> arcs;
 
 
-    StateId Start() { return start_; }
-
-
-    inline State& GetState(StateId i) { return states_[i]; }
-
-
-    inline Arc& GetArc(ArcId j) { return arcs_[j]; }
-
-
-    inline size_t NumArcsOf(StateId i) {
-        return GetState(i+1).arcs - GetState(i).arcs;
+    inline bool Empty() const {
+        return states.size() == 0;
     }
 
 
-    u64 NumStates() {
-        return states_.size() == 0 ? 0 : states_.size() - 1;
+    StateId Start() const {
+        SIO_CHECK(!Empty());
+        return start_state;
     }
 
 
-    u64 NumArcs() { return arcs_.size(); }
+    inline StateId Final() const {
+        SIO_CHECK(!Empty());
+        return final_state;
+    }
+
+
+    inline const State& GetState(StateId i) const {
+        SIO_CHECK(!Empty());
+        SIO_CHECK_LT(i, states.size() - 1); // block external access to guardian state 
+        return states[i];
+    }
+
+
+    ArcIterator GetArcIterator(StateId i) const {
+        SIO_CHECK(!Empty());
+        return ArcIterator(
+            &arcs[states[i].arcs],
+            &arcs[states[i+1].arcs]
+        );
+    }
+
+
+    inline size_t NumArcsOf(StateId i) const {
+        SIO_CHECK(!Empty());
+        return states[i+1].arcs - states[i].arcs;
+    }
+
+
+    u64 NumStates() const {
+        SIO_CHECK(!Empty());
+        return states.size() - 1;
+    }
+
+
+    u64 NumArcs() const {
+        SIO_CHECK(!Empty());
+        return arcs.size(); 
+    }
 
 
     Error Load(std::istream &is, bool binary) {
+        SIO_CHECK(Empty()) << "Fsm already loaded ?";
+
         using kaldi::ExpectToken;
         using kaldi::ReadBasicType;
-
-        SIO_CHECK_EQ(states_.size(), 0) << "Fsm already loaded ?";
-        SIO_CHECK_EQ(arcs_.size(), 0) << "Fsm already loaded ?";;
 
         ExpectToken(is, binary, "<Fsm>");
 
@@ -73,28 +114,35 @@ struct Fsm {
         */
 
         ExpectToken(is, binary, "<Start>");
-        ReadBasicType(is, binary, &start_);
+        ReadBasicType(is, binary, &start_state);
+        SIO_CHECK(start_state == 0);
+
+        ExpectToken(is, binary, "<Final>");
+        ReadBasicType(is, binary, &final_state);
 
         u64 num_states = 0;
         ExpectToken(is, binary, "<NumStates>");
         ReadBasicType(is, binary, &num_states);
-        auto num_states_plus_guardian = num_states + 1; // one extra guardian-state at the end
-        states_.resize(num_states_plus_guardian);
-        ExpectToken(is, binary, "<States>");
-        is.read(reinterpret_cast<char*>(states_.data()), num_states_plus_guardian * sizeof(State));
+        SIO_CHECK_EQ(final_state, num_states - 1);
 
+        ExpectToken(is, binary, "<States>");
+        auto num_states_plus_one = num_states + 1; // one extra guardian-state at the end
+        states.resize(num_states_plus_one);
+        is.read(reinterpret_cast<char*>(states.data()), num_states_plus_one * sizeof(State));
 
         u64 num_arcs = 0;
         ExpectToken(is, binary, "<NumArcs>");
         ReadBasicType(is, binary, &num_arcs);
-        arcs_.resize(num_arcs);
+
         ExpectToken(is, binary, "<Arcs>");
-        is.read(reinterpret_cast<char*>(arcs_.data()), num_arcs * sizeof(Arc));
+        arcs.resize(num_arcs);
+        is.read(reinterpret_cast<char*>(arcs.data()), num_arcs * sizeof(Arc));
 
         return Error::OK;
     }
 
-    int Dump(std::ostream &os, bool binary) {
+    int Dump(std::ostream &os, bool binary) const {
+        SIO_CHECK(!Empty()) << "Dumping empty Fsm ?";
         using kaldi::WriteToken;
         using kaldi::WriteBasicType;
 
@@ -107,6 +155,9 @@ struct Fsm {
         WriteToken(os, binary, "<Start>");
         WriteBasicType(os, binary, Start());
 
+        WriteToken(os, binary, "<Final>");
+        WriteBasicType(os, binary, Final());
+
         WriteToken(os, binary, "<NumStates>");
         WriteBasicType(os, binary, NumStates());
 
@@ -114,11 +165,11 @@ struct Fsm {
         WriteBasicType(os, binary, NumArcs());
 
         WriteToken(os, binary, "<States>");
-        auto num_states_plus_guardian = NumStates() + 1; // one extra guardian-state at the end
-        os.write(reinterpret_cast<const char*>(states_.data()), num_states_plus_guardian * sizeof(State));
+        auto num_states_plus_one = NumStates() + 1; // one extra guardian-state at the end
+        os.write(reinterpret_cast<const char*>(states.data()), num_states_plus_one * sizeof(State));
 
         WriteToken(os, binary, "<Arcs>");
-        os.write(reinterpret_cast<const char*>(arcs_.data()), NumArcs() * sizeof(Arc));
+        os.write(reinterpret_cast<const char*>(arcs.data()), NumArcs() * sizeof(Arc));
 
         return 0;
     }
