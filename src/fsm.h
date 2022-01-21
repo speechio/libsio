@@ -12,13 +12,16 @@ struct Fsm {
     using LabelId = i32;
     using Weight  = f32;
 
+
     struct State {
         ArcId arcs = 0;
     };
 
+
     struct ArcAux {
         LabelId label = 0;
     };
+
 
     struct Arc {
         StateId src = 0;
@@ -28,6 +31,7 @@ struct Fsm {
 
         ArcAux aux;
     };
+
 
     class ArcIterator {
       private:
@@ -41,6 +45,8 @@ struct Fsm {
         const Arc& Value() { return *cur_; }
     };
 
+
+    /* Data members */
     Str version; // TODO: make version a part of binary header
 
     StateId start_state = 0;  /* conform to K2 */
@@ -50,6 +56,7 @@ struct Fsm {
     Vec<Arc> arcs;
 
 
+    /* Methods */
     inline bool Empty() const {
         return states.size() == 0;
     }
