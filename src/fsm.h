@@ -122,8 +122,8 @@ struct Fsm {
         ExpectToken(is, binary, "<Final>");
         ReadBasicType(is, binary, &final_state);
 
-        u64 num_states = 0;
         ExpectToken(is, binary, "<NumStates>");
+        u64 num_states = 0;
         ReadBasicType(is, binary, &num_states);
         SIO_CHECK_EQ(final_state, num_states - 1);
 
@@ -132,8 +132,8 @@ struct Fsm {
         states.resize(num_states_plus_one);
         is.read(reinterpret_cast<char*>(states.data()), num_states_plus_one * sizeof(State));
 
-        u64 num_arcs = 0;
         ExpectToken(is, binary, "<NumArcs>");
+        u64 num_arcs = 0;
         ReadBasicType(is, binary, &num_arcs);
 
         ExpectToken(is, binary, "<Arcs>");
