@@ -8,8 +8,8 @@
 namespace sio {
 struct Fsm {
     /********** Types **********/
-    using StateId = index_t;
-    using ArcId   = index_t;
+    using StateId = i32;
+    using ArcId   = i32;
     using LabelId = i32;
     using Weight  = f32;
 
