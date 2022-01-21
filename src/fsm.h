@@ -7,6 +7,7 @@
 
 namespace sio {
 struct Fsm {
+    /********** Types **********/
     using StateId = index_t;
     using ArcId   = index_t;
     using LabelId = i32;
@@ -46,7 +47,7 @@ struct Fsm {
     };
 
 
-    /* Data members */
+    /********** Data Members **********/
     Str version; // TODO: make version a part of binary header
 
     StateId start_state = 0;  /* conform to K2 */
@@ -56,7 +57,7 @@ struct Fsm {
     Vec<Arc> arcs;
 
 
-    /* Methods */
+    /********** Methods **********/
     inline bool Empty() const {
         return states.size() == 0;
     }
@@ -76,7 +77,7 @@ struct Fsm {
 
     inline const State& GetState(StateId i) const {
         SIO_CHECK(!Empty());
-        SIO_CHECK_LT(i, states.size() - 1); // block external access to guardian state 
+        SIO_CHECK_NE(i, states.size() - 1); // block external access to guardian state 
         return states[i];
     }
 
