@@ -143,6 +143,7 @@ struct Fsm {
         return Error::OK;
     }
 
+
     int Dump(std::ostream &os, bool binary) const {
         SIO_CHECK(!Empty()) << "Dumping empty Fsm ?";
         using kaldi::WriteToken;
