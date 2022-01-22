@@ -36,7 +36,7 @@ public:
     { }
 
     ~Panic() {
-        fprintf(stderr, "[panic](%s:%d:%s) %s\n", file_, line_, func_, error_cstr(err_));
+        fprintf(stderr, "\n[panic](%s:%d:%s) %s\n", file_, line_, func_, error_cstr(err_));
         fflush(stderr);
         if (error_is_fatal(err_)) {
             abort();
