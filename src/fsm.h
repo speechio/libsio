@@ -150,7 +150,7 @@ struct Fsm {
     }
 
 
-    int Dump(std::ostream &os, bool binary) const {
+    Error Dump(std::ostream &os, bool binary) const {
         SIO_CHECK(!Empty()) << "Dumping empty Fsm ?";
         using kaldi::WriteToken;
         using kaldi::WriteBasicType;
@@ -180,7 +180,18 @@ struct Fsm {
         WriteToken(os, binary, "<Arcs>");
         os.write(reinterpret_cast<const char*>(arcs.data()), NumArcs() * sizeof(Arc));
 
-        return 0;
+        return Error::OK;
+    }
+
+
+    // TODO
+    Error LoadOpenFst(std::istream& is) {
+        Str line;
+        while (std::getline(is, line)) {
+            Vec<Str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
+        }
+
+        return Error::OK;
     }
 
 }; // struct Fsm
