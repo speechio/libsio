@@ -8,7 +8,7 @@
 
 namespace sio {
 
-TEST(Check, HoareLogic) {
+TEST(Check, Basic) {
     Vec<int> v = {1,2};
     i32 i = 0;
     i32 sum = 0;

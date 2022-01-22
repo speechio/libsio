@@ -60,18 +60,19 @@ public:
                 buf_ << "(" << file_ << ":" << line_ << ":" << func_ << ")";
             }
             buf_ << " ";
+            ostream_ << buf_.str();
         }
     }
 
     template <typename T>
-    Logger &operator<<(const T &val) {
-        buf_ << val;
+    Logger& operator<<(const T& val) {
+        ostream_ << val;
         return *this;
     }
 
     ~Logger() {
         if (severity_ >= CurrentLogVerbosity()) {
-            ostream_ << buf_.str() << "\n";
+            ostream_ << "\n";
         }
     }
 
