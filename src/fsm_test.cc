@@ -27,12 +27,6 @@ TEST(Fsm, Basic) {
     EXPECT_EQ(fsm2.Start(), 0);
     EXPECT_EQ(fsm2.Final(), 3);
 
-    printf("%d,%d,%d,%d\n", fsm2.NumStates(), fsm2.NumArcs(), fsm2.Start(), fsm2.Final());
-    for (Fsm::StateId s = 0; s < fsm2.NumStates(); s++) {
-        for (auto ai = fsm2.GetArcIterator(s); !ai.Done(); ai.Next()) {
-            const Fsm::Arc& arc = ai.Value();
-            printf("%d\t%d\t%d:%d\t%f\n", arc.src, arc.dst, arc.label, arc.aux.label, arc.weight);
-        }
-    }
+    fsm2.Print();
 }
 }

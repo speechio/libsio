@@ -162,8 +162,6 @@ public:
         arcs_.resize(num_arcs);
         is.read(reinterpret_cast<char*>(arcs_.data()), num_arcs * sizeof(Arc));
 
-        //DebugPrint();
-
         return Error::OK;
     }
 
@@ -243,11 +241,13 @@ public:
             LabelId aux_label = labels.size() == 2 ? std::stoi(labels[1]) : 0;
             Weight weight = std::stof(cols[3]);
 
-            arcs_[a].src = src;
-            arcs_[a].dst = dst;
-            arcs_[a].label = label;
-            arcs_[a].weight = weight;
-            arcs_[a].aux.label = aux_label;
+            Arc& arc = arcs_[a];
+
+            arc.src = src;
+            arc.dst = dst;
+            arc.label = label;
+            arc.weight = weight;
+            arc.aux.label = aux_label;
 
             ++num_arcs_of_state[src];
             a++;
@@ -271,23 +271,19 @@ public:
         }
         states_[s].arcs_begin = n; // setup sentinel state
 
-        //DebugPrint();
-
         return Error::OK;
     }
 
 
-    /*
-    void DebugPrint() {
-        for (const auto& s : states_) {
-            dbg(s.arcs_begin);
-        }
-
-        for (const auto& a : arcs_) {
-            dbg(a.src, a.dst, a.label, a.weight, a.aux.label);
+    void Print() {
+        printf("%d,%d,%d,%d\n", NumStates(), NumArcs(), Start(), Final());
+        for (StateId s = 0; s < NumStates(); s++) {
+            for (auto ai = GetArcIterator(s); !ai.Done(); ai.Next()) {
+                const Arc& arc = ai.Value();
+                printf("%d\t%d\t%d:%d\t%f\n", arc.src, arc.dst, arc.label, arc.aux.label, arc.weight);
+            }
         }
     }
-    */
 
 }; // class Fsm
 } // namespace sio
