@@ -110,13 +110,13 @@ public:
     */
 
 
-    u64 NumStates() const {
+    i64 NumStates() const {
         SIO_CHECK(!Empty());
         return states_.size() - 1; // -1: last sentinel is invalid Fsm state
     }
 
 
-    u64 NumArcs() const {
+    i64 NumArcs() const {
         SIO_CHECK(!Empty());
         return arcs_.size(); 
     }
@@ -138,11 +138,11 @@ public:
         */
 
         ExpectToken(is, binary, "<NumStates>");
-        u64 num_states = 0;
+        i64 num_states = 0;
         ReadBasicType(is, binary, &num_states);
 
         ExpectToken(is, binary, "<NumArcs>");
-        u64 num_arcs = 0;
+        i64 num_arcs = 0;
         ReadBasicType(is, binary, &num_arcs);
 
         ExpectToken(is, binary, "<Start>");
