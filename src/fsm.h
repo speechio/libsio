@@ -235,21 +235,14 @@ public:
             Vec<Str> labels = absl::StrSplit(cols[2], ':');
             SIO_CHECK(labels.size() == 1 || labels.size() == 2); // 1:Fsa,  2:Fst
 
-            StateId src = std::stoi(cols[0]);
-            StateId dst = std::stoi(cols[1]);
-            LabelId label = std::stoi(labels[0]);
-            LabelId aux_label = labels.size() == 2 ? std::stoi(labels[1]) : 0;
-            Weight weight = std::stof(cols[3]);
-
             Arc& arc = arcs_[a];
+            arc.src = std::stoi(cols[0]); 
+            arc.dst = std::stoi(cols[1]);
+            arc.label = std::stoi(labels[0]);
+            arc.aux.label = labels.size() == 2 ? std::stoi(labels[1]) : 0;
+            arc.weight = std::stof(cols[3]);
 
-            arc.src = src;
-            arc.dst = dst;
-            arc.label = label;
-            arc.weight = weight;
-            arc.aux.label = aux_label;
-
-            ++num_arcs_of_state[src];
+            ++num_arcs_of_state[arc.src];
             a++;
         }
 
