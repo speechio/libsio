@@ -71,23 +71,18 @@ private:
 
 
 public:
-    /********** Methods **********/
-    inline bool Empty() const {
-        return states_.size() == 0;
-    }
-
+    /********** Interfaces **********/
+    inline bool Empty() const { return states_.size() == 0; }
 
     inline StateId Start() const { SIO_CHECK(!Empty()); return start_state_; }
     inline StateId Final() const { SIO_CHECK(!Empty()); return final_state_; }
 
-
-    /*
-    inline const State& GetState(StateId i) const {
-        SIO_CHECK(!Empty());
-        SIO_CHECK_NE(i, states_.size() - 1); // block external access to sentinel
-        return states_[i];
-    }
-    */
+    // Use i64 for return type instead of size_t:
+    // * return of NumStates & NumArcs are parts of binary model file
+    // * size_t is platform dependent, so fixed-width integers are prefered
+    // * TODO: should also support bit/little endian compatibility
+    i64 NumStates() const { SIO_CHECK(!Empty()); return states_.size() - 1; } // -1: last sentinel is not counted as valid Fsm state
+    i64 NumArcs()   const { SIO_CHECK(!Empty()); return arcs_.size(); }
 
 
     ArcIterator GetArcIterator(StateId i) const {
@@ -97,26 +92,6 @@ public:
             &arcs_[states_[i  ].arcs_begin],
             &arcs_[states_[i+1].arcs_begin]
         );
-    }
-
-
-    /*
-    inline size_t NumArcsOf(StateId i) const {
-        SIO_CHECK(!Empty());
-        return states_[i+1].arcs_begin - states_[i].arcs_begin;
-    }
-    */
-
-
-    i64 NumStates() const {
-        SIO_CHECK(!Empty());
-        return states_.size() - 1; // -1: last sentinel is invalid Fsm state
-    }
-
-
-    i64 NumArcs() const {
-        SIO_CHECK(!Empty());
-        return arcs_.size(); 
     }
 
 
