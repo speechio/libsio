@@ -22,42 +22,40 @@ public:
     };
 
 
-    struct ArcAux {
-        LabelId label = 0;
-    };
-
-
     struct Arc {
         StateId src = 0;
         StateId dst = 0;
         LabelId label = 0;
         Weight weight = 0.0f;
 
-        ArcAux aux;
+        LabelId aux_label = 0;
 
-        void Load(StateId s, StateId d, LabelId i, Weight w, LabelId o) {
-            src = s;
-            dst = d;
-            label = i;
-            weight = w;
-            aux.label = o;
+
+        void Load(StateId src, StateId dst, LabelId ilabel, Weight weight, LabelId olabel) {
+            this->src = src;
+            this->dst = dst;
+            this->label = ilabel;
+            this->weight = weight;
+
+            this->aux_label = olabel;
         }
+
     };
 
 
-    class ArcIterator {
+    class ArcIter {
       private:
         const Arc* cur_ = nullptr;
         const Arc* end_ = nullptr;
 
       public:
-        ArcIterator(const Arc* begin, const Arc* end) : cur_(begin), end_(end) {}
+        ArcIter(const Arc* begin, const Arc* end) : cur_(begin), end_(end) {}
 
-        const Arc& Value() { return *cur_; }
+        const Arc& Value() const { return *cur_; }
 
         void Next() { ++cur_; }
 
-        bool Done() { return cur_ >= end_; }
+        bool Done() const { return cur_ >= end_; }
     };
 
 
@@ -92,11 +90,11 @@ public:
     */
 
 
-    ArcIterator GetArcIterator(StateId i) const {
+    ArcIter GetArcIterator(StateId i) const {
         SIO_CHECK(!Empty());
         SIO_CHECK_NE(i, states_.size() - 1); // block external access to sentinel
-        return ArcIterator(
-            &arcs_[states_[i].arcs_begin],
+        return ArcIter(
+            &arcs_[states_[i  ].arcs_begin],
             &arcs_[states_[i+1].arcs_begin]
         );
     }
@@ -230,8 +228,9 @@ public:
         ArcId a = 0;
         while (std::getline(is, line)) {
             cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
-            //dbg(cols);
             SIO_CHECK(cols.size() == 4);
+            //dbg(cols);
+
             Vec<Str> labels = absl::StrSplit(cols[2], ':');
             SIO_CHECK(labels.size() == 1 || labels.size() == 2); // 1:Fsa,  2:Fst
 
@@ -239,7 +238,7 @@ public:
             arc.src = std::stoi(cols[0]); 
             arc.dst = std::stoi(cols[1]);
             arc.label = std::stoi(labels[0]);
-            arc.aux.label = labels.size() == 2 ? std::stoi(labels[1]) : 0;
+            arc.aux_label = labels.size() == 2 ? std::stoi(labels[1]) : 0;
             arc.weight = std::stof(cols[3]);
 
             ++num_arcs_of_state[arc.src];
@@ -273,7 +272,7 @@ public:
         for (StateId s = 0; s < NumStates(); s++) {
             for (auto ai = GetArcIterator(s); !ai.Done(); ai.Next()) {
                 const Arc& arc = ai.Value();
-                printf("%d\t%d\t%d:%d\t%f\n", arc.src, arc.dst, arc.label, arc.aux.label, arc.weight);
+                printf("%d\t%d\t%d:%d\t%f\n", arc.src, arc.dst, arc.label, arc.aux_label, arc.weight);
             }
         }
     }
