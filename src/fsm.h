@@ -43,13 +43,13 @@ public:
     };
 
 
-    class ArcIter {
+    class ArcIterator {
       private:
         const Arc* cur_ = nullptr;
         const Arc* end_ = nullptr;
 
       public:
-        ArcIter(const Arc* begin, const Arc* end) : cur_(begin), end_(end) {}
+        ArcIterator(const Arc* begin, const Arc* end) : cur_(begin), end_(end) {}
 
         const Arc& Value() const { return *cur_; }
 
@@ -90,10 +90,10 @@ public:
     */
 
 
-    ArcIter GetArcIterator(StateId i) const {
+    ArcIterator GetArcIterator(StateId i) const {
         SIO_CHECK(!Empty());
         SIO_CHECK_NE(i, states_.size() - 1); // block external access to sentinel
-        return ArcIter(
+        return ArcIterator(
             &arcs_[states_[i  ].arcs_begin],
             &arcs_[states_[i+1].arcs_begin]
         );
