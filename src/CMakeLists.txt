@@ -15,6 +15,7 @@ add_executable(unittest
     dbg_test.cc
     struct_loader_test.cc
     fsm_test.cc
+    language_model_test.cc
 )
 
 target_link_libraries(unittest
