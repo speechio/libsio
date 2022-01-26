@@ -1,5 +1,5 @@
-#ifndef SIO_HEAP_H
-#define SIO_HEAP_H
+#ifndef SIO_ALLOCATOR_H
+#define SIO_ALLOCATOR_H
 
 #include "sio/ptr.h"
 #include "sio/check.h"

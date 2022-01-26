@@ -9,7 +9,7 @@ add_executable(unittest
     log_test.cc
     check_test.cc
     linked_list_test.cc
-    heap_test.cc
+    allocator_test.cc
     audio_test.cc
     feature_extractor_test.cc
     dbg_test.cc

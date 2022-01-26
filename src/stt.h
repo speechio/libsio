@@ -11,7 +11,7 @@
 #include "sio/vec.h"
 #include "sio/map.h"
 #include "sio/linked_list.h"
-#include "sio/heap.h"
+#include "sio/allocator.h"
 #include "sio/json.h"
 #include "sio/struct_loader.h"
 #include "sio/audio.h"

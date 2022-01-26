@@ -1,5 +1,5 @@
 #include "gtest/gtest.h"
-#include "sio/heap.h"
+#include "sio/allocator.h"
 
 namespace sio {
 
