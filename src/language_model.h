@@ -35,9 +35,10 @@ class NgramLmFst: public LmFst<Arc> {
 
   explicit NgramLmFst(const fst::Fst<Arc> *fst) : fst_(fst) {
 //#ifdef KALDI_PARANOID
-    SIO_CHECK(fst_.Properties(fst::kILabelSorted|fst::kIDeterministic, true) ==
-                (fst::kILabelSorted|fst::kIDeterministic) &&
-                "Input FST is not i-label sorted and deterministic.");
+    SIO_CHECK(
+      fst_.Properties(fst::kILabelSorted|fst::kIDeterministic, true) == (fst::kILabelSorted|fst::kIDeterministic)
+      && "Input FST is not i-label sorted and deterministic."
+    );
 //#endif
   }
 
