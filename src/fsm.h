@@ -200,10 +200,13 @@ public:
         ArcId a = 0;
         while (std::getline(is, line)) {
             cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
-            SIO_CHECK(cols.size() == 4);
+            SIO_CHECK(cols.size() == 3);
             //dbg(cols);
 
-            Vec<Str> labels = absl::StrSplit(cols[2], ':');
+            Vec<Str> arc_info = absl::StrSplit(cols[2], '/');
+            SIO_CHECK_EQ(arc_info.size(), 2);
+
+            Vec<Str> labels = absl::StrSplit(arc_info[0], ':');
             SIO_CHECK(labels.size() == 1 || labels.size() == 2); // 1:Fsa,  2:Fst
 
             Arc& arc = arcs_[a];
@@ -211,7 +214,7 @@ public:
             arc.dst = std::stoi(cols[1]);
             arc.ilabel = std::stoi(labels[0]);
             arc.olabel = labels.size() == 2 ? std::stoi(labels[1]) : arc.ilabel;
-            arc.weight = std::stof(cols[3]);
+            arc.weight = std::stof(arc_info[1]);
 
             ++num_arcs_of_state[arc.src];
             a++;
@@ -244,7 +247,7 @@ public:
         for (StateId s = 0; s < NumStates(); s++) {
             for (auto ai = GetArcIterator(s); !ai.Done(); ai.Next()) {
                 const Arc& arc = ai.Value();
-                printf("%d\t%d\t%d:%d\t%f\n", arc.src, arc.dst, arc.ilabel, arc.olabel, arc.weight);
+                printf("%d\t%d\t%d:%d/%f\n", arc.src, arc.dst, arc.ilabel, arc.olabel, arc.weight);
             }
         }
     }
