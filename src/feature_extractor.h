@@ -37,9 +37,9 @@ struct FeatureExtractor {
     index_t cur_frame = 0;
 
 
-    Error Load(const FeatureExtractorConfig& c, Optional<const MeanVarNorm*> mvn = nullptr) { 
-        SIO_CHECK_EQ(c.type, "fbank");
-        config = &c;
+    Error Load(const FeatureExtractorConfig& cfg, Optional<const MeanVarNorm*> mvn = nullptr) { 
+        SIO_CHECK_EQ(cfg.type, "fbank");
+        config = &cfg;
 
         SIO_CHECK(!extractor) << "Feature extractor initialized already.";
         extractor = make_unique<kaldi::OnlineFbank>(config->fbank);

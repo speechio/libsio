@@ -25,19 +25,16 @@ public:
     struct Arc {
         StateId src = 0;
         StateId dst = 0;
-        LabelId label = 0;
+        LabelId ilabel = 0;
+        LabelId olabel = 0;
         Weight weight = 0.0f;
 
-        LabelId aux_label = 0;
-
-
-        void Load(StateId src, StateId dst, LabelId ilabel, Weight weight, LabelId olabel) {
+        void Load(StateId src, StateId dst, LabelId ilabel, LabelId olabel, Weight weight) {
             this->src = src;
             this->dst = dst;
-            this->label = ilabel;
+            this->ilabel = ilabel;
+            this->olabel = olabel;
             this->weight = weight;
-
-            this->aux_label = olabel;
         }
 
     };
@@ -212,8 +209,8 @@ public:
             Arc& arc = arcs_[a];
             arc.src = std::stoi(cols[0]); 
             arc.dst = std::stoi(cols[1]);
-            arc.label = std::stoi(labels[0]);
-            arc.aux_label = labels.size() == 2 ? std::stoi(labels[1]) : 0;
+            arc.ilabel = std::stoi(labels[0]);
+            arc.olabel = labels.size() == 2 ? std::stoi(labels[1]) : arc.ilabel;
             arc.weight = std::stof(cols[3]);
 
             ++num_arcs_of_state[arc.src];
@@ -247,7 +244,7 @@ public:
         for (StateId s = 0; s < NumStates(); s++) {
             for (auto ai = GetArcIterator(s); !ai.Done(); ai.Next()) {
                 const Arc& arc = ai.Value();
-                printf("%d\t%d\t%d:%d\t%f\n", arc.src, arc.dst, arc.label, arc.aux_label, arc.weight);
+                printf("%d\t%d\t%d:%d\t%f\n", arc.src, arc.dst, arc.ilabel, arc.olabel, arc.weight);
             }
         }
     }
