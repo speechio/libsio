@@ -66,7 +66,9 @@ public:
 
     template <typename T>
     Logger& operator<<(const T& val) {
-        ostream_ << val;
+        if (severity_ >= CurrentLogVerbosity()) {
+            ostream_ << val;
+        }
         return *this;
     }
 
