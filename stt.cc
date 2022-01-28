@@ -48,7 +48,8 @@ int main() {
         rec->Text(&text);
         rec->Reset();
         SIO_DEBUG << audio_id << " -> " << N << " samples decoded: " << text;
-        SIO_INFO << k++ << "\t" << audio_id << "\t" << text;
+        SIO_INFO << k << "\t" << audio_id << "\t" << text;
+        k++;
     }
 
     stt.DestroyRecognizer(rec);
