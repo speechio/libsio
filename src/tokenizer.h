@@ -20,7 +20,7 @@ struct Tokenizer {
         std::ifstream is(tokenizer_vocab);
         Str line;
         for (int index = 0; std::getline(is, line); index++) {
-            Vec<Str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"));
+            Vec<Str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
             SIO_CHECK_EQ(cols.size(), 2); // token prob
             Str token = cols[0];
             index_to_token[index] = token;
