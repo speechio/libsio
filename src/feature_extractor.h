@@ -25,35 +25,36 @@ struct FeatureExtractorConfig {
 };
 
 
-struct FeatureExtractor {
-    const FeatureExtractorConfig* config = nullptr;
+class FeatureExtractor {
+    const FeatureExtractorConfig* config_ = nullptr;
 
-    // need pointer here to support multiple types of extractors (e.g. fbank, mfcc)
-    Unique<kaldi::OnlineBaseFeature *> extractor;
+    // need pointer here to support multiple types of extractor_s (e.g. fbank, mfcc)
+    Unique<kaldi::OnlineBaseFeature *> extractor_;
 
-    Optional<const MeanVarNorm *> mean_var_norm = nullptr;
+    Optional<const MeanVarNorm *> mean_var_norm_ = nullptr;
 
-    //[0, cur_frame) popped frames, [cur_frame, NumFramesReady()) remainder frames.
-    index_t cur_frame = 0;
+    //[0, cur_frame_) popped frames, [cur_frame_, NumFramesReady()) remainder frames.
+    index_t cur_frame_ = 0;
 
 
-    Error Load(const FeatureExtractorConfig& cfg, Optional<const MeanVarNorm*> mvn = nullptr) { 
-        SIO_CHECK_EQ(cfg.type, "fbank");
-        config = &cfg;
+public:
+    Error Load(const FeatureExtractorConfig& config, Optional<const MeanVarNorm*> mvn = nullptr) { 
+        SIO_CHECK_EQ(config.type, "fbank");
+        config_ = &config;
 
-        SIO_CHECK(!extractor) << "Feature extractor initialized already.";
-        extractor = make_unique<kaldi::OnlineFbank>(config->fbank);
+        SIO_CHECK(!extractor_) << "Feature extractor initialized already.";
+        extractor_ = make_unique<kaldi::OnlineFbank>(config_->fbank);
 
-        mean_var_norm = mvn;
+        mean_var_norm_ = mvn;
 
-        cur_frame = 0;
+        cur_frame_ = 0;
 
         return Error::OK;
     }
 
 
     void Push(const f32* samples, size_t num_samples, f32 sample_rate) {
-        extractor->AcceptWaveform(
+        extractor_->AcceptWaveform(
             sample_rate, 
             kaldi::SubVector<f32>(samples, num_samples)
         );
@@ -61,7 +62,7 @@ struct FeatureExtractor {
 
 
     void PushEnd() {
-        extractor->InputFinished();
+        extractor_->InputFinished();
     }
 
 
@@ -71,9 +72,9 @@ struct FeatureExtractor {
 
         // kaldi_frame is a helper frame view, no underlying data ownership
         kaldi::SubVector<f32> kaldi_frame(feat_frame.data(), feat_frame.size());
-        extractor->GetFrame(cur_frame++, &kaldi_frame);
-        if (mean_var_norm) {
-            mean_var_norm->Normalize(&kaldi_frame);
+        extractor_->GetFrame(cur_frame_++, &kaldi_frame);
+        if (mean_var_norm_) {
+            mean_var_norm_->Normalize(&kaldi_frame);
         }
 
         return std::move(feat_frame);
@@ -81,36 +82,36 @@ struct FeatureExtractor {
 
 
     Error Reset() {
-        SIO_CHECK_EQ(config->type, "fbank");
-        extractor.reset();
-        extractor = make_unique<kaldi::OnlineFbank>(config->fbank);
-        cur_frame = 0;
+        SIO_CHECK_EQ(config_->type, "fbank");
+        extractor_.reset();
+        extractor_ = make_unique<kaldi::OnlineFbank>(config_->fbank);
+        cur_frame_ = 0;
 
         return Error::OK;
     }
 
 
     size_t Dim() const {
-        return extractor->Dim();
+        return extractor_->Dim();
     }
 
 
     size_t Len() const {
-        return extractor->NumFramesReady() - cur_frame;
+        return extractor_->NumFramesReady() - cur_frame_;
     }
 
 
     f32 SampleRate() const {
-        SIO_CHECK(config != nullptr);
-        return config->fbank.frame_opts.samp_freq;
+        SIO_CHECK(config_ != nullptr);
+        return config_->fbank.frame_opts.samp_freq;
     }
 
 
     f32 FrameRate() const {
-        SIO_CHECK(config != nullptr);
-        return 1000.0f / config->fbank.frame_opts.frame_shift_ms;
+        SIO_CHECK(config_ != nullptr);
+        return 1000.0f / config_->fbank.frame_opts.frame_shift_ms;
     }
 
-}; // struct FeatureExtractor
+}; // class FeatureExtractor
 }  // namespace sio
 #endif
