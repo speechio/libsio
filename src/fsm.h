@@ -200,7 +200,7 @@ public:
         ArcId a = 0;
         while (std::getline(is, line)) {
             cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
-            SIO_CHECK(cols.size() == 3);
+            SIO_CHECK_EQ(cols.size(), 3);
             //dbg(cols);
 
             Vec<Str> arc_info = absl::StrSplit(cols[2], '/');
