@@ -3,7 +3,7 @@
 
 namespace sio {
 
-TEST(Heap, SlabAllocator) {
+TEST(Allocator, SlabAllocator) {
 
     struct S {
         char c;
