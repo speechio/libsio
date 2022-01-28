@@ -15,30 +15,31 @@
 //#include "sio/dbg.h"
 
 namespace sio {
-struct Recognizer {
-    const Tokenizer* tokenizer = nullptr;
-    FeatureExtractor feature_extractor;
-    Scorer scorer;
-    Search search;
+class Recognizer {
+    const Tokenizer* tokenizer_ = nullptr;
+    FeatureExtractor feature_extractor_;
+    Scorer scorer_;
+    Search search_;
 
 
+public:
     Error Load(
-        const FeatureExtractorConfig& f, const MeanVarNorm* mvn,
-        const Tokenizer& t,
-        const ScorerConfig& s, torch::jit::script::Module& nnet
+        const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mvn,
+        const Tokenizer& tokenizer,
+        const ScorerConfig& scorer_config, torch::jit::script::Module& nnet
     ) {
-        SIO_CHECK(tokenizer == nullptr) << "Tokenizer initialized already.";
-        feature_extractor.Load(f, mvn);
-        tokenizer = &t;
-        scorer.Load(s, nnet, feature_extractor.Dim(), tokenizer->Size());
+        SIO_CHECK(tokenizer_ == nullptr) << "Tokenizer initialized already.";
+        feature_extractor_.Load(feature_extractor_config, mvn);
+        tokenizer_ = &tokenizer;
+        scorer_.Load(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_->Size());
         return Error::OK;
     }
 
 
     Error Reset() { 
-        feature_extractor.Reset();
-        scorer.Reset();
-        search.Reset();
+        feature_extractor_.Reset();
+        scorer_.Reset();
+        search_.Reset();
         return Error::OK; 
     }
 
@@ -55,9 +56,9 @@ struct Recognizer {
 
 
     Error Text(std::string* result) { 
-        auto best_path = search.BestPath();
+        auto best_path = search_.BestPath();
         for (index_t i = 0; i < best_path.size(); i++) {
-            *result += tokenizer->Token(best_path[i]);
+            *result += tokenizer_->Token(best_path[i]);
         }
         return Error::OK;
     }
@@ -66,26 +67,26 @@ private:
 
     Error Advance(const f32* samples, size_t num_samples, f32 sample_rate, bool eos) {
         if (samples != nullptr && num_samples != 0) {
-            feature_extractor.Push(samples, num_samples, sample_rate);
+            feature_extractor_.Push(samples, num_samples, sample_rate);
         }
         if (eos) {
-            feature_extractor.PushEnd();
+            feature_extractor_.PushEnd();
         }
 
-        while (feature_extractor.Len() > 0) {
-            auto feat_frame = feature_extractor.Pop();
-            scorer.Push(feat_frame);
+        while (feature_extractor_.Len() > 0) {
+            auto feat_frame = feature_extractor_.Pop();
+            scorer_.Push(feat_frame);
         }
         if (eos) {
-            scorer.PushEnd();
+            scorer_.PushEnd();
         }
 
-        while (scorer.Len() > 0) {
-            auto score_frame = scorer.Pop();
-            search.Push(score_frame);
+        while (scorer_.Len() > 0) {
+            auto score_frame = scorer_.Pop();
+            search_.Push(score_frame);
         }
         if (eos) {
-            search.PushEnd();
+            search_.PushEnd();
         }
 
         return Error::OK;
