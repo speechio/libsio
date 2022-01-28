@@ -12,9 +12,9 @@ class Fsm {
 public:
     /********** Types **********/
     using StateId = i32;
-    using ArcId   = i32;
-    using LabelId = i32;
-    using Weight  = f32;
+    using ArcId = i32;
+    using Label = i32;
+    using Weight = f32;
 
 
     struct State {
@@ -25,11 +25,11 @@ public:
     struct Arc {
         StateId src = 0;
         StateId dst = 0;
-        LabelId ilabel = 0;
-        LabelId olabel = 0;
+        Label ilabel = 0;
+        Label olabel = 0;
         Weight weight = 0.0f;
 
-        void Load(StateId src, StateId dst, LabelId ilabel, LabelId olabel, Weight weight) {
+        void Load(StateId src, StateId dst, Label ilabel, Label olabel, Weight weight) {
             this->src = src;
             this->dst = dst;
             this->ilabel = ilabel;
