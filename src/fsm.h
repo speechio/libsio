@@ -221,17 +221,16 @@ public:
         }
 
         // sort labels first by src state, then by dst state
-        std::sort(arcs_.begin(), arcs_.end(), [](const Arc& x, const Arc& y) { 
-            if (x.src != y.src) {
-                return x.src < y.src; 
-            } else {
-                return x.dst < y.dst; 
+        std::sort(arcs_.begin(), arcs_.end(), 
+            [](const Arc& x, const Arc& y) { 
+                return (x.src != y.src) ? (x.src < y.src) : (x.dst < y.dst);
             }
-        });
+        );
 
-        // load states, invariant: states_[s].arcs_begin = sum of arcs of states_[0, s)
+        // load states
         StateId s = 0;
         size_t n = 0;
+        // invariant: states_[s].arcs_begin = sum of arcs of states_[0, s)
         while (s < num_states) {
             states_[s].arcs_begin = n;
             n += num_arcs_of_state[s++];
