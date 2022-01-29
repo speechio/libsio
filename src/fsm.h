@@ -268,6 +268,7 @@ public:
     Error BuildTokenTopo(const Tokenizer& tokenizer) {
         SIO_CHECK(Empty());
         SIO_CHECK_NE(tokenizer.Size(), 0);
+        SIO_INFO << "Building token topo from tokenizer with size: " << tokenizer.Size();
 
         size_t normal_tokens = 0;
         for (int t = 0; t != tokenizer.Size(); t++) {
@@ -334,9 +335,6 @@ public:
 
         return Error::OK;
     }
-
-private:
-    void SetupStatesFromArcs()
 
 }; // class Fsm
 } // namespace sio

@@ -32,7 +32,7 @@ TEST(Fsm, Basic) {
 
     Fsm fsm3;
     Tokenizer tokenizer;
-    tokenizer.Load("testdata/tokenizer.vocab");
+    tokenizer.Load("testdata/tmp_tokenizer.vocab");
     fsm3.BuildTokenTopo(tokenizer);
     fsm3.Print();
     {
