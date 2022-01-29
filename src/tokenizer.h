@@ -12,18 +12,18 @@ SentencePiece C++ API reference:
 
 namespace sio {
 struct Tokenizer {
-    Map<int, Str> index_to_token;
-    Map<Str, int> token_to_index;
+    Map<i32, Str> index_to_token;
+    Map<Str, i32> token_to_index;
 
     Str blk_token = "<blk>";
     Str unk_token = "<unk>";
     Str bos_token = "<s>";
     Str eos_token = "</s>";
 
-    index_t blk = 0;
-    index_t unk = 0;
-    index_t bos = 0;
-    index_t eos = 0;
+    i32 blk = 0;
+    i32 unk = 0;
+    i32 bos = 0;
+    i32 eos = 0;
     //sentencepiece::SentencePieceProcessor spm;
 
     void Load(const Str& tokenizer_vocab) {
@@ -60,17 +60,17 @@ struct Tokenizer {
     }
 
 
-    const Str& Token(index_t index) const {
+    const Str& Token(i32 index) const {
         return index_to_token.at(index);
     }
 
 
-    index_t Index(const Str& token) const {
+    i32 Index(const Str& token) const {
         return token_to_index.at(token);
     }
 
 
-    bool IsSpecial(index_t token_index) const {
+    bool IsSpecial(i32 token_index) const {
         StrView token = Token(token_index);
         return absl::StartsWith(token, "<") && absl::EndsWith(token, ">");
     }
