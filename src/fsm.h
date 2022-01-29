@@ -280,7 +280,7 @@ public:
         size_t num_states_plus_sentinel = num_states + 1;
         states_.resize(num_states_plus_sentinel);
 
-        Vec<size_t> num_arcs_of_state(num_states, 0);
+        Vec<i32> num_arcs_of_state(num_states, 0);
 
         start_state_ = 0; // This is also "blank" state
         final_state_ = num_states - 1;
