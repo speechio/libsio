@@ -70,8 +70,8 @@ struct Tokenizer {
     }
 
 
-    bool IsSpecialToken(index_t index) const {
-        StrView token = Token(index);
+    bool IsSpecial(index_t token_index) const {
+        StrView token = Token(token_index);
         return absl::StartsWith(token, "<") && absl::EndsWith(token, ">");
     }
 

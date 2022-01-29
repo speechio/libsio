@@ -271,7 +271,7 @@ public:
 
         size_t normal_tokens = 0; // exclude <> quoted tokens, e.g. <s>, <unk>, </s>, <blk>
         for (int t = 0; t != tokenizer.Size(); t++) {
-            if (!tokenizer.IsSpecialToken(t)) {
+            if (!tokenizer.IsSpecial(t)) {
                 normal_tokens++;
             }
         }
@@ -291,7 +291,7 @@ public:
         // build normal tokens
         StateId token_state = 0; 
         for (index_t token = 0; token != tokenizer.Size(); token++) {
-            if (tokenizer.IsSpecialToken(token)) {
+            if (tokenizer.IsSpecial(token)) {
                 continue;
             }
 
