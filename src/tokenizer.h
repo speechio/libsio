@@ -14,6 +14,16 @@ namespace sio {
 struct Tokenizer {
     Map<int, Str> index_to_token;
     Map<Str, int> token_to_index;
+
+    Str blk_token = "<blk>";
+    Str unk_token = "<unk>";
+    Str bos_token = "<s>";
+    Str eos_token = "</s>";
+
+    index_t blk = 0;
+    index_t unk = 0;
+    index_t bos = 0;
+    index_t eos = 0;
     //sentencepiece::SentencePieceProcessor spm;
 
     void Load(const Str& tokenizer_vocab) {
@@ -29,6 +39,11 @@ struct Tokenizer {
 
         //dbg(index_to_token);
         //dbg(token_to_index);
+
+        blk = token_to_index.at(blk_token);
+        unk = token_to_index.at(unk_token);
+        bos = token_to_index.at(bos_token);
+        eos = token_to_index.at(eos_token);
     }
 
     //Error LoadModel(const Str& tokenizer_model) {
@@ -52,6 +67,12 @@ struct Tokenizer {
 
     index_t Index(const Str& token) const {
         return token_to_index.at(token);
+    }
+
+
+    bool IsSpecialToken(index_t index) const {
+        StrView token = Token(index);
+        return absl::StartsWith(token, "<") && absl::EndsWith(token, ">");
     }
 
 }; // class Tokenizer

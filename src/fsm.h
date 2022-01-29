@@ -5,16 +5,21 @@
 #include "base/io-funcs.h"
 
 #include "sio/common.h"
+#include "sio/tokenizer.h"
 //#include "sio/dbg.h"
 
 namespace sio {
+
+#define kFinal -1
+#define kEpsilon -2
+
 class Fsm {
 public:
     /********** Types **********/
     using StateId = i32;
     using ArcId = i32;
     using Label = i32;
-    using Weight = f32;
+    using Score = f32;
 
 
     struct State {
@@ -27,16 +32,15 @@ public:
         StateId dst = 0;
         Label ilabel = 0;
         Label olabel = 0;
-        Weight weight = 0.0f;
+        Score score = 0.0f;
 
-        void Load(StateId src, StateId dst, Label ilabel, Label olabel, Weight weight) {
+        void Set(StateId src, StateId dst, Label ilabel, Label olabel, Score score) {
             this->src = src;
             this->dst = dst;
             this->ilabel = ilabel;
             this->olabel = olabel;
-            this->weight = weight;
+            this->score = score;
         }
-
     };
 
 
@@ -89,6 +93,13 @@ public:
             &arcs_[states_[i  ].arcs_begin],
             &arcs_[states_[i+1].arcs_begin]
         );
+    }
+
+
+    void AddArc(StateId src, StateId dst, Label ilabel, Label olabel, Score score) {
+        Arc arc;
+        arc.Set(src, dst, ilabel, olabel, score);
+        arcs_.push_back(arc);
     }
 
 
@@ -209,12 +220,14 @@ public:
             Vec<Str> labels = absl::StrSplit(arc_info[0], ':');
             SIO_CHECK(labels.size() == 1 || labels.size() == 2); // 1:Fsa,  2:Fst
 
-            Arc& arc = arcs_[a];
-            arc.src = std::stoi(cols[0]); 
-            arc.dst = std::stoi(cols[1]);
-            arc.ilabel = std::stoi(labels[0]);
-            arc.olabel = labels.size() == 2 ? std::stoi(labels[1]) : arc.ilabel;
-            arc.weight = std::stof(arc_info[1]);
+            Arc &arc = arcs_[a];
+            arc.Set(
+                std::stoi(cols[0]),
+                std::stoi(cols[1]),
+                std::stoi(labels[0]),
+                labels.size() == 2 ? std::stoi(labels[1]) : arc.ilabel,
+                std::stof(arc_info[1])
+            );
 
             ++num_arcs_of_state[arc.src];
             a++;
@@ -246,10 +259,84 @@ public:
         for (StateId s = 0; s < NumStates(); s++) {
             for (auto ai = GetArcIterator(s); !ai.Done(); ai.Next()) {
                 const Arc& arc = ai.Value();
-                printf("%d\t%d\t%d:%d/%f\n", arc.src, arc.dst, arc.ilabel, arc.olabel, arc.weight);
+                printf("%d\t%d\t%d:%d/%f\n", arc.src, arc.dst, arc.ilabel, arc.olabel, arc.score);
             }
         }
     }
+
+
+    Error BuildTokenTopo(const Tokenizer& tokenizer) {
+        SIO_CHECK(Empty());
+        SIO_CHECK_NE(tokenizer.Size(), 0);
+
+        size_t normal_tokens = 0;
+        for (int t = 0; t != tokenizer.Size(); t++) {
+            if (!tokenizer.IsSpecialToken(t)) {
+                normal_tokens++;
+            }
+        }
+
+        size_t num_states = normal_tokens + 1/*start state*/ + 1/*final state*/;
+        size_t num_states_plus_sentinel = num_states + 1;
+        states_.resize(num_states_plus_sentinel);
+
+        Vec<size_t> num_arcs_of_state(num_states, 0);
+
+        start_state_ = 0; // This is also "blank" state
+        final_state_ = num_states - 1;
+
+        // blank state self-loop
+        AddArc(start_state_, start_state_, tokenizer.blk, kEpsilon, 0.0);
+        ++num_arcs_of_state[start_state_];
+
+        // build normal tokens
+        StateId token_state = 0; 
+        for (index_t token = 0; token != tokenizer.Size(); token++) {
+            if (tokenizer.IsSpecialToken(token)) {
+                continue;
+            }
+
+            token_state++;
+
+            // token's entering arc
+            AddArc(start_state_, token_state, token, token, 0.0);
+            ++num_arcs_of_state[start_state_];
+
+            // token's self-loop arc
+            AddArc(token_state, token_state, token, kEpsilon, 0.0);
+            ++num_arcs_of_state[token_state];
+
+            // token's leaving arc
+            AddArc(token_state, start_state_, kEpsilon, kEpsilon, 0.0);
+            ++num_arcs_of_state[token_state];
+        }
+
+        // final arc from start to final state
+        AddArc(start_state_, final_state_, kFinal, tokenizer.eos, 0.0);
+        ++num_arcs_of_state[start_state_];
+
+        // sort labels
+        std::sort(arcs_.begin(), arcs_.end(), 
+            [](const Arc& x, const Arc& y) { 
+                return (x.src != y.src) ? (x.src < y.src) : (x.dst < y.dst);
+            }
+        );
+
+        // setup states
+        StateId s = 0;
+        size_t n = 0;
+        // invariant: states_[s].arcs_begin = sum of arcs of states_[0, s)
+        while (s < num_states) {
+            states_[s].arcs_begin = n;
+            n += num_arcs_of_state[s++];
+        }
+        states_[s].arcs_begin = n; // setup sentinel state
+
+        return Error::OK;
+    }
+
+private:
+    void SetupStatesFromArcs()
 
 }; // class Fsm
 } // namespace sio
