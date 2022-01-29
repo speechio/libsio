@@ -252,7 +252,7 @@ public:
     }
 
 
-    void Print() {
+    void Print() const {
         printf("%d,%d,%d,%d\n", NumStates(), NumArcs(), Start(), Final());
         for (StateId s = 0; s < NumStates(); s++) {
             for (auto ai = GetArcIterator(s); !ai.Done(); ai.Next()) {
