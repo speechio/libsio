@@ -17,8 +17,8 @@ public:
     using Label = i32;
     using Score = f32;
 
-    static constexpr Label kFinalInput = -1;
-    static constexpr Label kEpsilon = -2;
+    static const Label kFinalInput = -1;
+    static const Label kEpsilon = -2;
 
 
     struct State {
