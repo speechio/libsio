@@ -33,7 +33,7 @@ TEST(Fsm, Basic) {
     Fsm fsm3;
     Tokenizer tokenizer;
     tokenizer.Load("testdata/tmp_tokenizer.vocab");
-    fsm3.BuildTokenTopo(tokenizer);
+    fsm3.BuildTokenGraph(tokenizer);
     fsm3.Print();
     {
         std::ofstream os("testdata/graph.fsm3", std::ios::binary);
