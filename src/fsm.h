@@ -206,7 +206,7 @@ public:
         arcs_.resize(num_arcs);
 
         // load arcs
-        Vec<i32> num_arcs_of_state(num_states, 0);
+        Vec<i32> out_degree(num_states, 0);
         ArcId a = 0;
         while (std::getline(is, line)) {
             cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
@@ -219,16 +219,15 @@ public:
             Vec<Str> labels = absl::StrSplit(arc_info[0], ':');
             SIO_CHECK(labels.size() == 1 || labels.size() == 2); // 1:Fsa,  2:Fst
 
-            Arc &arc = arcs_[a];
-            arc.Set(
+            arcs_[a].Set(
                 std::stoi(cols[0]),
                 std::stoi(cols[1]),
                 std::stoi(labels[0]),
-                labels.size() == 2 ? std::stoi(labels[1]) : arc.ilabel,
+                labels.size() == 2 ? std::stoi(labels[1]) : std::stoi(labels[0]),
                 std::stof(arc_info[1])
             );
 
-            ++num_arcs_of_state[arc.src];
+            ++out_degree[arcs_[a].src];
             a++;
         }
 
@@ -245,7 +244,7 @@ public:
         // invariant: states_[s].arcs_begin = sum of arcs of states_[0, s)
         while (s < num_states) {
             states_[s].arcs_begin = n;
-            n += num_arcs_of_state[s++];
+            n += out_degree[s++];
         }
         states_[s].arcs_begin = n; // setup sentinel state
 
@@ -269,7 +268,7 @@ public:
         SIO_CHECK_NE(tokenizer.Size(), 0);
         SIO_INFO << "Building token graph T from tokenizer with size: " << tokenizer.Size();
 
-        size_t normal_tokens = 0;
+        size_t normal_tokens = 0; // exclude <> quoted tokens, e.g. <s>, <unk>, </s>, <blk>
         for (int t = 0; t != tokenizer.Size(); t++) {
             if (!tokenizer.IsSpecialToken(t)) {
                 normal_tokens++;
@@ -279,15 +278,14 @@ public:
         size_t num_states = normal_tokens + 1/*start state*/ + 1/*final state*/;
         size_t num_states_plus_sentinel = num_states + 1;
         states_.resize(num_states_plus_sentinel);
-
-        Vec<i32> num_arcs_of_state(num_states, 0);
+        Vec<i32> out_degree(num_states, 0);
 
         start_state_ = 0; // This is also "blank" state
         final_state_ = num_states - 1;
 
         // blank state self-loop
         AddArc(start_state_, start_state_, tokenizer.blk, kEpsilon, 0.0);
-        ++num_arcs_of_state[start_state_];
+        ++out_degree[start_state_];
 
         // build normal tokens
         StateId token_state = 0; 
@@ -300,20 +298,20 @@ public:
 
             // token's entering arc
             AddArc(start_state_, token_state, token, token, 0.0);
-            ++num_arcs_of_state[start_state_];
+            ++out_degree[start_state_];
 
             // token's self-loop arc
             AddArc(token_state, token_state, token, kEpsilon, 0.0);
-            ++num_arcs_of_state[token_state];
+            ++out_degree[token_state];
 
             // token's leaving arc
             AddArc(token_state, start_state_, kEpsilon, kEpsilon, 0.0);
-            ++num_arcs_of_state[token_state];
+            ++out_degree[token_state];
         }
 
-        // final arc from start to final state
+        // "FinalInput" arc from blank state to final state
         AddArc(start_state_, final_state_, kFinalInput, tokenizer.eos, 0.0);
-        ++num_arcs_of_state[start_state_];
+        ++out_degree[start_state_];
 
         // sort labels
         std::sort(arcs_.begin(), arcs_.end(), 
@@ -328,7 +326,7 @@ public:
         // invariant: states_[s].arcs_begin = sum of arcs of states_[0, s)
         while (s < num_states) {
             states_[s].arcs_begin = n;
-            n += num_arcs_of_state[s++];
+            n += out_degree[s++];
         }
         states_[s].arcs_begin = n; // setup sentinel state
 
