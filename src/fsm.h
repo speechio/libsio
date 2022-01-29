@@ -187,6 +187,7 @@ public:
     Error LoadFromString(std::istream& is) {
         SIO_CHECK(is.good()) << "Invalid Fsm loading stream.";
         SIO_CHECK(Empty()) << "Reloading is not supported.";
+        SIO_INFO << "Loading Fsm from string stream";
 
         Str line;
         Vec<Str> cols;
