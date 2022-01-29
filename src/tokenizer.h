@@ -10,20 +10,21 @@ SentencePiece C++ API reference:
     https://github.com/google/sentencepiece/blob/master/doc/api.md
 */
 
+#define SIO_BLK "<blk>"
+#define SIO_UNK "<unk>"
+#define SIO_BOS "<s>"
+#define SIO_EOS "</s>"
+
 namespace sio {
+
 struct Tokenizer {
     Map<i32, Str> index_to_token;
     Map<Str, i32> token_to_index;
 
-    Str blk_token = "<blk>";
-    Str unk_token = "<unk>";
-    Str bos_token = "<s>";
-    Str eos_token = "</s>";
-
-    i32 blk = 0;
-    i32 unk = 0;
-    i32 bos = 0;
-    i32 eos = 0;
+    i32 blk = -1;
+    i32 unk = -1;
+    i32 bos = -1;
+    i32 eos = -1;
     //sentencepiece::SentencePieceProcessor spm;
 
     void Load(const Str& tokenizer_vocab) {
@@ -40,10 +41,10 @@ struct Tokenizer {
         //dbg(index_to_token);
         //dbg(token_to_index);
 
-        blk = token_to_index.at(blk_token);
-        unk = token_to_index.at(unk_token);
-        bos = token_to_index.at(bos_token);
-        eos = token_to_index.at(eos_token);
+        blk = token_to_index.at(SIO_BLK);
+        unk = token_to_index.at(SIO_UNK);
+        bos = token_to_index.at(SIO_BOS);
+        eos = token_to_index.at(SIO_EOS);
     }
 
     //Error LoadModel(const Str& tokenizer_model) {
