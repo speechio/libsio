@@ -9,10 +9,6 @@
 //#include "sio/dbg.h"
 
 namespace sio {
-
-#define kFinal -1
-#define kEpsilon -2
-
 class Fsm {
 public:
     /********** Types **********/
@@ -20,6 +16,9 @@ public:
     using ArcId = i32;
     using Label = i32;
     using Score = f32;
+
+    static constexpr Label kFinalInput = -1;
+    static constexpr Label kEpsilon = -2;
 
 
     struct State {
@@ -313,7 +312,7 @@ public:
         }
 
         // final arc from start to final state
-        AddArc(start_state_, final_state_, kFinal, tokenizer.eos, 0.0);
+        AddArc(start_state_, final_state_, kFinalInput, tokenizer.eos, 0.0);
         ++num_arcs_of_state[start_state_];
 
         // sort labels
