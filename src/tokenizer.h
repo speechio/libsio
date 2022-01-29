@@ -29,7 +29,7 @@ struct Tokenizer {
     void Load(const Str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
         Str line;
-        for (int index = 0; std::getline(is, line); index++) {
+        for (i32 index = 0; std::getline(is, line); index++) {
             Vec<Str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
             SIO_CHECK_EQ(cols.size(), 2); // token prob
             Str token = cols[0];
