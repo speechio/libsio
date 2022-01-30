@@ -219,7 +219,7 @@ public:
                 );
                 n++;
             }
-            SIO_CHECK_EQ(num_arcs, n) << "Num arcs loaded is inconsistent with header.";
+            SIO_CHECK_EQ(num_arcs, n) << "Num of arcs loaded is inconsistent with header.";
 
             /* Sort all arcs, first by source state, then by dest state */
             std::sort(arcs_.begin(), arcs_.end(), 
@@ -245,7 +245,9 @@ public:
                 states_[s].arcs_begin = n;
                 n += out_degree[s];
             }
-            states_.back().arcs_begin = n; // setup last sentinel state
+
+            // setup last sentinel state
+            states_.back().arcs_begin = n;
         }
 
         return Error::OK;
@@ -282,16 +284,16 @@ public:
             // 1c: "InputEnd" represents the end of input sequence (follows K2Fsa convention)
             final_state_ = cur_state;
             AddArc(start_state_, final_state_, kInputEnd, tokenizer.eos);
+
+            // 1d: Sort all arcs, first by source state, then by dest state
+            std::sort(arcs_.begin(), arcs_.end(), 
+                [](const Arc& x, const Arc& y) { 
+                    return (x.src != y.src) ? (x.src < y.src) : (x.dst < y.dst);
+                }
+            );
         }
 
-        /* 2: Sort arcs, first by source state, then by dest state */
-        std::sort(arcs_.begin(), arcs_.end(), 
-            [](const Arc& x, const Arc& y) { 
-                return (x.src != y.src) ? (x.src < y.src) : (x.dst < y.dst);
-            }
-        );
-
-        /* 3: Setup states */
+        /* 2: Setup states */
         {
             num_states = final_state_ + 1;
             size_t num_states_plus_sentinel = num_states + 1;
