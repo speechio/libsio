@@ -252,7 +252,6 @@ public:
         SIO_CHECK_NE(tokenizer.Size(), 0);
         SIO_INFO << "Building token graph T from tokenizer with size: " << tokenizer.Size();
 
-        size_t num_states;
         /* 1: Build Fsm arcs */
         {
             // 1a: Blank self-loop of start state
@@ -288,7 +287,7 @@ public:
 
         /* 2: Setup states */
         {
-            num_states = final_state_ + 1;
+            size_t num_states = final_state_ + 1;
             size_t num_states_plus_sentinel = num_states + 1;
             states_.resize(num_states_plus_sentinel);
 
