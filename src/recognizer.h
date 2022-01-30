@@ -16,31 +16,19 @@
 
 namespace sio {
 class Recognizer {
-    const Tokenizer* tokenizer_ = nullptr;
-    FeatureExtractor feature_extractor_;
-    Scorer scorer_;
-    Search search_;
-
-
 public:
+
     Error Load(
         const FeatureExtractorConfig& feature_extractor_config, const MeanVarNorm* mvn,
         const Tokenizer& tokenizer,
         const ScorerConfig& scorer_config, torch::jit::script::Module& nnet
-    ) {
+    )
+    {
         SIO_CHECK(tokenizer_ == nullptr) << "Tokenizer initialized already.";
         feature_extractor_.Load(feature_extractor_config, mvn);
         tokenizer_ = &tokenizer;
         scorer_.Load(scorer_config, nnet, feature_extractor_.Dim(), tokenizer_->Size());
         return Error::OK;
-    }
-
-
-    Error Reset() { 
-        feature_extractor_.Reset();
-        scorer_.Reset();
-        search_.Reset();
-        return Error::OK; 
     }
 
 
@@ -61,6 +49,14 @@ public:
             *result += tokenizer_->Token(best_path[i]);
         }
         return Error::OK;
+    }
+
+
+    Error Reset() { 
+        feature_extractor_.Reset();
+        scorer_.Reset();
+        search_.Reset();
+        return Error::OK; 
     }
 
 private:
@@ -91,6 +87,16 @@ private:
 
         return Error::OK;
     }
+
+
+    /* data members */
+    const Tokenizer* tokenizer_ = nullptr;
+
+    FeatureExtractor feature_extractor_;
+
+    Scorer scorer_;
+
+    Search search_;
 
 }; // class Recognizer
 }  // namespace sio
