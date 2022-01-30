@@ -81,13 +81,6 @@ public:
     }
 
 
-    void AddArc(StateId src, StateId dst, Label ilabel, Label olabel, Score score = 0.0) {
-        Arc arc;
-        arc.Set(src, dst, ilabel, olabel, score);
-        arcs_.push_back(arc);
-    }
-
-
     Error Load(std::istream& is) {
         SIO_CHECK(Empty()) << "Reloading is not supported.";
         SIO_CHECK(is.good());
@@ -327,7 +320,17 @@ public:
         }
     }
 
+
 private:
+
+    void AddArc(StateId src, StateId dst, Label ilabel, Label olabel, Score score = 0.0) {
+        Arc arc;
+        arc.Set(src, dst, ilabel, olabel, score);
+        arcs_.push_back(arc);
+    }
+
+
+    /* data members */
     Str version_; // TODO: make version a part of binary header
 
     StateId start_state_ = 0;
