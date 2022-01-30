@@ -1,33 +1,23 @@
 #ifndef SIO_TOKENIZER_H
 #define SIO_TOKENIZER_H
 
-//#include <sentencepiece_processor.h>
 #include "sio/common.h"
 //#include "sio/dbg.h"
 
-/*
-SentencePiece C++ API reference:
-    https://github.com/google/sentencepiece/blob/master/doc/api.md
-*/
-
-#define SIO_BLK "<blk>"
-#define SIO_UNK "<unk>"
-#define SIO_BOS "<s>"
-#define SIO_EOS "</s>"
-
 namespace sio {
-
 struct Tokenizer {
+    static const i32 kUndefined = -1;
+
     Map<i32, Str> index_to_token;
     Map<Str, i32> token_to_index;
 
-    i32 blk = -1;
-    i32 unk = -1;
-    i32 bos = -1;
-    i32 eos = -1;
-    //sentencepiece::SentencePieceProcessor spm;
+    i32 blk = kUndefined;
+    i32 unk = kUndefined;
+    i32 bos = kUndefined;
+    i32 eos = kUndefined;
 
-    void Load(const Str& tokenizer_vocab) {
+
+    Error Load(const Str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
         Str line;
         for (i32 index = 0; std::getline(is, line); index++) {
@@ -36,24 +26,33 @@ struct Tokenizer {
             Str token = cols[0];
             index_to_token[index] = token;
             token_to_index[token] = index;
+
+            if (token == "<blk>" || token == "<blank>" || token == "<pad>") {
+                blk = index;
+            } else if (token == "<unk>" || token == "<UNK>") {
+                unk = index;
+            } else if (token == "<s>" || token == "<bos>" || token == "<sos>") {
+                bos = index;
+            } else if (token == "</s>" || token == "<eos>") {
+                eos = index;
+            }
         }
+
+        // Use blk & unk interchangably if only one of them is undefined
+        if (blk == kUndefined && unk != kUndefined) { blk = unk; }
+        if (unk == kUndefined && blk != kUndefined) { unk = blk; }
 
         //dbg(index_to_token);
         //dbg(token_to_index);
 
-        blk = token_to_index.at(SIO_BLK);
-        unk = token_to_index.at(SIO_UNK);
-        bos = token_to_index.at(SIO_BOS);
-        eos = token_to_index.at(SIO_EOS);
-    }
+        // Post-condition checks
+        SIO_CHECK(blk != kUndefined);
+        SIO_CHECK(unk != kUndefined);
+        SIO_CHECK(bos != kUndefined);
+        SIO_CHECK(eos != kUndefined);
 
-    //Error LoadModel(const Str& tokenizer_model) {
-    //    const auto status = spm.Load(tokenizer_model);
-    //    if (!status.ok()) {
-    //        SIO_ERROR(Error::TokenizerLoadFailure) << status.ToString() << "\n";
-    //    }
-    //    return Error::OK;
-    //}
+        return Error::OK;
+    }
 
 
     size_t Size() const {
