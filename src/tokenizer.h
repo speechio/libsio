@@ -6,21 +6,23 @@
 
 namespace sio {
 struct Tokenizer {
-    static const i32 kUndefined = -1;
+    using TokenId = i32;
 
-    Map<i32, Str> index_to_token;
-    Map<Str, i32> token_to_index;
+    static const TokenId kUndefined = -1;
 
-    i32 blk = kUndefined;
-    i32 unk = kUndefined;
-    i32 bos = kUndefined;
-    i32 eos = kUndefined;
+    Map<TokenId, Str> index_to_token;
+    Map<Str, TokenId> token_to_index;
+
+    TokenId blk = kUndefined;
+    TokenId unk = kUndefined;
+    TokenId bos = kUndefined;
+    TokenId eos = kUndefined;
 
 
     Error Load(const Str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
         Str line;
-        for (i32 index = 0; std::getline(is, line); index++) {
+        for (TokenId index = 0; std::getline(is, line); index++) {
             Vec<Str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
             SIO_CHECK_EQ(cols.size(), 2); // token prob
             Str token = cols[0];
@@ -60,18 +62,18 @@ struct Tokenizer {
     }
 
 
-    const Str& Token(i32 index) const {
-        return index_to_token.at(index);
+    const Str& Token(TokenId t) const {
+        return index_to_token.at(t);
     }
 
 
-    i32 Index(const Str& token) const {
+    TokenId Index(const Str& token) const {
         return token_to_index.at(token);
     }
 
 
-    bool IsSpecial(i32 token_index) const {
-        StrView token = Token(token_index);
+    bool IsSpecial(TokenId t) const {
+        StrView token = Token(t);
         return absl::StartsWith(token, "<") && absl::EndsWith(token, ">");
     }
 
