@@ -22,7 +22,7 @@
 #include "sio/fsm.h"
 #include "sio/beam_search.h"
 #include "sio/speech_to_text_config.h"
-#include "sio/recognizer.h"
+#include "sio/speech_to_text_model.h"
 #include "sio/speech_to_text.h"
 
 #endif
