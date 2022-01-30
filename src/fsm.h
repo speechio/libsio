@@ -59,28 +59,14 @@ public:
     };
 
 
-private:
-    /********** Data Members **********/
-    Str version_; // TODO: make version a part of binary header
-
-    StateId start_state_ = 0;
-    StateId final_state_ = 0;
-
-    Vec<State> states_;
-    Vec<Arc> arcs_;
-
-
-public:
-    /********** Interfaces **********/
     inline bool Empty() const { return states_.size() == 0; }
 
     inline StateId Start() const { SIO_CHECK(!Empty()); return start_state_; }
     inline StateId Final() const { SIO_CHECK(!Empty()); return final_state_; }
 
-    // Use i64 for return type instead of size_t:
-    // * return of NumStates & NumArcs are parts of binary model file
-    // * size_t is platform dependent, so fixed-width integers are prefered
-    // * TODO: should also support bit/little endian compatibility
+    // Use i64 as return type instead of size_t,
+    // because size_t is not suitable for platform independent binary
+    // TODO: bit/little endian compatibility
     i64 NumStates() const { SIO_CHECK(!Empty()); return states_.size() - 1; } // -1: last sentinel is not counted as valid Fsm state
     i64 NumArcs()   const { SIO_CHECK(!Empty()); return arcs_.size(); }
 
@@ -333,6 +319,15 @@ public:
 
         return Error::OK;
     }
+
+private:
+    Str version_; // TODO: make version a part of binary header
+
+    StateId start_state_ = 0;
+    StateId final_state_ = 0;
+
+    Vec<State> states_;
+    Vec<Arc> arcs_;
 
 }; // class Fsm
 } // namespace sio
