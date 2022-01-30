@@ -185,10 +185,12 @@ public:
             std::getline(is, line);
             cols = absl::StrSplit(line, ',', absl::SkipWhitespace());
             SIO_CHECK_EQ(cols.size(), 4);
+
             num_states   = std::stoi(cols[0]);
             num_arcs     = std::stoi(cols[1]);
             start_state_ = std::stoi(cols[2]);
             final_state_ = std::stoi(cols[3]);
+
             // K2Fsa conformance checks
             SIO_CHECK_EQ(start_state_, 0);
             SIO_CHECK_EQ(final_state_, num_states - 1);
