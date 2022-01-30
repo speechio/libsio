@@ -320,8 +320,8 @@ public:
     void Print() const {
         printf("%d,%d,%d,%d\n", NumStates(), NumArcs(), Start(), Final());
         for (StateId s = 0; s < NumStates(); s++) {
-            for (auto ai = GetArcIterator(s); !ai.Done(); ai.Next()) {
-                const Arc& arc = ai.Value();
+            for (auto aiter = GetArcIterator(s); !aiter.Done(); aiter.Next()) {
+                const Arc& arc = aiter.Value();
                 printf("%d\t%d\t%d:%d/%f\n", arc.src, arc.dst, arc.ilabel, arc.olabel, arc.score);
             }
         }
