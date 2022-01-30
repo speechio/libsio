@@ -219,7 +219,7 @@ public:
                 );
                 n++;
             }
-            SIO_CHECK_EQ(num_arcs, n);
+            SIO_CHECK_EQ(num_arcs, n) << "Num arcs loaded is inconsistent with header.";
 
             /* Sort all arcs, first by source state, then by dest state */
             std::sort(arcs_.begin(), arcs_.end(), 
