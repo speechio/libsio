@@ -9,39 +9,55 @@
 //#include "sio/dbg.h"
 
 namespace sio {
+
+using FsmStateId = i32;
+using FsmArcId   = i32;
+using FsmLabel   = i32;
+using FsmScore   = f32;
+
+
+struct FsmState {
+    FsmArcId arcs_begin = 0;
+};
+
+
+struct FsmArc {
+    FsmStateId src = 0;
+    FsmStateId dst = 0;
+    FsmLabel ilabel = 0;
+    FsmLabel olabel = 0;
+    FsmScore score = 0.0f;
+
+    void Set(FsmStateId src, FsmStateId dst, FsmLabel ilabel, FsmLabel olabel, FsmScore score) {
+        this->src = src;
+        this->dst = dst;
+        this->ilabel = ilabel;
+        this->olabel = olabel;
+        this->score = score;
+    }
+};
+
 class Fsm {
+    Str version_; // TODO: make version a part of binary header
+
+    FsmStateId start_state_ = 0;
+    FsmStateId final_state_ = 0;
+
+    Vec<FsmState> states_;
+    Vec<FsmArc> arcs_;
+
 public:
-    /********** Types **********/
-    using StateId = i32;
-    using ArcId = i32;
-    using Label = i32;
-    using Score = f32;
 
-    static const Label kInputEnd = -1; // This follows K2Fsa convention
-    static const Label kEpsilon = -2;
+    static const FsmLabel kInputEnd = -1; // This follows K2Fsa convention
+    static const FsmLabel kEpsilon = -2;
 
+    using StateId = FsmStateId;
+    using ArcId   = FsmArcId;
+    using Label   = FsmLabel;
+    using Score   = FsmScore;
 
-    struct State {
-        ArcId arcs_begin = 0;
-    };
-
-
-    struct Arc {
-        StateId src = 0;
-        StateId dst = 0;
-        Label ilabel = 0;
-        Label olabel = 0;
-        Score score = 0.0f;
-
-        void Set(StateId src, StateId dst, Label ilabel, Label olabel, Score score) {
-            this->src = src;
-            this->dst = dst;
-            this->ilabel = ilabel;
-            this->olabel = olabel;
-            this->score = score;
-        }
-    };
-
+    using State = FsmState;
+    using Arc   = FsmArc;
 
     class ArcIterator {
       private:
@@ -327,16 +343,6 @@ private:
         arc.Set(src, dst, ilabel, olabel, score);
         arcs_.push_back(arc);
     }
-
-
-    /* data members */
-    Str version_; // TODO: make version a part of binary header
-
-    StateId start_state_ = 0;
-    StateId final_state_ = 0;
-
-    Vec<State> states_;
-    Vec<Arc> arcs_;
 
 }; // class Fsm
 } // namespace sio
