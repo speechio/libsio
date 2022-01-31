@@ -52,6 +52,7 @@ public:
     static const FsmLabel kInputEnd = -1; // This follows K2Fsa convention
     static const FsmLabel kEpsilon = -2;
 
+
     using StateId = FsmStateId;
     using ArcId   = FsmArcId;
     using Label   = FsmLabel;
@@ -59,6 +60,7 @@ public:
 
     using State = FsmState;
     using Arc   = FsmArc;
+
 
     class ArcIterator {
       private:
