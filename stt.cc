@@ -39,14 +39,16 @@ int main() {
             stt.Speech(audio.data() + offset, n, sample_rate);
             offset += n;
         }
+
         stt.To();
 
         std::string text;
         stt.Text(&text);
+
         SIO_DEBUG << audio_id << " -> " << offset << " samples decoded: " << text;
         SIO_INFO << num_utts << "\t" << audio_id << "\t" << text;
-
         num_utts++;
+
         stt.Reset();
     }
 
