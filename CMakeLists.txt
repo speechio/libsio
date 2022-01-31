@@ -4,7 +4,6 @@ project(sio LANGUAGES CXX VERSION 0.1)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-enable_testing()
 
 # gtest
 include(FetchContent)
@@ -66,18 +65,22 @@ foreach(x ${KALDI_LIBRARIES})
     set_target_properties(${x} PROPERTIES IMPORTED_LOCATION ${KALDI_CMAKE_DIST}/lib64/lib${x}.so)
 endforeach()
 
+
 # libtorch
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/deps/libtorch")
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+# libtorch playground
+add_executable(torchscript torchscript.cc)
+target_link_libraries(torchscript ${TORCH_LIBRARIES})
+
 
 # libsio
 include_directories(${CMAKE_SOURCE_DIR})
 add_subdirectory(src)
 
+
 # bin
 add_executable(stt stt.cc)
 target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
 
-add_executable(torchscript torchscript.cc)
-target_link_libraries(torchscript ${TORCH_LIBRARIES})
