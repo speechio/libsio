@@ -37,6 +37,7 @@ struct FsmArc {
     }
 };
 
+
 class Fsm {
     Str version_; // TODO: make version a part of binary header
 
