@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 enable_testing()
 
-
 # gtest
 include(FetchContent)
 FetchContent_Declare(
@@ -62,7 +61,6 @@ set(KALDI_LIBRARIES
     kaldi-online
     kaldi-online2
 )
-
 foreach(x ${KALDI_LIBRARIES})
     add_library(${x} SHARED IMPORTED GLOBAL)
     set_target_properties(${x} PROPERTIES IMPORTED_LOCATION ${KALDI_CMAKE_DIST}/lib64/lib${x}.so)
