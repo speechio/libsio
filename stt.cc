@@ -13,7 +13,7 @@ int main() {
     }
 
     sio::SpeechToText stt;
-    stt.Load(stt_model);
+    stt.LoadModel(stt_model);
 
     //std::ifstream wav_scp("testdata/MINI/wav.scp");
     std::ifstream wav_scp("testdata/aishell1-test.scp");

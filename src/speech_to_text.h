@@ -27,7 +27,7 @@ class SpeechToText {
 
 public:
 
-    Error Load(SpeechToTextModel& model) {
+    Error LoadModel(SpeechToTextModel& model) {
         SIO_CHECK(tokenizer_ == nullptr) << "Tokenizer initialized already.";
         tokenizer_ = &model.tokenizer;
 
