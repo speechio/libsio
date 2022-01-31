@@ -6,6 +6,9 @@
 namespace sio {
 
 class Link {
+    Link* prev_ = this;
+    Link* next_ = this;
+
 public:
     ~Link() { Unlink(); }
 
@@ -37,14 +40,14 @@ public:
         next_ = this;
     }
 
-private:
-    Link* prev_ = this;
-    Link* next_ = this;
 };
 
 
 template <typename T>
 class LinkedList {
+    Link   origin_;
+    size_t offset_;
+
 public:
     LinkedList(size_t offset) { offset_ = offset; }
     ~LinkedList() { UnlinkAll(); }
@@ -100,6 +103,7 @@ public:
     }
 
 private:
+
     Link* LinkOf(T* node) {
         return (Link*) ((size_t)node + offset_);
     }
@@ -108,8 +112,6 @@ private:
         return (link == &origin_) ? nullptr : (T*) ((size_t)link - offset_);
     }
 
-    Link   origin_;
-    size_t offset_;
 };
 
 } // namespace sio
