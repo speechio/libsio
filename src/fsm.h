@@ -280,7 +280,7 @@ public:
             // 1b: Arcs of normal tokens
             StateId cur_state = 1; // 0 is already occupied by start state
             // Invariant: arcs for states[0, cur_state) & tokens[0, t) are built.
-            for (Tokenizer::TokenId t = 0; t != tokenizer.Size(); t++) {
+            for (TokenId t = 0; t != tokenizer.Size(); t++) {
                 if (t == tokenizer.blk) continue;
                 if (t == tokenizer.unk) continue; // TODO: actually unk should be built, shouldn't skip
                 if (t == tokenizer.bos) continue;

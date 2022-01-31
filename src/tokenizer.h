@@ -5,9 +5,10 @@
 //#include "sio/dbg.h"
 
 namespace sio {
-struct Tokenizer {
-    using TokenId = i32;
 
+using TokenId = i32;
+
+struct Tokenizer {
     static const TokenId kUndefined = -1;
 
     Map<TokenId, Str> index_to_token;
