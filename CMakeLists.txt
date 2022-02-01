@@ -77,8 +77,7 @@ target_link_libraries(torchscript ${TORCH_LIBRARIES})
 
 # KenLM (libkenlm)
 include_directories(${CMAKE_SOURCE_DIR}/deps/kenlm)
-set(KENLM_MAX_ORDER 6)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKENLM_MAX_ORDER=${KENLM_MAX_ORDER}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKENLM_MAX_ORDER=6")
 add_library(kenlm SHARED IMPORTED GLOBAL)
 set_target_properties(kenlm PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/deps/kenlm/libkenlm.so)
 
