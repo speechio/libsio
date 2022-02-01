@@ -39,20 +39,6 @@ struct FsmArc {
 
 
 class Fsm {
-    Str version_; // TODO: make version a part of binary header
-
-    FsmStateId start_state_ = 0;
-    FsmStateId final_state_ = 0;
-
-    Vec<FsmState> states_;
-    Vec<FsmArc> arcs_;
-
-public:
-
-    static const FsmLabel kInputEnd = -1; // This follows K2Fsa convention
-    static const FsmLabel kEpsilon = -2;
-
-
     using StateId = FsmStateId;
     using ArcId   = FsmArcId;
     using Label   = FsmLabel;
@@ -61,6 +47,17 @@ public:
     using State = FsmState;
     using Arc   = FsmArc;
 
+    Str version_; // TODO: make version a part of binary header
+
+    StateId start_state_ = 0;
+    StateId final_state_ = 0;
+
+    Vec<State> states_;
+    Vec<Arc> arcs_;
+
+public:
+    static const Label kInputEnd = -1; // This follows K2Fsa convention
+    static const Label kEpsilon = -2;
 
     class ArcIterator {
       private:
