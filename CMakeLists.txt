@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
-# gtest
+# GTest
 include(FetchContent)
 FetchContent_Declare(
     gtest
@@ -15,7 +15,7 @@ set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(gtest)
 
 
-# abseil
+# Abseil (libabsl)
 include_directories(${CMAKE_SOURCE_DIR}/deps/abseil-cpp)
 add_subdirectory(${CMAKE_SOURCE_DIR}/deps/abseil-cpp)
 set(ABSL_LIBRARIES
@@ -28,7 +28,7 @@ set(ABSL_LIBRARIES
 )
 
 
-# kaldi
+# Kaldi (libkaldi)
 set(KALDI_CMAKE_DIST "${CMAKE_SOURCE_DIR}/deps/kaldi_dist")
 include_directories(${KALDI_CMAKE_DIST}/include)       # OpenFst
 include_directories(${KALDI_CMAKE_DIST}/include/kaldi) # Kaldi
@@ -66,13 +66,21 @@ foreach(x ${KALDI_LIBRARIES})
 endforeach()
 
 
-# libtorch
+# Torch (libtorch)
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/deps/libtorch")
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 # libtorch playground
 add_executable(torchscript torchscript.cc)
 target_link_libraries(torchscript ${TORCH_LIBRARIES})
+
+
+# KenLM (libkenlm)
+include_directories(${CMAKE_SOURCE_DIR}/deps/kenlm)
+set(KENLM_MAX_ORDER 6)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKENLM_MAX_ORDER=${KENLM_MAX_ORDER}")
+add_library(kenlm SHARED IMPORTED GLOBAL)
+set_target_properties(kenlm PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/deps/kenlm/libkenlm.so)
 
 
 # libsio
