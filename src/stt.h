@@ -1,15 +1,7 @@
 #ifndef SIO_STT_H
 #define SIO_STT_H
 
-#include "sio/base.h"
-#include "sio/type.h"
-#include "sio/error.h"
-#include "sio/log.h"
-#include "sio/check.h"
-#include "sio/ptr.h"
-#include "sio/str.h"
-#include "sio/vec.h"
-#include "sio/map.h"
+#include "sio/common.h"
 #include "sio/linked_list.h"
 #include "sio/allocator.h"
 #include "sio/json.h"

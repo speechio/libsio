@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "sio/log.h"
+#include "sio/logger.h"
 #include "sio/str.h"
 
 namespace sio {

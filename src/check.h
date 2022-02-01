@@ -3,7 +3,7 @@
 
 #include "sio/base.h"
 #include "sio/error.h"
-#include "sio/log.h"
+#include "sio/logger.h"
 namespace sio {
 
 #define SIO_CHECK(cond) \

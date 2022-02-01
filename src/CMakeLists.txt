@@ -6,7 +6,7 @@ add_library(sio SHARED
 # libsio unittest
 add_executable(unittest 
     error_test.cc
-    log_test.cc
+    logger_test.cc
     check_test.cc
     linked_list_test.cc
     allocator_test.cc
