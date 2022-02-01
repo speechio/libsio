@@ -1,5 +1,5 @@
-#ifndef SIO_LOG_H
-#define SIO_LOG_H
+#ifndef SIO_LOGGER_H
+#define SIO_LOGGER_H
 
 #include <stdlib.h>
 #include <iostream>
@@ -101,4 +101,3 @@ private:
 
 } // namespace sio
 #endif
-
