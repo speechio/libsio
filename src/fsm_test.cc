@@ -25,7 +25,7 @@ TEST(Fsm, Basic) {
     EXPECT_EQ(fsm2.Final(), 4);
     fsm2.Print();
     {
-        std::ofstream os("testdata/graph.fsm2", std::ios::binary);
+        std::ofstream os("testdata/graph2.fsm", std::ios::binary);
         fsm2.Dump(os);
     }
 
@@ -37,7 +37,7 @@ TEST(Fsm, Basic) {
     fsm3.BuildTokenTopology(tokenizer);
     fsm3.Print();
     {
-        std::ofstream os("testdata/graph.fsm3", std::ios::binary);
+        std::ofstream os("testdata/graph3.fsm", std::ios::binary);
         fsm3.Dump(os);
     }
 }
