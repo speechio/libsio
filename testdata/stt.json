@@ -8,8 +8,8 @@
     },
     "mean_var_norm": "testdata/mean_var_norm.txt",
     "tokenizer": {
-        "vocab": "../model/tokenizer/AISHELL-1.vocab",
-        "model": "../model/tokenizer/AISHELL-1.model"
+        "vocab": "../model/tokenizer/zh.vocab",
+        "model": "../model/tokenizer/zh.model"
     },
     "nnet": "testdata/model.pts",
     "graph": "testdata/graph.fsa",
