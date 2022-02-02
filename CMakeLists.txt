@@ -73,6 +73,9 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 
 
 # KenLM (libkenlm)
+# refer to:
+#   https://github.com/kpu/kenlm/blob/master/compile_query_only.sh#L22
+# to get following KenLM source list
 set(KENLM_ROOT "${CMAKE_SOURCE_DIR}/deps/kenlm")
 include_directories(${KENLM_ROOT})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKENLM_MAX_ORDER=6")
