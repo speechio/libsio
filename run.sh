@@ -1,4 +1,4 @@
-rm -f build/src/unittest
+rm -f build/unittest
 rm -f build/stt
 rm -f build/torchscript
 #python torchscript.py

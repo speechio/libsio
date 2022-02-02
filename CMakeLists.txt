@@ -167,3 +167,4 @@ target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRA
 # libtorch playground
 add_executable(torchscript torchscript.cc)
 target_link_libraries(torchscript ${TORCH_LIBRARIES})
+
