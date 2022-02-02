@@ -131,9 +131,6 @@ set(SIO_ROOT "${CMAKE_SOURCE_DIR}/sio")
 add_library(sio SHARED
     ${SIO_ROOT}/error.cc
 )
-
-
-# unittest
 add_executable(unittest 
     ${SIO_ROOT}/error_test.cc
     ${SIO_ROOT}/logger_test.cc
@@ -159,10 +156,11 @@ include(GoogleTest)
 gtest_discover_tests(unittest)
 
 
-# bin
-# 1. stt
+# stt bin
 add_executable(stt stt.cc)
 target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES} ${KENLM_LIBRARIES})
-# 2. libtorch playground
+
+
+# libtorch playground
 add_executable(torchscript torchscript.cc)
 target_link_libraries(torchscript ${TORCH_LIBRARIES})
