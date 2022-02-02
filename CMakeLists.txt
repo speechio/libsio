@@ -144,7 +144,7 @@ add_executable(unittest
     ${SIO_ROOT}/feature_extractor_test.cc
     ${SIO_ROOT}/dbg_test.cc
     ${SIO_ROOT}/struct_loader_test.cc
-    ${SIO_ROOT}/fsm_test.cc
+    ${SIO_ROOT}/finite_state_machine_test.cc
     ${SIO_ROOT}/language_model_test.cc
 )
 target_link_libraries(unittest

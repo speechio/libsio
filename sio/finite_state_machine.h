@@ -1,5 +1,5 @@
-#ifndef SIO_FSM_H
-#define SIO_FSM_H
+#ifndef SIO_FINITE_STATE_MACHINE_H
+#define SIO_FINITE_STATE_MACHINE_H
 
 #include <algorithm>
 #include "base/io-funcs.h"
@@ -347,3 +347,4 @@ private:
 }; // class Fsm
 } // namespace sio
 #endif
+
