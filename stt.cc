@@ -4,16 +4,16 @@
 //#include "sio/dbg.h"
 
 int main() {
-    sio::SpeechToTextModel stt_model;
-    stt_model.Load("testdata/stt.json");
+    sio::SpeechToTextModel model;
+    model.Load("testdata/stt.json");
 
     size_t samples_per_chunk = std::numeric_limits<size_t>::max();
-    if (stt_model.config.online == true) {
+    if (model.config.online == true) {
         samples_per_chunk = 1000;
     }
 
     sio::SpeechToText stt;
-    stt.LoadModel(stt_model);
+    stt.LoadModel(model);
 
     //std::ifstream wav_scp("testdata/MINI/wav.scp");
     std::ifstream wav_scp("testdata/aishell1-test.scp");
