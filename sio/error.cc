@@ -11,6 +11,7 @@ const char *error_cstr(Error err) {
         case Error::Unknown: return "(unknown error)";
     }
     SIO_UNREACHABLE();
+    return nullptr; /* avoid warning */
 }
 
 } // namespace sio

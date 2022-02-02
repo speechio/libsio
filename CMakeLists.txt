@@ -70,24 +70,99 @@ endforeach()
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/deps/libtorch")
 find_package(Torch REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
-# libtorch playground
-add_executable(torchscript torchscript.cc)
-target_link_libraries(torchscript ${TORCH_LIBRARIES})
 
 
 # KenLM (libkenlm)
-include_directories(${CMAKE_SOURCE_DIR}/deps/kenlm)
+set(KENLM_ROOT "${CMAKE_SOURCE_DIR}/deps/kenlm")
+include_directories(${KENLM_ROOT})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKENLM_MAX_ORDER=6")
-add_library(kenlm SHARED IMPORTED GLOBAL)
-set_target_properties(kenlm PROPERTIES IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/deps/kenlm/libkenlm.so)
+add_library(kenlm_util SHARED
+    ${KENLM_ROOT}/util/double-conversion/bignum.cc
+    ${KENLM_ROOT}/util/double-conversion/bignum-dtoa.cc
+    ${KENLM_ROOT}/util/double-conversion/cached-powers.cc
+    ${KENLM_ROOT}/util/double-conversion/diy-fp.cc
+    ${KENLM_ROOT}/util/double-conversion/double-conversion.cc
+    ${KENLM_ROOT}/util/double-conversion/fast-dtoa.cc
+    ${KENLM_ROOT}/util/double-conversion/fixed-dtoa.cc
+    ${KENLM_ROOT}/util/double-conversion/strtod.cc
+    ${KENLM_ROOT}/util/bit_packing.cc
+    ${KENLM_ROOT}/util/ersatz_progress.cc
+    ${KENLM_ROOT}/util/exception.cc
+    ${KENLM_ROOT}/util/file.cc
+    ${KENLM_ROOT}/util/file_piece.cc
+    ${KENLM_ROOT}/util/float_to_string.cc
+    ${KENLM_ROOT}/util/integer_to_string.cc
+    ${KENLM_ROOT}/util/mmap.cc
+    ${KENLM_ROOT}/util/murmur_hash.cc
+    ${KENLM_ROOT}/util/parallel_read.cc
+    ${KENLM_ROOT}/util/pool.cc
+    ${KENLM_ROOT}/util/read_compressed.cc
+    ${KENLM_ROOT}/util/scoped.cc
+    ${KENLM_ROOT}/util/spaces.cc
+    ${KENLM_ROOT}/util/string_piece.cc
+    ${KENLM_ROOT}/util/usage.cc
+)
+add_library(kenlm_lm SHARED
+    ${KENLM_ROOT}/lm/bhiksha.cc
+    ${KENLM_ROOT}/lm/binary_format.cc
+    ${KENLM_ROOT}/lm/config.cc
+    ${KENLM_ROOT}/lm/lm_exception.cc
+    ${KENLM_ROOT}/lm/model.cc
+    ${KENLM_ROOT}/lm/quantize.cc
+    ${KENLM_ROOT}/lm/read_arpa.cc
+    ${KENLM_ROOT}/lm/search_hashed.cc
+    ${KENLM_ROOT}/lm/search_trie.cc
+    ${KENLM_ROOT}/lm/sizes.cc
+    ${KENLM_ROOT}/lm/trie.cc
+    ${KENLM_ROOT}/lm/trie_sort.cc
+    ${KENLM_ROOT}/lm/value_build.cc
+    ${KENLM_ROOT}/lm/virtual_interface.cc
+    ${KENLM_ROOT}/lm/vocab.cc
+)
+set(KENLM_LIBRARIES
+    kenlm_util
+    kenlm_lm
+)
 
 
 # libsio
 include_directories(${CMAKE_SOURCE_DIR})
-add_subdirectory(src)
+set(SIO_ROOT "${CMAKE_SOURCE_DIR}/sio")
+add_library(sio SHARED
+    ${SIO_ROOT}/error.cc
+)
+
+
+# unittest
+add_executable(unittest 
+    ${SIO_ROOT}/error_test.cc
+    ${SIO_ROOT}/logger_test.cc
+    ${SIO_ROOT}/check_test.cc
+    ${SIO_ROOT}/linked_list_test.cc
+    ${SIO_ROOT}/allocator_test.cc
+    ${SIO_ROOT}/audio_test.cc
+    ${SIO_ROOT}/feature_extractor_test.cc
+    ${SIO_ROOT}/dbg_test.cc
+    ${SIO_ROOT}/struct_loader_test.cc
+    ${SIO_ROOT}/fsm_test.cc
+    ${SIO_ROOT}/language_model_test.cc
+)
+target_link_libraries(unittest
+    gtest_main
+    sio
+    ${KENLM_LIBRARIES}
+    ${TORCH_LIBRARIES}
+    ${KALDI_LIBRARIES}
+    ${ABSL_LIBRARIES}
+)
+include(GoogleTest)
+gtest_discover_tests(unittest)
 
 
 # bin
+# 1. stt
 add_executable(stt stt.cc)
-target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
-
+target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES} ${KENLM_LIBRARIES})
+# 2. libtorch playground
+add_executable(torchscript torchscript.cc)
+target_link_libraries(torchscript ${TORCH_LIBRARIES})
