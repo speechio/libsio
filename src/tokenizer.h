@@ -22,6 +22,7 @@ struct Tokenizer {
 
     Error Load(const Str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
+        SIO_CHECK(is.good());
         Str line;
         for (TokenId index = 0; std::getline(is, line); index++) {
             Vec<Str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
