@@ -16,7 +16,7 @@ int main() {
     stt.LoadModel(model);
 
     //std::ifstream wav_scp("testdata/MINI/wav.scp");
-    std::ifstream wav_scp("testdata/aishell1-test.scp");
+    std::ifstream wav_scp("wav.scp");
     std::string line;
     int num_utts = 0;
     while (std::getline(wav_scp, line)) {
