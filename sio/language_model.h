@@ -5,24 +5,19 @@
 
 namespace sio {
 
-// virtual interface for generic language model in FST representation
 using LmStateId = i32;
-using WordId = i32;
+using LmWordId = i32;
 using LmScore = f32;
 
-
-struct LmArc {
-    LmStateId src = 0;
-    LmStateId dst = 0;
-    WordId word = 0;
-    LmScore score = 0.0;
-};
-
-
 class LanguageModel {
-    virtual LmStateId Start() = 0;
+public:
+    virtual LmWordId Bos() = 0;
+    virtual LmWordId Eos() = 0;
+    virtual LmWordId Unk() = 0;
 
-    virtual bool GetLmArc(LmStateId src, WordId word, LmArc* arc) = 0;
+    virtual LmStateId NullState() = 0;
+
+    virtual bool GetLmScore(LmStateId src, LmWordId word, LmScore* score, LmStateId* dst) = 0;
 
     virtual ~LanguageModel() { }
 };
