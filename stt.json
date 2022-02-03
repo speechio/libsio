@@ -6,14 +6,14 @@
         "dither": 1.0,
         "num_mel_bins": 80
     },
-    "mean_var_norm": "testdata/mean_var_norm.txt",
+    "mean_var_norm": "model/mean_var_norm.txt",
     "tokenizer": {
-        "vocab": "../model/tokenizer/zh.vocab",
-        "model": "../model/tokenizer/zh.model"
+        "vocab": "model/tokenizer.vocab",
+        "model": "model/tokenizer.model"
     },
-    "nnet": "testdata/model.pts",
-    "graph": "testdata/graph.fsa",
-    "context": "testdata/context.json",
+    "nnet": "model/final.ts",
+    "graph": "model/graph.fsa",
+    "context": "model/context.json",
     "sample_rate": 16000.0,
     "end_pointing": false,
     "scorer": {

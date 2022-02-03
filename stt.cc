@@ -5,7 +5,7 @@
 
 int main() {
     sio::SpeechToTextModel model;
-    model.Load("testdata/stt.json");
+    model.Load("stt.json");
 
     size_t samples_per_chunk = std::numeric_limits<size_t>::max();
     if (model.config.online == true) {
