@@ -15,7 +15,7 @@ public:
     virtual LmWordId Eos() = 0;
     virtual LmWordId Unk() = 0;
 
-    virtual LmStateId NullState() = 0;
+    virtual LmStateId NullLmState() = 0;
 
     virtual bool GetLmScore(LmStateId src, LmWordId word, LmScore* score, LmStateId* dst) = 0;
 
