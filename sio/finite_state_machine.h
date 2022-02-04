@@ -284,7 +284,7 @@ public:
                 if (t == tokenizer.bos) continue;
                 if (t == tokenizer.eos) continue;
 
-                AddArc(start_state_, cur_state,    t,            t       ); // Entering
+                AddArc(start_state_, cur_state,    t,            t          ); // Entering
                 AddArc(cur_state,    cur_state,    t,            kFsmEpsilon); // Self-loop
                 AddArc(cur_state,    start_state_, kFsmEpsilon,  kFsmEpsilon); // Leaving
                 cur_state++;
