@@ -16,6 +16,10 @@ using FsmLabel   = i32;
 using FsmScore   = f32;
 
 
+const FsmLabel kFsmInputEnd = -1; // This follows K2Fsa convention
+const FsmLabel kFsmEpsilon = -2;
+
+
 struct FsmState {
     FsmArcId arcs_begin = 0;
 };
@@ -56,8 +60,6 @@ class Fsm {
     Vec<Arc> arcs_;
 
 public:
-    static const Label kInputEnd = -1; // This follows K2Fsa convention
-    static const Label kEpsilon = -2;
 
     class ArcIterator {
       private:
@@ -272,7 +274,7 @@ public:
         {
             // 1a: Blank self-loop of start state
             start_state_ = 0;
-            AddArc(start_state_, start_state_, tokenizer.blk, kEpsilon);
+            AddArc(start_state_, start_state_, tokenizer.blk, kFsmEpsilon);
 
             // 1b: Arcs of normal tokens
             StateId cur_state = 1; // 0 is already occupied by start state
@@ -283,15 +285,15 @@ public:
                 if (t == tokenizer.bos) continue;
                 if (t == tokenizer.eos) continue;
 
-                AddArc(start_state_, cur_state,    t,         t       ); // Entering
-                AddArc(cur_state,    cur_state,    t,         kEpsilon); // Self-loop
-                AddArc(cur_state,    start_state_, kEpsilon,  kEpsilon); // Leaving
+                AddArc(start_state_, cur_state,    t,            t       ); // Entering
+                AddArc(cur_state,    cur_state,    t,            kFsmEpsilon); // Self-loop
+                AddArc(cur_state,    start_state_, kFsmEpsilon,  kFsmEpsilon); // Leaving
                 cur_state++;
             }
 
             // 1c: "InputEnd" represents the end of input sequence (follows K2Fsa convention)
             final_state_ = cur_state;
-            AddArc(start_state_, final_state_, kInputEnd, tokenizer.eos);
+            AddArc(start_state_, final_state_, kFsmInputEnd, tokenizer.eos);
 
             // 1d: Sort all arcs, first by source state, then by dest state
             std::sort(arcs_.begin(), arcs_.end(), 
