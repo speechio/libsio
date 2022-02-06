@@ -12,7 +12,7 @@
         "model": "model/tokenizer.model"
     },
     "nnet": "model/final.ts",
-    "graph": "model/graph.fsa",
+    "graph": "model/graph.fsm",
     "context": "model/context.json",
     "sample_rate": 16000.0,
     "end_pointing": false,
