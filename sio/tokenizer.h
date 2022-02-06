@@ -9,17 +9,16 @@
 namespace sio {
 
 using TokenId = i32;
+const TokenId kNoTokenId = -1;
 
 struct Tokenizer {
-    static const TokenId kUndefined = -1;
-
     Map<TokenId, Str> index_to_token;
     Map<Str, TokenId> token_to_index;
 
-    TokenId blk = kUndefined;
-    TokenId unk = kUndefined;
-    TokenId bos = kUndefined;
-    TokenId eos = kUndefined;
+    TokenId blk = kNoTokenId;
+    TokenId unk = kNoTokenId;
+    TokenId bos = kNoTokenId;
+    TokenId eos = kNoTokenId;
 
 
     Error Load(const Str& tokenizer_vocab) {
@@ -45,17 +44,17 @@ struct Tokenizer {
         }
 
         // Use blk & unk interchangably if only one of them is undefined
-        if (blk == kUndefined && unk != kUndefined) { blk = unk; }
-        if (unk == kUndefined && blk != kUndefined) { unk = blk; }
+        if (blk == kNoTokenId && unk != kNoTokenId) { blk = unk; }
+        if (unk == kNoTokenId && blk != kNoTokenId) { unk = blk; }
 
         //dbg(index_to_token);
         //dbg(token_to_index);
 
         // Post-condition checks
-        SIO_CHECK(blk != kUndefined);
-        SIO_CHECK(unk != kUndefined);
-        SIO_CHECK(bos != kUndefined);
-        SIO_CHECK(eos != kUndefined);
+        SIO_CHECK(blk != kNoTokenId);
+        SIO_CHECK(unk != kNoTokenId);
+        SIO_CHECK(bos != kNoTokenId);
+        SIO_CHECK(eos != kNoTokenId);
 
         return Error::OK;
     }
