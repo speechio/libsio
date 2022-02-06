@@ -29,9 +29,7 @@ public:
 class PrefixLm : public LanguageModel {
     using Prefix = size_t; // use size_t as a unique hash to represent a prefix(lm state)
 
-    LmWordId bos_ = 0;
-    LmWordId eos_ = 0;
-    LmWordId unk_ = 0;
+    const Tokenizer* tokenizer_ = nullptr;
 
     Vec<Prefix> state_to_prefix_;
     Map<Prefix, LmStateId> prefix_to_state_;
@@ -39,11 +37,8 @@ class PrefixLm : public LanguageModel {
 public:
 
     Error Load(const Tokenizer& tokenizer) {
-        SIO_CHECK(state_to_prefix_.empty());
-
-        bos_ = tokenizer.bos;
-        eos_ = tokenizer.eos;
-        unk_ = tokenizer.unk;
+        SIO_CHECK(tokenizer_ == nullptr);
+        tokenizer_ = &tokenizer;
 
         // make null state has index 0, with prefix hash 0
         state_to_prefix_.push_back(0);
@@ -56,9 +51,9 @@ public:
     }
 
 
-    LmWordId Bos() const override { return bos_; }
-    LmWordId Eos() const override { return eos_; }
-    LmWordId Unk() const override { return unk_; }
+    LmWordId Bos() const override { return tokenizer_->bos; }
+    LmWordId Eos() const override { return tokenizer_->eos; }
+    LmWordId Unk() const override { return tokenizer_->unk; }
 
 
     LmStateId NullLmState() const override {
