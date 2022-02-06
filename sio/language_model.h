@@ -27,12 +27,13 @@ public:
 
 
 class PrefixLm : public LanguageModel {
-    using Prefix = size_t; // use size_t as a unique hash to represent a prefix(lm state)
+    // prefix word sequence is represented with a unique hash of type size_t
+    using PrefixHash = size_t;
 
     const Tokenizer* tokenizer_ = nullptr;
 
-    Vec<Prefix> state_to_prefix_;
-    Map<Prefix, LmStateId> prefix_to_state_;
+    Vec<PrefixHash> state_to_prefix_;
+    Map<PrefixHash, LmStateId> prefix_to_state_;
 
 public:
 
