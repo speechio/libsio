@@ -3,7 +3,7 @@
 
 #include "sio/common.h"
 #include "sio/tokenizer.h"
-#include "sio/dbg.h"
+//#include "sio/dbg.h"
 
 namespace sio {
 
@@ -58,13 +58,13 @@ public:
 
 
     LmStateId NullLmState() const override {
-        SIO_CHECK_EQ(prefix_to_state_.at(0), 0);
+        SIO_CHECK(!prefix_to_state_.empty()) << "PrefixLm uninitialzed ?";
         return 0;
     }
 
 
     bool GetLmScore(LmStateId src_state, LmWordId word, LmScore* score, LmStateId* dst_state) override {
-        // Vector hash from
+        // Vector hash from Kaldi:
         //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
         const int prime = 7853;
 
@@ -73,16 +73,17 @@ public:
         size_t src_prefix = state_to_prefix_[src_state];
         size_t dst_prefix = src_prefix * prime + word;
 
-        auto r = prefix_to_state_.find(dst_prefix);
-        if (r != prefix_to_state_.end()) {
-            *dst_state = r->second;
+        auto it = prefix_to_state_.find(dst_prefix);
+        if (it != prefix_to_state_.end()) {
+            *dst_state = it->second;
 
         } else {
-            LmStateId new_state = state_to_prefix_.size();
-            state_to_prefix_.push_back(dst_prefix);
-            prefix_to_state_[dst_prefix] = new_state;
+            LmStateId s = state_to_prefix_.size();
 
-            *dst_state = new_state;
+            state_to_prefix_.push_back(dst_prefix);
+            prefix_to_state_[dst_prefix] = s;
+
+            *dst_state = s;
         }
 
         return true;
