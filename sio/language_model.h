@@ -3,6 +3,7 @@
 
 #include "sio/common.h"
 #include "sio/tokenizer.h"
+#include "sio/dbg.h"
 
 namespace sio {
 
@@ -26,17 +27,14 @@ public:
 
 
 class PrefixLm : public LanguageModel {
-    using Prefix = size_t; // use a size_t hash to represent a prefix(lm state)
-
-    static const int kPrime_ = 7853;
-    static const LmWordId kNullLmStateId_ = 0;
+    using Prefix = size_t; // use size_t as a unique hash to represent a prefix(lm state)
 
     LmWordId bos_ = 0;
     LmWordId eos_ = 0;
     LmWordId unk_ = 0;
 
     Vec<Prefix> state_to_prefix_;
-    Map<size_t, LmStateId> prefix_to_state_;
+    Map<Prefix, LmStateId> prefix_to_state_;
 
 public:
 
@@ -47,7 +45,14 @@ public:
         eos_ = tokenizer.eos;
         unk_ = tokenizer.unk;
 
-        state_to_prefix_.push_back(kNullLmStateId_);
+        LmStateId null_state = 0;
+        Prefix null_prefix = static_cast<Prefix>(0);
+        state_to_prefix_.push_back(null_prefix); // use 0 as null lm state
+        prefix_to_state_[null_prefix] = null_state;
+
+        //dbg(prefix_to_state_);
+        //dbg(state_to_prefix_);
+
         return Error::OK;
     }
 
@@ -58,23 +63,29 @@ public:
 
 
     LmStateId NullLmState() const override {
-        SIO_CHECK_EQ(prefix_to_state_.at(0), kNullLmStateId_);
-        return kNullLmStateId_;
+        SIO_CHECK_EQ(prefix_to_state_.at(0), 0);
+        return 0;
     }
 
 
-    bool GetLmScore(LmStateId src, LmWordId word, LmScore* score, LmStateId* dst) override {
+    bool GetLmScore(LmStateId src_state, LmWordId word, LmScore* score, LmStateId* dst_state) override {
+        const int prime = 7853;
+
         *score = 0.0;
 
-        size_t src_prefix = state_to_prefix_[src];
-        size_t dst_prefix = src_prefix * kPrime_ + word;
+        size_t src_prefix = state_to_prefix_[src_state];
+        size_t dst_prefix = src_prefix * prime + word;
 
         auto r = prefix_to_state_.find(dst_prefix);
         if (r != prefix_to_state_.end()) {
-            *dst = r->second;
+            *dst_state = r->second;
+
         } else {
-            *dst = state_to_prefix_.size();
+            LmStateId new_state = state_to_prefix_.size();
             state_to_prefix_.push_back(dst_prefix);
+            prefix_to_state_[dst_prefix] = new_state;
+
+            *dst_state = new_state;
         }
 
         return true;
