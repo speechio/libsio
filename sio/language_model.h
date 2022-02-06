@@ -76,12 +76,10 @@ public:
         auto it = prefix_to_state_.find(dst_prefix);
         if (it == prefix_to_state_.end()) {
             LmStateId s = state_to_prefix_.size();
-
             state_to_prefix_.push_back(dst_prefix);
             prefix_to_state_[dst_prefix] = s;
 
             *dst_state = s;
-
         } else {
             *dst_state = it->second;
         }
