@@ -72,7 +72,7 @@ public:
         *score = 0.0;
 
         size_t src_prefix = state_to_prefix_[src_state];
-        size_t dst_prefix = src_prefix * prime + word;
+        size_t dst_prefix = src_prefix * prime + word; // incremental sequence hashing
 
         auto it = prefix_to_state_.find(dst_prefix);
         if (it == prefix_to_state_.end()) {
