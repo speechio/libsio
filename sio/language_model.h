@@ -18,9 +18,9 @@ public:
     virtual LmWordId Eos() const = 0;
     virtual LmWordId Unk() const = 0;
 
-    virtual LmStateId NullLmState() const = 0;
+    virtual LmStateId NullState() const = 0;
 
-    virtual bool GetLmScore(LmStateId src, LmWordId word, LmScore* score, LmStateId* dst) = 0;
+    virtual bool GetScore(LmStateId src, LmWordId word, LmScore* score, LmStateId* dst) = 0;
 
     virtual ~LanguageModel() { }
 };
@@ -58,13 +58,13 @@ public:
     LmWordId Unk() const override { return tokenizer_->unk; }
 
 
-    LmStateId NullLmState() const override {
+    LmStateId NullState() const override {
         SIO_CHECK(!prefix_to_state_.empty()) << "PrefixLm uninitialzed ?";
         return 0;
     }
 
 
-    bool GetLmScore(LmStateId src_state, LmWordId word, LmScore* score, LmStateId* dst_state) override {
+    bool GetScore(LmStateId src_state, LmWordId word, LmScore* score, LmStateId* dst_state) override {
         // prime are picked from Kaldi's VectorHasher:
         //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
         const int prime = 7853;
