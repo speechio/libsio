@@ -69,6 +69,8 @@ public:
 
 
     bool GetLmScore(LmStateId src_state, LmWordId word, LmScore* score, LmStateId* dst_state) override {
+        // Vector hash from
+        //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
         const int prime = 7853;
 
         *score = 0.0;
