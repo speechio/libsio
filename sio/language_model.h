@@ -39,16 +39,15 @@ class PrefixLm : public LanguageModel {
 public:
 
     Error Load(const Tokenizer& tokenizer) {
-        SIO_CHECK_EQ(state_to_prefix_.size(), 0);
+        SIO_CHECK(state_to_prefix_.empty());
 
         bos_ = tokenizer.bos;
         eos_ = tokenizer.eos;
         unk_ = tokenizer.unk;
 
-        LmStateId null_state = 0;
-        Prefix null_prefix = static_cast<Prefix>(0);
-        state_to_prefix_.push_back(null_prefix); // use 0 as null lm state
-        prefix_to_state_[null_prefix] = null_state;
+        // make null state has index 0, with prefix hash 0
+        state_to_prefix_.push_back(0);
+        prefix_to_state_[0] = 0;
 
         //dbg(prefix_to_state_);
         //dbg(state_to_prefix_);
