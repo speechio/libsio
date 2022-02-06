@@ -1,6 +1,8 @@
 #ifndef SIO_TOKENIZER_H
 #define SIO_TOKENIZER_H
 
+#include <fstream>
+
 #include "sio/common.h"
 //#include "sio/dbg.h"
 
