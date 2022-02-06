@@ -19,25 +19,25 @@ TEST(LanguageModel, PrefixLm) {
 
     LmScore s;
 
+    LmStateId bos_state;
+    m->GetLmScore(null_state, tokenizer.Index("<s>"), &s, &bos_state);
+    EXPECT_EQ(bos_state, 1);
+
     LmStateId a;
-    m->GetLmScore(null_state, tokenizer.Index("a"), &s, &a);
-    //dbg(null_state, s, a);
-    EXPECT_EQ(a, 1);
+    m->GetLmScore(bos_state, tokenizer.Index("a"), &s, &a);
+    EXPECT_EQ(a, 2);
+
+    LmStateId aa;
+    m->GetLmScore(a, tokenizer.Index("a"), &s, &aa);
+    EXPECT_EQ(aa, 3);
 
     LmStateId ab;
     m->GetLmScore(a, tokenizer.Index("b"), &s, &ab);
-    //dbg(a, s, ab);
-    EXPECT_EQ(ab, 2);
+    EXPECT_EQ(ab, 4);
 
-    LmStateId aba;
-    m->GetLmScore(ab, tokenizer.Index("a"), &s, &aba);
-    //dbg(ab, s, aba);
-    EXPECT_EQ(aba, 3);
-
-    LmStateId abb;
-    m->GetLmScore(ab, tokenizer.Index("b"), &s, &abb);
-    //dbg(ab, s, abb);
-    EXPECT_EQ(abb, 4);
+    LmStateId ab_eos;
+    m->GetLmScore(ab, tokenizer.Index("</s>"), &s, &ab_eos);
+    EXPECT_EQ(ab_eos, 5);
 
 }
 
