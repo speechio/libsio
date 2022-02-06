@@ -40,7 +40,8 @@ public:
         SIO_CHECK(tokenizer_ == nullptr);
         tokenizer_ = &tokenizer;
 
-        // make null state has index 0, with prefix hash 0
+        // Establish null lm state: state index = 0, prefix hash = 0
+        SIO_CHECK(state_to_prefix_.empty() && prefix_to_state_.empty());
         state_to_prefix_.push_back(0);
         prefix_to_state_[0] = 0;
 
