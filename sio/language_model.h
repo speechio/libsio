@@ -32,8 +32,8 @@ class PrefixLm : public LanguageModel {
 
     const Tokenizer* tokenizer_ = nullptr;
 
-    Vec<PrefixHash> state_to_prefix_;
-    Map<PrefixHash, LmStateId> prefix_to_state_;
+    Vec<PrefixHash> state_to_hash_;
+    Map<PrefixHash, LmStateId> hash_to_state_;
 
 public:
 
@@ -42,12 +42,12 @@ public:
         tokenizer_ = &tokenizer;
 
         // Establish null lm state: state index = 0, prefix hash = 0
-        SIO_CHECK(state_to_prefix_.empty() && prefix_to_state_.empty());
-        state_to_prefix_.push_back(0);
-        prefix_to_state_[0] = 0;
+        SIO_CHECK(state_to_hash_.empty() && hash_to_state_.empty());
+        state_to_hash_.push_back(0);
+        hash_to_state_[0] = 0;
 
-        //dbg(prefix_to_state_);
-        //dbg(state_to_prefix_);
+        //dbg(hash_to_state_);
+        //dbg(state_to_hash_);
 
         return Error::OK;
     }
@@ -59,7 +59,7 @@ public:
 
 
     LmStateId NullState() const override {
-        SIO_CHECK(!prefix_to_state_.empty()) << "PrefixLm uninitialzed ?";
+        SIO_CHECK(!hash_to_state_.empty()) << "PrefixLm uninitialzed ?";
         return 0;
     }
 
@@ -71,14 +71,14 @@ public:
 
         *score = 0.0;
 
-        size_t src_prefix = state_to_prefix_[src_state];
-        size_t dst_prefix = src_prefix * prime + word; // incremental sequence hashing
+        size_t src_hash = state_to_hash_[src_state];
+        size_t dst_hash = src_hash * prime + word; // incremental sequence hashing
 
-        auto it = prefix_to_state_.find(dst_prefix);
-        if (it == prefix_to_state_.end()) {
-            LmStateId s = state_to_prefix_.size();
-            state_to_prefix_.push_back(dst_prefix);
-            prefix_to_state_[dst_prefix] = s;
+        auto it = hash_to_state_.find(dst_hash);
+        if (it == hash_to_state_.end()) {
+            LmStateId s = state_to_hash_.size();
+            state_to_hash_.push_back(dst_hash);
+            hash_to_state_[dst_hash] = s;
 
             *dst_state = s;
         } else {
