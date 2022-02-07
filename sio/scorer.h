@@ -130,9 +130,7 @@ private:
 
         torch::NoGradGuard no_grad;
 
-        // Prepare feature chunk tensor
-        // with shape [batch_size, num_cached_frames, feature_dim]
-        // batch_size will always be 1
+        // Prepare feature chunk tensor: [batch_size = 1, num_cached_frames, feature_dim]
         torch::Tensor chunk_feat = torch::zeros(
             {1, static_cast<long>(feat_cache_.size()), nnet_idim_}, 
             torch::kFloat
@@ -144,9 +142,6 @@ private:
                 torch::kFloat
             ).clone();
             chunk_feat[0][f] = std::move(frame_tensor);
-        }
-        while (feat_cache_.size() > right_context_) {
-            feat_cache_.pop_front();
         }
 
         // FIX THIS: extremely confusing units due to subsampling factor
@@ -162,9 +157,10 @@ private:
             conformer_cnn_cache_
         };
 
-        // Forward encoder layers
+        // Encoder forward
         auto r = nnet_->get_method("forward_encoder_chunk")(chunk_input).toTuple()->elements();
 
+        // Cache encoder buffers & results
         SIO_CHECK_EQ(r.size(), 4);
         torch::Tensor acoustic_encoding = r[0].toTensor();
         // what is "assign" semantics for torch::jit:IValue ?
@@ -173,15 +169,21 @@ private:
         conformer_cnn_cache_ = r[3];
         acoustic_encoding_cache_.push_back(acoustic_encoding);
 
-        // scores: [frames, nnet_odim]
+        // Compute chunk scores: [frames, nnet_odim]
         torch::Tensor scores = nnet_->run_method("ctc_activation", acoustic_encoding).toTensor()[0];
 
+        // Add chunk score to caches
         for (index_t s = 0; s != scores.size(0); s++) {
             scores_cache_.push_back(scores[s]);
             ++cur_score_frame_;
         }
         //dbg(scores_cache_.size(0), scores_cache_.size(1));
   
+        // shrink feature cache
+        while (feat_cache_.size() > right_context_) {
+            feat_cache_.pop_front();
+        }
+
         return Error::OK;
     }
 
