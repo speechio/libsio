@@ -10,7 +10,7 @@
 #include "sio/feature_extractor.h"
 #include "sio/tokenizer.h"
 #include "sio/scorer.h"
-#include "sio/beam_search.h"
+#include "sio/search.h"
 #include "sio/speech_to_text_model.h"
 
 //#include "sio/dbg.h"

@@ -1,5 +1,5 @@
-#ifndef SIO_BEAM_SEARCH_H
-#define SIO_BEAM_SEARCH_H
+#ifndef SIO_SEARCH_H
+#define SIO_SEARCH_H
 
 #include "sio/common.h"
 //#include "sio/dbg.h"

@@ -14,7 +14,7 @@
 #include "sio/finite_state_machine.h"
 #include "sio/language_model.h"
 #include "sio/kenlm.h"
-#include "sio/beam_search.h"
+#include "sio/search.h"
 #include "sio/speech_to_text_config.h"
 #include "sio/speech_to_text_model.h"
 #include "sio/speech_to_text.h"
