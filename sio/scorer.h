@@ -7,7 +7,7 @@
 #include "sio/common.h"
 #include "sio/tokenizer.h"
 
-#include "sio/dbg.h"
+//#include "sio/dbg.h"
 
 namespace sio {
 struct ScorerConfig {
@@ -134,7 +134,7 @@ public:
 
 private:
     Error Advance() {
-        dbg(cur_feat_frame_);
+        //dbg(cur_feat_frame_);
         torch::NoGradGuard no_grad;
 
         // Prepare feature chunk tensor: [batch_size = 1, num_cached_frames, feature_dim]

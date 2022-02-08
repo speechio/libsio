@@ -2,6 +2,7 @@
 #define SIO_SEARCH_H
 
 #include "sio/common.h"
+#include "sio/tokenizer.h"
 //#include "sio/dbg.h"
 
 namespace sio {
@@ -27,12 +28,18 @@ public:
     }
 
 
-    const Vec<index_t>& BestPath() {
-        return best_path_tokens_;
+    Vec<TokenId> BestPath() {
+        Vec<TokenId> res;
+        for (index_t i = 0; i < best_path_tokens_.size(); i++) {
+            if (res.size() == 0 || best_path_tokens_[i] != res.back()) {
+                res.push_back( best_path_tokens_[i] );
+            }
+        }
+        return std::move(res);
     }
 
 private:
-    Vec<index_t> best_path_tokens_;
+    Vec<TokenId> best_path_tokens_;
     Vec<f32> best_path_scores_;
 }; // class Search
 }  // namespace sio
