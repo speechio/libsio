@@ -81,16 +81,23 @@ public:
 
         if (feat_cache_.size() == config_.chunk_size * subsampling_factor_ + right_context_) {
             Advance();
+
+            while (feat_cache_.size() > right_context_) {
+                feat_cache_.pop_front();
+            }
         }
     }
 
 
     void PushEnd() {
-        Advance();
+        if (feat_cache_.size() > right_context_) {
+            Advance();
+        }
+        feat_cache_.clear();
     }
 
 
-    torch::Tensor Pop() { 
+    torch::Tensor Pop() {
         torch::Tensor score_frame = scores_cache_.front();
         scores_cache_.pop_front();
         return score_frame;
@@ -105,6 +112,7 @@ public:
         elayers_output_cache_ = std::move(torch::jit::IValue());
         conformer_cnn_cache_ = std::move(torch::jit::IValue());
         acoustic_encoding_cache_.clear();
+
         scores_cache_.clear();
         cur_score_frame_ = 0;
 
@@ -123,11 +131,6 @@ public:
 
 private:
     Error Advance() {
-        if (feat_cache_.size() <= right_context_) {
-            return Error::OK;
-        }
-        //dbg(cur_feat_frame_, feat_cache_.size());
-
         torch::NoGradGuard no_grad;
 
         // Prepare feature chunk tensor: [batch_size = 1, num_cached_frames, feature_dim]
@@ -178,11 +181,6 @@ private:
             ++cur_score_frame_;
         }
         //dbg(scores_cache_.size(0), scores_cache_.size(1));
-  
-        // shrink feature cache
-        while (feat_cache_.size() > right_context_) {
-            feat_cache_.pop_front();
-        }
 
         return Error::OK;
     }
