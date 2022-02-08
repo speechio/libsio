@@ -7,11 +7,11 @@
 #include "sio/common.h"
 #include "sio/tokenizer.h"
 
-//#include "sio/dbg.h"
+#include "sio/dbg.h"
 
 namespace sio {
 struct ScorerConfig {
-    int chunk_size = 8;
+    int chunk_size = -1;
     int num_left_chunks = -1;
     int num_threads = 1;
 
@@ -79,11 +79,14 @@ public:
         feat_cache_.emplace_back(feat_frame);
         ++cur_feat_frame_;
 
-        if (feat_cache_.size() == config_.chunk_size * subsampling_factor_ + right_context_) {
-            Advance();
+        if (config_.chunk_size > 0) { // chunk-based streaming
+            if (feat_cache_.size() == config_.chunk_size * subsampling_factor_ + right_context_) {
+                Advance();
 
-            while (feat_cache_.size() > right_context_) {
-                feat_cache_.pop_front();
+                // lookahead frames(right_context) are needed for next chunk
+                while (feat_cache_.size() > right_context_) {
+                    feat_cache_.pop_front();
+                }
             }
         }
     }
@@ -131,6 +134,7 @@ public:
 
 private:
     Error Advance() {
+        dbg(cur_feat_frame_);
         torch::NoGradGuard no_grad;
 
         // Prepare feature chunk tensor: [batch_size = 1, num_cached_frames, feature_dim]
@@ -150,7 +154,9 @@ private:
         // FIX THIS: extremely confusing units due to subsampling factor
         // here offset refers to sub-sampled frames
         // assemble feature and caches as input
-        int requried_cache_size = config_.chunk_size * config_.num_left_chunks;
+
+        //int requried_cache_size = config_.chunk_size * config_.num_left_chunks;
+        int requried_cache_size = -1; // < 0 : use entire history caches
         Vec<torch::jit::IValue> chunk_input = {
             chunk_feat,
             cur_score_frame_,
