@@ -11,8 +11,8 @@ public:
     void Push(const torch::Tensor frame_score) {
         std::tuple<torch::Tensor, torch::Tensor> best = frame_score.topk(1);
         auto score = std::get<0>(best).item<f32>();
-        auto index = std::get<1>(best).item<i32>();
-        best_path_tokens_.push_back(index);
+        auto token = std::get<1>(best).item<TokenId>();
+        best_path_tokens_.push_back(token);
         best_path_scores_.push_back(score);
     }
 
@@ -37,7 +37,7 @@ public:
         // blank removal
         Vec<TokenId> res2;
         for (index_t i = 0; i < res1.size(); i++) {
-            if (res1[i] != 0) {
+            if (res1[i] != 0) { // CAUTION: blank index is assumed to be 0 here(this may not be true)
                 res2.push_back(res1[i]);
             }
         }
@@ -47,9 +47,12 @@ public:
 private:
     Vec<TokenId> best_path_tokens_;
     Vec<f32> best_path_scores_;
-}; // class Search
+}; // class GreedySearch
 
 
+class BeamSearch {
+
+}; // class BeamSearch
 
 }  // namespace sio
 #endif
