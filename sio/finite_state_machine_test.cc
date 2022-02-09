@@ -8,7 +8,7 @@
 namespace sio {
 TEST(Fsm, Basic) {
     Fsm fsm;
-    std::ifstream is("testdata/T.int");
+    std::ifstream is("testdata/token_topo.int");
     fsm.LoadFromString(is);
     {
         std::ofstream os("testdata/T.fsm", std::ios::binary);
