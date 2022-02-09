@@ -280,7 +280,7 @@ public:
             // Invariant: arcs for states[0, cur_state) & tokens[0, t) are built.
             for (TokenId t = 0; t != tokenizer.Size(); t++) {
                 if (t == tokenizer.blk) continue;
-                //if (t == tokenizer.unk) continue;
+                if (t == tokenizer.unk) continue;
                 if (t == tokenizer.bos) continue;
                 if (t == tokenizer.eos) continue;
 
