@@ -23,7 +23,7 @@ class SpeechToText {
 
     Scorer scorer_;
 
-    Search search_;
+    GreedySearch search_;
 
 public:
 
