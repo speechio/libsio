@@ -4,6 +4,7 @@
 #include "sio/common.h"
 #include "sio/tokenizer.h"
 #include "sio/finite_state_machine.h"
+#include "sio/language_model.h"
 //#include "sio/dbg.h"
 
 namespace sio {
@@ -53,22 +54,14 @@ private:
 
 #define SIO_MAX_CONTEXT 4
 
-//struct LatticeLink;
-//struct Token;
-//struct LatticeNode;
-
-struct ContextState {
-    size_t prefix_hash;
-    LmStateId states[SIO_MAX_CONTEXT];
-    i32 num_states;
-};
-
-
 struct Token {
     Token* next;
 
     f32 score;
-    ContextState context_state;
+
+    // context 
+    size_t prefix_hash;
+    LmStateId context_states[SIO_MAX_CONTEXT];
 
     // traceback info
     Token* backpointer;
@@ -76,7 +69,7 @@ struct Token {
     FsmLabel olabel;
     f32 graph_score;
     f32 model_score;
-    f32 context_score;
+    LmScore context_scores[SIO_MAX_CONTEXT];
 };
 
 
@@ -87,13 +80,8 @@ struct LatticeNode {
 };
 
 
-struct LatticeFrame {
-    LatticeNode* head;
-};
-
-
 struct Lattice {
-    Vec<LatticeFrame> frame;
+    Vec<LatticeNode*> moments;
 };
 
 
