@@ -3,6 +3,7 @@
 
 #include "sio/common.h"
 #include "sio/tokenizer.h"
+#include "sio/finite_state_machine.h"
 //#include "sio/dbg.h"
 
 namespace sio {
@@ -48,6 +49,52 @@ private:
     Vec<TokenId> best_path_tokens_;
     Vec<f32> best_path_scores_;
 }; // class GreedySearch
+
+
+#define SIO_MAX_CONTEXT 4
+
+//struct LatticeLink;
+//struct Token;
+//struct LatticeNode;
+
+struct ContextState {
+    size_t prefix_hash;
+    LmStateId states[SIO_MAX_CONTEXT];
+    i32 num_states;
+};
+
+
+struct Token {
+    Token* next;
+
+    f32 score;
+    ContextState context_state;
+
+    // traceback info
+    Token* backpointer;
+    FsmLabel ilabel;
+    FsmLabel olabel;
+    f32 graph_score;
+    f32 model_score;
+    f32 context_score;
+};
+
+
+struct LatticeNode {
+    LatticeNode* next;
+
+    Token* tokens;
+};
+
+
+struct LatticeFrame {
+    LatticeNode* head;
+};
+
+
+struct Lattice {
+    Vec<LatticeFrame> frame;
+};
 
 
 class BeamSearch {
