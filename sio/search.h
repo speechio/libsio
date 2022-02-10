@@ -64,10 +64,8 @@ struct Token {
     LmStateId context_states[SIO_MAX_CONTEXT];
 
     // traceback info
-    Token* backpointer;
-    FsmLabel ilabel;
-    FsmLabel olabel;
-    f32 graph_score;
+    Token* traceback_token;
+    const FsmArc* traceback_arc;
     f32 model_score;
     LmScore context_scores[SIO_MAX_CONTEXT];
 };
@@ -81,7 +79,7 @@ struct LatticeNode {
 
 
 struct Lattice {
-    Vec<LatticeNode*> moments;
+    Vec<LatticeNode*> frames;
 };
 
 
