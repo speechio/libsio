@@ -57,8 +57,8 @@ private:
 // This is the max number of rescoring language models, typical scenarios are:
 // * "lookahead-cancel" LM
 // * big LM
-// * domain contexutal biasing LM
-// * hotfix LM (sometimes called hotword, hint phrase)
+// * domain LM as contextual biasing
+// * hotfix Lm as contextual biasing (sometimes also called hint, hot-word/hot-phrase)
 //
 // These LMs are normally abstracted as *Deterministic Fsa*, 
 // so they can be used in an on-the-fly rescoring fasion.
@@ -75,11 +75,12 @@ private:
 // For multi-graph decoding: BeamSearchState = 64-bits(32 + 32) integer type:
 //   1st 32 bits represent sub-graph index
 //   2nd 32 bits represent state index inside that sub-graph
+// More sophisticated bit-packing can be designed & implemented to represent beam search space.
 using BeamSearchState = FsmStateId;
 
 
 struct TokenContext {
-    size_t prefix = 0;
+    size_t prefix_hash = 0;
     LmStateId states[SIO_MAX_CONTEXT] = {};
 };
 
@@ -87,13 +88,8 @@ struct TokenContext {
 struct Token;
 struct TraceBack {
     Token* token = nullptr;
-
-    FsmLabel ilabel = 0;
-    FsmLabel olabel = 0;
-    FsmScore arc_score = 0.0;
-
-    f32 model_score = 0.0;
-
+    FsmArc arc;
+    f32 score = 0.0;
     LmScore rescores[SIO_MAX_CONTEXT] = {};
 };
 
