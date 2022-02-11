@@ -54,26 +54,38 @@ private:
 
 #define SIO_MAX_CONTEXT 4
 
+using BeamSearchState = FsmStateId;
+
+struct Context {
+    size_t prefix = 0;
+    LmStateId states[SIO_MAX_CONTEXT] = {};
+};
+
+
+struct TraceBack {
+    Token* token = nullptr;
+
+    FsmLabel ilabel = 0;
+    FsmLabel olabel = 0;
+    FsmScore arc_score = 0.0;
+
+    f32 model_score = 0.0;
+
+    LmScore rescores[SIO_MAX_CONTEXT] = {};
+};
+
+
 struct Token {
-    Token* next;
-
-    f32 score;
-
-    // context 
-    size_t prefix_hash;
-    LmStateId context_states[SIO_MAX_CONTEXT];
-
-    // backtrace
-    Token* bt_token;
-    const FsmArc* bt_arc;
-    f32 bt_model_score;
-    LmScore bt_rescores[SIO_MAX_CONTEXT];
+    Optional<Token*> next = nullptr; // nullptr -> end of token list
+    f32 score = 0.0;
+    Context context;
+    TraceBack trace_back;
 };
 
 
 struct LatticeNode {
-    FsmStateId state;
-    Token* head;
+    FsmStateId state = 0;
+    Optional<Token*> head = nullptr; // nullptr -> inactive lattice node
 };
 
 

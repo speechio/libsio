@@ -10,6 +10,7 @@
 //#include "sio/dbg.h"
 
 namespace sio {
+
 struct ScorerConfig {
     int chunk_size = -1;
     int num_left_chunks = -1;
