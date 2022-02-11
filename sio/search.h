@@ -109,11 +109,13 @@ struct LatticeNode {
 
 
 class BeamSearch {
+    using LatticeNodeHandle = size_t;
+
     Unique<SlabAllocator<Token>*> token_arena_;
 
-    Map<BeamSearchState, i32> frontier_;
+    Map<BeamSearchState, LatticeNodeHandle> frontier_;
 
-    Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
+    Vec<Vec<LatticeNode>> lattice_; // [time, node_handle]
 
 public:
 
