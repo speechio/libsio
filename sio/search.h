@@ -54,16 +54,16 @@ private:
 
 
 
-// This is the max number of rescoring language models, typical scenarios are:
-// * "lookahead-cancel" LM
-// * big LM
-// * domain LM as contextual biasing
-// * hotfix Lm as contextual biasing (sometimes also called hint, hot-word/hot-phrase)
+// This is the max number of rescoring language models, typical rescoring LM types are:
+// 1. "lookahead-cancel" LM
+// 2. big LM
+// 3. domain LM as contextual biasing
+// 4. hotfix Lm as contextual biasing (sometimes also called hint, hot-word/hot-phrase)
 //
 // These LMs are normally abstracted as *Deterministic Fsa*, 
 // so they can be used in an on-the-fly rescoring fasion.
 // Nowadays E2E systems tend to call this "shallow fusion".
-#define SIO_MAX_CONTEXT 4
+#define SIO_MAX_CONTEXT_LM 4
 
 
 // BeamSearchState concept: 
@@ -78,26 +78,25 @@ private:
 // More sophisticated bit-packing can be designed & implemented to represent beam search space.
 using BeamSearchState = FsmStateId;
 
-
-struct TokenContext {
-    size_t prefix_hash = 0;
-    LmStateId states[SIO_MAX_CONTEXT] = {};
-};
-
-
-struct Token;
-struct TraceBack {
-    Token* token = nullptr;
-    FsmArc arc;
-    f32 score = 0.0;
-    LmScore rescores[SIO_MAX_CONTEXT] = {};
-};
-
-
 struct Token {
+
+    struct Context {
+        size_t prefix_hash = 0;
+        LmStateId states[SIO_MAX_CONTEXT_LM] = {};
+    };
+
+
+    struct TraceBack {
+        Token* token = nullptr;
+        FsmArc arc;
+        f32 score = 0.0;
+        LmScore rescores[SIO_MAX_CONTEXT_LM] = {};
+    };
+
+
     Optional<Token*> next = nullptr; // nullptr -> last token in a lattice node
     f32 score = 0.0;
-    TokenContext context;
+    Context context;
     TraceBack trace_back;
 };
 
