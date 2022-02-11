@@ -78,25 +78,26 @@ private:
 // More sophisticated bit-packing can be designed & implemented to represent beam search space.
 using BeamSearchState = FsmStateId;
 
+
+struct TokenContext {
+    size_t prefix_hash = 0;
+    LmStateId states[SIO_MAX_CONTEXT_LM] = {};
+};
+
+
+struct Token;
+struct TraceBack {
+    Token* token = nullptr;
+    FsmArc arc;
+    f32 score = 0.0;
+    LmScore rescores[SIO_MAX_CONTEXT_LM] = {};
+};
+
+
 struct Token {
-
-    struct Context {
-        size_t prefix_hash = 0;
-        LmStateId states[SIO_MAX_CONTEXT_LM] = {};
-    };
-
-
-    struct TraceBack {
-        Token* token = nullptr;
-        FsmArc arc;
-        f32 score = 0.0;
-        LmScore rescores[SIO_MAX_CONTEXT_LM] = {};
-    };
-
-
     Optional<Token*> next = nullptr; // nullptr -> last token in a lattice node
     f32 score = 0.0;
-    Context context;
+    TokenContext context;
     TraceBack trace_back;
 };
 
