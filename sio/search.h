@@ -66,17 +66,17 @@ private:
 #define SIO_MAX_CONTEXT_LM 3
 
 
-// BeamSearchState concept: 
+// BeamSearchStateId concept: 
 //   Designed for future extension to multi-graph decoding such as sub-grammar, class-based LM, ...
 //
-// For single graph decoding: BeamSearchState = FsmStateId
+// For single graph decoding: BeamSearchStateId = FsmStateId
 //   It is enough to represent beam search space.
 //
-// For multi-graph decoding: BeamSearchState = 64-bits(32 + 32) integer type:
+// For multi-graph decoding: BeamSearchStateId = 64-bits(32 + 32) integer type:
 //   1st 32 bits represent sub-graph index
 //   2nd 32 bits represent state index inside that sub-graph
 // More sophisticated bit-packing can be designed & implemented to represent beam search space.
-using BeamSearchState = FsmStateId;
+using BeamSearchStateId = FsmStateId;
 
 
 struct TokenContext {
@@ -103,17 +103,17 @@ struct Token {
 
 
 struct LatticeNode {
-    BeamSearchState state = 0;
+    BeamSearchStateId state = 0;
     Optional<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
 };
 
 
 class BeamSearch {
-    using LatticeNodeHandle = size_t;
+    using LatticeNodeId = int;
 
     Unique<SlabAllocator<Token>*> token_arena_;
 
-    Map<BeamSearchState, LatticeNodeHandle> frontier_;
+    Map<BeamSearchStateId, LatticeNodeId> frontier_;
 
     Vec<Vec<LatticeNode>> lattice_; // [time, node_handle]
 
