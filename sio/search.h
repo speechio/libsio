@@ -72,14 +72,13 @@ struct Token {
 
 
 struct LatticeNode {
-    LatticeNode* next;
-
+    FsmStateId state;
     Token* tokens;
 };
 
 
 struct Lattice {
-    Vec<LatticeNode*> frames;
+    Vec<Vec<LatticeNode>> nodes; // [time, state]
 };
 
 
