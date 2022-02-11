@@ -63,7 +63,7 @@ private:
 // These LMs are normally abstracted as *Deterministic Fsa*, 
 // so they can be used in an on-the-fly rescoring fasion.
 // Nowadays E2E systems tend to call this "shallow fusion".
-#define SIO_MAX_CONTEXT_LM 4
+#define SIO_MAX_CONTEXT_LM 3
 
 
 // BeamSearchState concept: 
