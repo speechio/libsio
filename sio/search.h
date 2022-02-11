@@ -55,13 +55,13 @@ private:
 
 
 // This is the max number of rescoring language models, typical rescoring LM types are:
-// 1. "lookahead-cancel" LM
-// 2. big LM
-// 3. domain LM contextual biasing
-// 4. hotfix LM contextual biasing (sometimes also called hint, hot-word/hot-phrase)
+// 1. Lookahead-LM or Internal-LM subtractor
+// 2. Big LM or External-LM
+// 3. Domain specific LM
+// 4. Hotfix LM (sometimes also called hint, hot-word/hot-phrase)
 //
-// These LMs are normally abstracted as *Deterministic Fsa*, 
-// so they can be used in an on-the-fly rescoring fasion.
+// These LMs are normally represented as *Deterministic Fsa*, 
+// so contextual biasing can be applied in an on-the-fly rescoring fashion.
 // Nowadays E2E systems tend to call this "shallow fusion".
 #define SIO_MAX_CONTEXT_LM 3
 
