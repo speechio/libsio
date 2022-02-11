@@ -80,8 +80,8 @@ using BeamSearchState = FsmStateId;
 
 
 struct TokenContext {
-    size_t prefix_hash = 0;
-    LmStateId states[SIO_MAX_CONTEXT_LM] = {};
+    size_t prefix_state = 0;
+    LmStateId lm_states[SIO_MAX_CONTEXT_LM] = {};
 };
 
 
