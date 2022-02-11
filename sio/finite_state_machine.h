@@ -231,10 +231,10 @@ public:
             }
             SIO_CHECK_EQ(num_arcs, n) << "Num of arcs loaded is inconsistent with header.";
 
-            /* Sort all arcs, first by source state, then by dest state */
+            /* Sort all arcs, first by source state, then by ilabel */
             std::sort(arcs_.begin(), arcs_.end(), 
                 [](const Arc& x, const Arc& y) { 
-                    return (x.src != y.src) ? (x.src < y.src) : (x.dst < y.dst);
+                    return (x.src != y.src) ? (x.src < y.src) : (x.ilabel < y.ilabel);
                 }
             );
         }
@@ -294,10 +294,10 @@ public:
             final_state_ = cur_state;
             AddArc(start_state_, final_state_, kFsmInputEnd, tokenizer.eos);
 
-            // 1d: Sort all arcs, first by source state, then by dest state
+            // 1d: Sort all arcs, first by source state, then by ilabel
             std::sort(arcs_.begin(), arcs_.end(), 
                 [](const Arc& x, const Arc& y) { 
-                    return (x.src != y.src) ? (x.src < y.src) : (x.dst < y.dst);
+                    return (x.src != y.src) ? (x.src < y.src) : (x.ilabel < y.ilabel);
                 }
             );
         }
