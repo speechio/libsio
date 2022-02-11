@@ -9,6 +9,10 @@
 //#include "sio/dbg.h"
 
 namespace sio {
+
+#define SIO_MAX_CONTEXT 4
+
+
 class GreedySearch {
 public:
     void Push(const torch::Tensor frame_score) {
@@ -53,16 +57,13 @@ private:
 }; // class GreedySearch
 
 
-#define SIO_MAX_CONTEXT 4
-
-struct Token;
-
 struct TokenContext {
     size_t prefix = 0;
     LmStateId states[SIO_MAX_CONTEXT] = {};
 };
 
 
+struct Token;
 struct TraceBack {
     Token* token = nullptr;
 
