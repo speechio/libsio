@@ -9,10 +9,6 @@
 //#include "sio/dbg.h"
 
 namespace sio {
-
-#define SIO_MAX_CONTEXT 4
-
-
 class GreedySearch {
 public:
     void Push(const torch::Tensor frame_score) {
@@ -57,6 +53,31 @@ private:
 }; // class GreedySearch
 
 
+
+// This is the max number of rescoring language models, typical scenarios are:
+// * "lookahead-cancel" LM
+// * big LM
+// * domain contexutal biasing LM
+// * hotfix LM (sometimes called hotword, hint phrase)
+//
+// These LMs are normally abstracted as *Deterministic Fsa*, 
+// so they can be used in an on-the-fly rescoring fasion.
+// Nowadays E2E systems tend to call this "shallow fusion".
+#define SIO_MAX_CONTEXT 4
+
+
+// BeamSearchState concept: 
+//   Designed for future extension to multi-graph decoding such as sub-grammar, class-based LM, ...
+//
+// For single graph decoding: BeamSearchState = FsmStateId
+//   It is enough to represent beam search space.
+//
+// For multi-graph decoding: BeamSearchState = 64-bits(32 + 32) integer type:
+//   1st 32 bits represent sub-graph index
+//   2nd 32 bits represent state index inside that sub-graph
+using BeamSearchState = FsmStateId;
+
+
 struct TokenContext {
     size_t prefix = 0;
     LmStateId states[SIO_MAX_CONTEXT] = {};
@@ -86,7 +107,7 @@ struct Token {
 
 
 struct LatticeNode {
-    FsmStateId state = 0;
+    BeamSearchState state = 0;
     Optional<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
 };
 
@@ -94,7 +115,7 @@ struct LatticeNode {
 class BeamSearch {
     Unique<SlabAllocator<Token>*> token_arena_;
 
-    Map<FsmStateId, i32> frontier_;
+    Map<BeamSearchState, i32> frontier_;
 
     Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
 
