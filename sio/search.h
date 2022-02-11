@@ -63,11 +63,11 @@ struct Token {
     size_t prefix_hash;
     LmStateId context_states[SIO_MAX_CONTEXT];
 
-    // traceback
-    Token* bp_token;
-    const FsmArc* bp_arc;
-    f32 model_score;
-    LmScore context_scores[SIO_MAX_CONTEXT];
+    // backtrace
+    Token* bt_token;
+    const FsmArc* bt_arc;
+    f32 bt_model_score;
+    LmScore bt_rescores[SIO_MAX_CONTEXT];
 };
 
 
@@ -78,7 +78,7 @@ struct LatticeNode {
 
 
 struct Lattice {
-    Vec<Vec<LatticeNode>> nodes; // [time, state]
+    Vec<Vec<LatticeNode>> nodes; // [time, node_index]
 };
 
 
@@ -88,3 +88,4 @@ class BeamSearch {
 
 }  // namespace sio
 #endif
+
