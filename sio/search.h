@@ -63,9 +63,9 @@ struct Token {
     size_t prefix_hash;
     LmStateId context_states[SIO_MAX_CONTEXT];
 
-    // traceback info
-    Token* traceback_token;
-    const FsmArc* traceback_arc;
+    // traceback
+    Token* bp_token;
+    const FsmArc* bp_arc;
     f32 model_score;
     LmScore context_scores[SIO_MAX_CONTEXT];
 };
