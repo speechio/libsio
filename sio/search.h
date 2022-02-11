@@ -73,7 +73,7 @@ struct Token {
 
 struct LatticeNode {
     FsmStateId state;
-    Token* tokens;
+    Token* head;
 };
 
 
