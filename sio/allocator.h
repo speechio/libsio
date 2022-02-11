@@ -10,7 +10,7 @@ namespace sio {
 template <typename T>
 class SlabAllocator {
 public:
-    SlabAllocator(size_t elems_per_cache) {
+    explicit SlabAllocator(size_t elems_per_cache) {
         static_assert(sizeof(T) >= sizeof(FreeNode*) && "element size should be larger than a pointer");
         SIO_CHECK_GE(elems_per_cache, 1);
         elem_bytes_ = sizeof(T);

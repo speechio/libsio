@@ -2,6 +2,7 @@
 #define SIO_SEARCH_H
 
 #include "sio/common.h"
+#include "sio/allocator.h"
 #include "sio/tokenizer.h"
 #include "sio/finite_state_machine.h"
 #include "sio/language_model.h"
@@ -54,9 +55,9 @@ private:
 
 #define SIO_MAX_CONTEXT 4
 
-using BeamSearchState = FsmStateId;
+struct Token;
 
-struct Context {
+struct TokenContext {
     size_t prefix = 0;
     LmStateId states[SIO_MAX_CONTEXT] = {};
 };
@@ -76,25 +77,27 @@ struct TraceBack {
 
 
 struct Token {
-    Optional<Token*> next = nullptr; // nullptr -> end of token list
+    Optional<Token*> next = nullptr; // nullptr -> last token in a lattice node
     f32 score = 0.0;
-    Context context;
+    TokenContext context;
     TraceBack trace_back;
 };
 
 
 struct LatticeNode {
     FsmStateId state = 0;
-    Optional<Token*> head = nullptr; // nullptr -> inactive lattice node
-};
-
-
-struct Lattice {
-    Vec<Vec<LatticeNode>> nodes; // [time, node_index]
+    Optional<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
 };
 
 
 class BeamSearch {
+    Unique<SlabAllocator<Token>*> token_arena_;
+
+    Map<FsmStateId, i32> frontier_;
+
+    Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
+
+public:
 
 }; // class BeamSearch
 
