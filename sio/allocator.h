@@ -92,7 +92,6 @@ public:
         free_list_.length = 0;
 
         caches_.clear();
-
     }
 
 }; // class SlabAllocator
