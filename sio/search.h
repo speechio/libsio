@@ -78,6 +78,8 @@ private:
 // More sophisticated bit-packing can be designed & implemented to represent beam search space.
 using BeamSearchStateId = FsmStateId;
 
+struct Token;
+struct LatticeNode;
 
 struct TokenContext {
     size_t prefix_state = 0;
@@ -85,7 +87,6 @@ struct TokenContext {
 };
 
 
-struct Token;
 struct TraceBack {
     Token* token = nullptr;
     FsmArc arc;
@@ -95,7 +96,9 @@ struct TraceBack {
 
 
 struct Token {
+    LatticeNode* owner = nullptr;
     Optional<Token*> next = nullptr; // nullptr -> last token in a lattice node
+
     f32 score = 0.0;
     TokenContext context;
     TraceBack trace_back;
@@ -103,6 +106,7 @@ struct Token {
 
 
 struct LatticeNode {
+    int time = 0;
     BeamSearchStateId state = 0;
     Optional<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
 };
