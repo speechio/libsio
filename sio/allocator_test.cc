@@ -11,32 +11,36 @@ TEST(Allocator, SlabAllocator) {
         void *p;
     };
 
-    size_t elems_per_cache = 2;
-    Owner<SlabAllocator<S>*> p = new SlabAllocator<S>(elems_per_cache);
-    EXPECT_TRUE(p->NumUsed() == 0);
-    EXPECT_TRUE(p->NumFree() == 0);
+    SlabAllocator<S> pool;
+    pool.SetCacheSize(2);
 
-    S *s1 = p->Alloc();
-    EXPECT_TRUE(p->NumUsed() == 1);
-    EXPECT_TRUE(p->NumFree() == 1);
+    EXPECT_EQ(pool.NumUsed(), 0);
+    EXPECT_EQ(pool.NumFree(), 0);
 
-    S *s2 = p->Alloc();
-    EXPECT_TRUE(p->NumUsed() == 2);
-    EXPECT_TRUE(p->NumFree() == 0);
+    S *s1 = pool.Alloc();
+    EXPECT_EQ(pool.NumUsed(), 1);
+    EXPECT_EQ(pool.NumFree(), 1);
 
-    p->Free(s2);
-    EXPECT_TRUE(p->NumUsed() == 1);
-    EXPECT_TRUE(p->NumFree() == 1);
+    S *s2 = pool.Alloc();
+    EXPECT_EQ(pool.NumUsed(), 2);
+    EXPECT_EQ(pool.NumFree(), 0);
 
-    S *s3 = p->Alloc();
-    S *s4 = p->Alloc(); // trigger another slab allocation
-    EXPECT_TRUE(p->NumUsed() == 3);
-    EXPECT_TRUE(p->NumFree() == 1);
+    pool.Free(s2);
+    EXPECT_EQ(pool.NumUsed(), 1);
+    EXPECT_EQ(pool.NumFree(), 1);
 
-    p->Free(s1);
-    p->Free(s3);
-    p->Free(s4);
-    delete p;
+    S *s3 = pool.Alloc();
+    S *s4 = pool.Alloc(); // trigger another slab allocation
+    EXPECT_EQ(pool.NumUsed(), 3);
+    EXPECT_EQ(pool.NumFree(), 1);
+
+    pool.Free(s1);
+    pool.Free(s3);
+    pool.Free(s4);
+
+    pool.clear();
+    EXPECT_EQ(pool.NumUsed(), 0);
+    EXPECT_EQ(pool.NumFree(), 0);
 }
 
 } // namespace sio
