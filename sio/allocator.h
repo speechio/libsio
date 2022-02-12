@@ -12,6 +12,7 @@ struct FreeNode {
     Optional<FreeNode*> next = nullptr;
 };
 
+
 struct FreeList {
     Optional<FreeNode*> head = nullptr;
 
@@ -32,6 +33,7 @@ struct FreeList {
     }
 };
 
+
 template <typename T>
 class SlabAllocator {
     size_t size0_ = 4096; // default 4K items per cache
@@ -42,6 +44,7 @@ class SlabAllocator {
     size_t num_used_ = 0;
 
 public:
+
     void SetCacheSize(size_t size0, size_t size1 = 1) {
         SIO_CHECK(caches_.empty()) << "Cache size need to be set before uses.";
         SIO_CHECK_GE(size0, 1);
@@ -50,6 +53,7 @@ public:
         size0_ = size0;
         size1_ = size1;
     }
+
 
     inline T* Alloc() {
         if (free_list_.IsEmpty()) {
@@ -68,14 +72,17 @@ public:
         return (T*)free_list_.Pop();
     }
 
+
     inline void Free(T* p) {
         num_used_--;
         free_list_.Push( (FreeNode*)p );
     }
 
+
     size_t NumUsed() const {
         return num_used_;
     }
+
 
     size_t NumFree() const {
         size_t n = 0;
@@ -85,11 +92,13 @@ public:
         return n;
     }
 
+
     void clear() {
         caches_.clear();
         free_list_.head = nullptr;
         num_used_ = 0;
     }
+
 }; // class SlabAllocator
 } // namespace sio
 #endif
