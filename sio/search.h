@@ -61,8 +61,8 @@ private:
 // 4. Hotfix LM (sometimes also called hint, hot-word/hot-phrase)
 //
 // These LMs are normally represented as *Deterministic Fsa*, 
-// so contextual biasing can be applied in an on-the-fly rescoring fashion.
-// Nowadays E2E systems tend to call this "shallow fusion".
+// so that shallow-fusion based contextual biasing can be applied 
+// via on-the-fly rescoring.
 #define SIO_MAX_CONTEXT_LM 3
 
 
