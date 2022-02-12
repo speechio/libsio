@@ -111,7 +111,7 @@ struct LatticeNode {
 class BeamSearch {
     using LatticeNodeId = int;
 
-    Unique<SlabAllocator<Token>*> token_arena_;
+    SlabAllocator<Token> token_arena_;
 
     Map<BeamSearchStateId, LatticeNodeId> frontier_;
 
