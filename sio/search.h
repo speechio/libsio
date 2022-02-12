@@ -117,9 +117,9 @@ class BeamSearch {
 
     SlabAllocator<Token> token_arena_;
 
-    Map<BeamSearchStateId, LatticeNodeId> frontier_;
+    Vec<Vec<LatticeNode>> lattice_; // [time, node_id]
 
-    Vec<Vec<LatticeNode>> lattice_; // [time, node_handle]
+    Map<BeamSearchStateId, LatticeNodeId> frontier_;
 
 public:
 
