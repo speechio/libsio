@@ -38,8 +38,9 @@ struct FreeList {
 
 template <typename T>
 class SlabAllocator {
-    size_t size0_ = 4096; // default 4K items per cache
-    size_t size1_ = 1;    // one item could contain 1 or more elems of type T
+    // One cache is a blob of raw memory with size0_ * size1_ * sizeof(T) bytes.
+    size_t size0_ = 4096; // num of allocations in a cache
+    size_t size1_ = 1;    // num of elems(of type T) in an allocation
     Vec<Vec<char>> caches_;
 
     FreeList free_list_;
