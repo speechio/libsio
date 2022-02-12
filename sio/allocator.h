@@ -8,12 +8,12 @@
 namespace sio {
 
 struct FreeNode {
-    Optional<FreeNode*> next = nullptr;
+    Nullable<FreeNode*> next = nullptr;
 };
 
 
 struct FreeList {
-    Optional<FreeNode*> head = nullptr;
+    Nullable<FreeNode*> head = nullptr;
     size_t length = 0;
 
     inline bool IsEmpty() {

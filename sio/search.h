@@ -97,7 +97,7 @@ struct TraceBack {
 
 struct Token {
     LatticeNode* owner = nullptr;
-    Optional<Token*> next = nullptr; // nullptr -> last token in a lattice node
+    Nullable<Token*> next = nullptr; // nullptr -> last token in a lattice node
 
     f32 score = 0.0;
     TokenContext context;
@@ -106,9 +106,9 @@ struct Token {
 
 
 struct LatticeNode {
-    int time = 0;
+    size_t time = 0;
     BeamSearchStateId state = 0;
-    Optional<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
+    Nullable<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
 };
 
 

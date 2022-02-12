@@ -30,6 +30,9 @@ using Owner = T;
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Optional = T;
 
+template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
+using Nullable = T;
+
 
 /*
  * Other than above helpers to annotate C pointers, 
