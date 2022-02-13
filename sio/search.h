@@ -67,19 +67,20 @@ private:
 
 
 // SearchStateId:
-//   SearchStateId represents a state in *beam search space*,
-//   not limited to a specific graph state.  In the future, 
-//   search code may support dynamic multi-graph decoding 
-//   (such as sub-grammar, class-based LM, ...)
+//   SearchStateId represents a state in *beam search space*.
+//   It should not be limited to a specific graph state, because later
+//   we may support dynamic multi-graph decoding (such as sub-grammar, class-based LM, ...)
 //
 // For single-graph decoding: 
-//   SearchStateId = FsmStateId. Becasue beam search space = single fsm graph
+//   SearchStateId = FsmStateId. All search states are from one fsm.
 //
-// For multi-graph decoding: 
+// For multi-graph decoding, say: 
 //   SearchStateId = 64-bits(32 + 32) integer type:
 //   1st 32 bits represent sub-graph index
 //   2nd 32 bits represent state index inside that sub-graph
-// More sophisticated bit-packing can be designed to represent SearchStateId.
+//   More sophisticated bit-packing can be designed to represent SearchStateId.
+//
+// Entire search space = (search state axis * search time axis) 
 using SearchStateId = FsmStateId;
 using SearchTimeId = int;
 
