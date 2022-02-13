@@ -54,32 +54,39 @@ private:
 
 
 
-// This is the max number of rescoring language models, typical rescoring LM types are:
+// Typical rescoring language models are:
 // 1. Lookahead-LM or Internal-LM subtractor
-// 2. Big LM or External-LM
-// 3. Domain specific LM
-// 4. Hotfix LM (sometimes also called hint, hot-word/hot-phrase)
+// 2. Big-LM or External-LM
+// 3. Specific Domain-LM
+// 4. Hotfix-LM (sometimes also called hint, hot-word/hot-phrase)
 //
 // These LMs are normally represented as *Deterministic Fsa*, 
 // so that shallow-fusion based contextual biasing can be applied 
 // via on-the-fly rescoring.
-#define SIO_MAX_CONTEXT_LM 3
+#define SIO_MAX_CONTEXT_LM 4
 
 
-// BeamSearchStateId concept: 
-//   Designed for future extension to multi-graph decoding such as sub-grammar, class-based LM, ...
+// SearchStateId:
+//   SearchStateId represents a state in *beam search space*,
+//   not limited to a specific graph state.  In the future, 
+//   search code may support dynamic multi-graph decoding 
+//   (such as sub-grammar, class-based LM, ...)
 //
-// For single graph decoding: BeamSearchStateId = FsmStateId
-//   It is enough to represent beam search space.
+// For single-graph decoding: 
+//   SearchStateId = FsmStateId. Becasue beam search space = single fsm graph
 //
-// For multi-graph decoding: BeamSearchStateId = 64-bits(32 + 32) integer type:
+// For multi-graph decoding: 
+//   SearchStateId = 64-bits(32 + 32) integer type:
 //   1st 32 bits represent sub-graph index
 //   2nd 32 bits represent state index inside that sub-graph
-// More sophisticated bit-packing can be designed & implemented to represent beam search space.
-using BeamSearchStateId = FsmStateId;
+// More sophisticated bit-packing can be designed to represent SearchStateId.
+using SearchStateId = FsmStateId;
+using SearchTimeId = int;
+
 
 struct Token;
 struct LatticeNode;
+
 
 struct TokenContext {
     size_t prefix_state = 0;
@@ -106,20 +113,18 @@ struct Token {
 
 
 struct LatticeNode {
-    size_t time = 0;
-    BeamSearchStateId state = 0;
+    SearchTimeId time = 0;
+    SearchStateId state = 0;
     Nullable<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
 };
 
 
 class BeamSearch {
-    using LatticeNodeId = int;
-
     SlabAllocator<Token> token_arena_;
 
-    Vec<Vec<LatticeNode>> lattice_; // [time, node_id]
+    Vec<Vec<LatticeNode>> lattice_; // [time, lattice_node_id]
 
-    Map<BeamSearchStateId, LatticeNodeId> frontier_;
+    Map<SearchStateId, int> frontier_;
 
 public:
 
