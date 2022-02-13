@@ -9,7 +9,9 @@
 namespace sio {
 
 using TokenId = i32;
-const TokenId kNoTokenId = -1;
+
+constexpr TokenId kNoTokenId = -1;
+
 
 struct Tokenizer {
     Map<TokenId, Str> index_to_token;

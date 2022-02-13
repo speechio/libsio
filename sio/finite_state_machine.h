@@ -15,8 +15,8 @@ using FsmArcId   = i32;
 using FsmLabel   = i32;
 using FsmScore   = f32;
 
-const FsmLabel kFsmInputEnd = -1; // This follows K2Fsa convention
-const FsmLabel kFsmEpsilon = -2;
+constexpr FsmLabel kFsmInputEnd = -1; // This follows K2Fsa convention
+constexpr FsmLabel kFsmEpsilon = -2;
 
 
 struct FsmState {
