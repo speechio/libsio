@@ -53,7 +53,7 @@ private:
     Error err_;
 };
 
-#define SIO_PANIC(err) ::sio::Panic(SIO__FILE__, __LINE__, SIO__FUNC__, err)
+#define SIO_PANIC(err) ::sio::Panic(SIO_FILE, __LINE__, SIO_FUNC, err)
 
 #define SIO_UNREACHABLE() SIO_PANIC(::sio::Error::Unreachable)
 
