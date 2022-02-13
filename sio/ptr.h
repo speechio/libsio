@@ -19,16 +19,13 @@ namespace sio {
  * So to make C pointers clearer, aliasing annotations are introduced throughout this library:
  *     - T*                  denotes pointers without ownership & cannot be null
  *     - Owner<T*>           denotes pointers with    ownership & cannot be null
- *     - Optional<T*>        denotes pointers without ownership & can    be null
- *     - Optional<Owner<T*>> denotes pointers with    ownership & can    be null
+ *     - Nullable<T*>        denotes pointers without ownership & can    be null
+ *     - Nullable<Owner<T*>> denotes pointers with    ownership & can    be null
  * With consistent use of this convention, raw pointers (T*) are just as safe as reference.
 */
 
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Owner = T;
-
-template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
-using Optional = T;
 
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Nullable = T;
