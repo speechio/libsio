@@ -74,13 +74,13 @@ private:
 // For single-graph decoding: 
 //   SearchStateId = FsmStateId. All search states come from the same fsm.
 //
-// For multi-graph decoding, say: 
-//   SearchStateId = 64-bits(32 + 32) integer type:
-//   1st 32 bits represent sub-graph index
-//   2nd 32 bits represent state index inside that sub-graph
+// For multi-graph decoding:
+//   Say, SearchStateId = 64-bits(32 + 32) integer type:
+//     1st 32 bits represent sub-graph index
+//     2nd 32 bits represent state index inside that sub-graph
 //   More sophisticated bit-packing can be designed to represent SearchStateId.
 //
-// Entire search space = (search state axis * search time axis) 
+// Entire beam search space = (search state axis * search time axis) 
 using SearchStateId = FsmStateId;
 using SearchTimeId = int;
 
