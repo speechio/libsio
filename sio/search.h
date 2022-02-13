@@ -72,7 +72,7 @@ private:
 //   we may support dynamic multi-graph decoding (such as sub-grammar, class-based LM, ...)
 //
 // For single-graph decoding: 
-//   SearchStateId = FsmStateId. All search states are from one fsm.
+//   SearchStateId = FsmStateId. All search states come from the same fsm.
 //
 // For multi-graph decoding, say: 
 //   SearchStateId = 64-bits(32 + 32) integer type:
