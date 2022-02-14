@@ -6,9 +6,9 @@ namespace sio {
 
 TEST(LinkedList, Link) {
 
-    Owner<Link *> l1 = new Link;
-    Owner<Link *> l2 = new Link;
-    Owner<Link *> l3 = new Link;
+    Owner<Link*> l1 = new Link;
+    Owner<Link*> l2 = new Link;
+    Owner<Link*> l3 = new Link;
 
     EXPECT_TRUE(!l1->IsLinked());
     EXPECT_TRUE(!l2->IsLinked());
