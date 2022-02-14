@@ -6,9 +6,9 @@ namespace sio {
 
 TEST(LinkedList, Link) {
 
-    Link *l1 = new Link;
-    Link *l2 = new Link;
-    Link *l3 = new Link;
+    Owner<Link *> l1 = new Link;
+    Owner<Link *> l2 = new Link;
+    Owner<Link *> l3 = new Link;
 
     EXPECT_TRUE(!l1->IsLinked());
     EXPECT_TRUE(!l2->IsLinked());
@@ -48,17 +48,16 @@ TEST(LinkedList, Basic) {
         int i;
     };
 
-    Owner<A*> a1 = new A;
-    Owner<A*> a2 = new A;
-
     Owner<LinkedList<A>*> l = new LinkedList<A>(offsetof(A, link));
     EXPECT_TRUE(l->IsEmpty());
-    
+
+    Owner<A*> a1 = new A;
     l->InsertHead(a1);
     EXPECT_TRUE(l->NumElems() == 1);
     EXPECT_TRUE(l->Head() == a1);
     EXPECT_TRUE(l->Tail() == a1);
 
+    Owner<A*> a2 = new A;
     l->InsertTail(a2);
     EXPECT_TRUE(l->NumElems() == 2);
     EXPECT_TRUE(l->Head() == a1);
