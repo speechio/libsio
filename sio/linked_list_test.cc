@@ -1,5 +1,6 @@
-#include "gtest/gtest.h"
 #include "sio/linked_list.h"
+
+#include "gtest/gtest.h"
 
 namespace sio {
 

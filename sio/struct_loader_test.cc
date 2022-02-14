@@ -1,8 +1,6 @@
-#include <gtest/gtest.h>
-#include <fstream>
-
-#include "sio/common.h"
 #include "sio/struct_loader.h"
+
+#include <gtest/gtest.h>
 
 namespace sio {
 

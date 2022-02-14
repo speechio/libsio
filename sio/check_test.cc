@@ -1,8 +1,8 @@
+#include "sio/check.h"
+
 #include <gtest/gtest.h>
 #include <cstdio>
 
-#include "sio/error.h"
-#include "sio/check.h"
 #include "sio/type.h"
 #include "sio/vec.h"
 

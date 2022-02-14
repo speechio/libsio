@@ -1,7 +1,7 @@
+#include "sio/error.h"
+
 #include <gtest/gtest.h>
 #include <string>
-
-#include "sio/error.h"
 
 namespace sio {
 

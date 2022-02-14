@@ -1,6 +1,6 @@
-#include "gtest/gtest.h"
 #include "sio/allocator.h"
 
+#include "gtest/gtest.h"
 namespace sio {
 
 TEST(Allocator, SlabAllocator) {

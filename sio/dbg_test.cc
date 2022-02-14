@@ -1,9 +1,9 @@
+//#define DBG_MACRO_DISABLE
+#include "sio/dbg.h"
+
 #include "gtest/gtest.h"
 
 #include "sio/common.h"
-
-//#define DBG_MACRO_DISABLE
-#include "sio/dbg.h"
 
 TEST(dbg_macro, Basic) {
     using namespace sio;

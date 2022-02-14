@@ -1,7 +1,7 @@
-#include <gtest/gtest.h>
-
-#include <fstream>
 #include "sio/finite_state_machine.h"
+
+#include <gtest/gtest.h>
+#include <fstream>
 
 //#include "sio/dbg.h"
 

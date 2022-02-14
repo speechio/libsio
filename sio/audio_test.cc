@@ -1,7 +1,7 @@
+#include "sio/audio.h"
+
 #include <gtest/gtest.h>
 #include <string>
-
-#include "sio/audio.h"
 
 namespace sio {
 
