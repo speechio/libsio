@@ -106,7 +106,7 @@ private:
         Vec<Str> fields = absl::StrSplit(entry, ".", absl::SkipWhitespace());
         const Json* node = &json;
         int k = 0;
-        SIO_CHECK("Loop invariant: the path from root to node matches fields[0,k)");
+        // Loop invariant: the path from root to node matches fields[0,k)
         while(k != fields.size()) {
             Str& field = fields[k];
             if (node->contains(field)) {
