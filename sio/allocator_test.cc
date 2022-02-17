@@ -12,7 +12,7 @@ TEST(Allocator, SlabAllocator) {
     };
 
     SlabAllocator<S> pool;
-    pool.SetCacheSize(2);
+    pool.SetSlabSize(2);
 
     EXPECT_EQ(pool.NumUsed(), 0);
     EXPECT_EQ(pool.NumFree(), 0);
@@ -30,7 +30,7 @@ TEST(Allocator, SlabAllocator) {
     EXPECT_EQ(pool.NumFree(), 1);
 
     S* s3 = pool.Alloc();
-    S* s4 = pool.Alloc(); // trigger another slab allocation
+    S* s4 = pool.Alloc(); // trigger another slab growth
     EXPECT_EQ(pool.NumUsed(), 3);
     EXPECT_EQ(pool.NumFree(), 1);
 

@@ -27,7 +27,7 @@ struct FreeList {
     }
 
     inline FreeNode* Pop() {
-        SIO_CHECK(!IsEmpty()); // caches should grow outside Pop(), in Alloc()
+        SIO_CHECK(!IsEmpty()); // slab should grow outside Pop(), in Alloc()
         FreeNode* p = head;
         head = head->next;
         length--;
@@ -38,18 +38,18 @@ struct FreeList {
 
 template <typename T>
 class SlabAllocator {
-    // One cache is a blob of raw memory with size0_ * size1_ * sizeof(T) bytes.
-    size_t size0_ = 4096; // num of allocations in a cache
-    size_t size1_ = 1;    // num of elems(of type T) in an allocation
-    Vec<Vec<char>> caches_;
+    // One slab is a blob of raw memory with size0_ * size1_ * sizeof(T) bytes.
+    size_t size0_ = 4096; // num of allocations of one slab
+    size_t size1_ = 1;    // num of elems(of type T) of one allocation
+    Vec<Vec<char>> slabs_;
 
     FreeList free_list_;
     size_t num_used_ = 0;
 
 public:
 
-    void SetCacheSize(size_t size0, size_t size1 = 1) {
-        SIO_CHECK(caches_.empty()) << "Cache size need to be set before uses.";
+    void SetSlabSize(size_t size0, size_t size1 = 1) {
+        SIO_CHECK(slabs_.empty()) << "Allocator already in use, cannot reset slab size.";
         SIO_CHECK_GE(size0, 1);
         SIO_CHECK_GE(size1 * sizeof(T), sizeof(FreeNode*)) \
             << "Cannot support allocations smaller than a pointer.";
@@ -61,11 +61,11 @@ public:
 
     inline T* Alloc() {
         if (free_list_.IsEmpty()) {
-            caches_.resize(caches_.size() + 1);
-            Vec<char>& c = caches_.back();
-            c.resize(size0_ * size1_ * sizeof(T));
+            slabs_.resize(slabs_.size() + 1);
+            Vec<char>& slab = slabs_.back();
+            slab.resize(size0_ * size1_ * sizeof(T));
 
-            char* p = c.data();
+            char* p = slab.data();
             for (int i = 0; i < size0_; i++) {
                 free_list_.Push( (FreeNode*)(p + i * size1_ * sizeof(T)) );
             }
@@ -92,7 +92,7 @@ public:
         free_list_.head = nullptr;
         free_list_.length = 0;
 
-        caches_.clear();
+        slabs_.clear();
     }
 
 }; // class SlabAllocator
