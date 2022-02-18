@@ -104,7 +104,7 @@ struct TraceBack {
 
 
 struct Token {
-    LatticeNode* owner = nullptr;
+    LatticeNode* master = nullptr;
     Nullable<Token*> next = nullptr; // nullptr -> last token in a lattice node
 
     f32 score = 0.0;
