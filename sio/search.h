@@ -127,7 +127,8 @@ class BeamSearch {
 
     Vec<LatticeNode> frontier_nodes_;
     Map<SearchStateId, int> frontier_; // search state -> frontier lattice node
-    f32 frontier_best_score_;
+    f32 beam_score_max_;
+    f32 beam_score_min_;
 
 public:
 
