@@ -80,7 +80,7 @@ private:
 
 
     inline FreeNode* FreeListPop() {
-        SIO_CHECK(free_list_ != nullptr); // slab should grow outside Pop(), in Alloc()
+        SIO_CHECK(free_list_ != nullptr); // slabs should grow outside Pop(), in Alloc()
         FreeNode* p = free_list_;
         free_list_ = free_list_->next;
         --num_free_;
