@@ -84,7 +84,7 @@ private:
             feature_extractor_.PushEnd();
         }
 
-        while (feature_extractor_.Len() > 0) {
+        while (feature_extractor_.Size() > 0) {
             auto feat_frame = feature_extractor_.Pop();
             scorer_.Push(feat_frame);
         }
@@ -92,7 +92,7 @@ private:
             scorer_.PushEnd();
         }
 
-        while (scorer_.Len() > 0) {
+        while (scorer_.Size() > 0) {
             auto score_frame = scorer_.Pop();
             search_.Push(score_frame);
         }

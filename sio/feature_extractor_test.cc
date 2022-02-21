@@ -33,9 +33,9 @@ TEST(Feature, Extractor) {
 
         feature_extractor.Push(audio.data(), audio.size(), sample_rate);
         feature_extractor.PushEnd();
-        EXPECT_EQ(num_frames, feature_extractor.Len());
+        EXPECT_EQ(num_frames, feature_extractor.Size());
 
-        while(feature_extractor.Len() > 0) {
+        while(feature_extractor.Size() > 0) {
             auto frame = feature_extractor.Pop();
         }
         feature_extractor.Reset();

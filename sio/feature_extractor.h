@@ -67,7 +67,7 @@ public:
 
 
     Vec<f32> Pop() {
-        SIO_CHECK_GT(Len(), 0);
+        SIO_CHECK_GT(Size(), 0);
         Vec<f32> feat_frame(Dim(), 0.0f);
 
         // kaldi_frame is a helper frame view, no underlying data ownership
@@ -96,7 +96,7 @@ public:
     }
 
 
-    size_t Len() const {
+    size_t Size() const {
         return extractor_->NumFramesReady() - cur_frame_;
     }
 

@@ -124,7 +124,7 @@ public:
     }
 
 
-    size_t Len() const {
+    size_t Size() const {
         return scores_cache_.size();
     }
 
