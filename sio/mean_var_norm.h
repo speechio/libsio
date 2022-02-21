@@ -21,7 +21,7 @@ public:
         Format of mean_var_norm file, three lines:
         line1: norm_vector_dimension
         line2: shift_ vector, no brackets, elements seperated by comma or whitespaces
-        line3: v_nrom_scale vector, same as above
+        line3: scale_ vector, same as above
 
         Example mean_var_norm.txt:
         3
