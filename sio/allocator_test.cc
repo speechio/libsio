@@ -38,7 +38,7 @@ TEST(Allocator, SlabAllocator) {
     pool.Free(s3);
     pool.Free(s4);
 
-    pool.clear();
+    pool.Reset();
     EXPECT_EQ(pool.NumUsed(), 0);
     EXPECT_EQ(pool.NumFree(), 0);
 

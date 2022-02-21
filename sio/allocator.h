@@ -86,7 +86,7 @@ public:
     size_t NumFree() const { return free_list_.length; }
 
 
-    void clear() {
+    void Reset() {
         num_used_ = 0;
 
         free_list_.head = nullptr;
