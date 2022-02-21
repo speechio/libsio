@@ -16,7 +16,7 @@ struct FreeList {
     Nullable<FreeNode*> head = nullptr;
     size_t length = 0;
 
-    inline bool IsEmpty() {
+    inline bool Empty() {
         return (head == nullptr);
     }
 
@@ -27,7 +27,7 @@ struct FreeList {
     }
 
     inline FreeNode* Pop() {
-        SIO_CHECK(!IsEmpty()); // slab should grow outside Pop(), in Alloc()
+        SIO_CHECK(!Empty()); // slab should grow outside Pop(), in Alloc()
         FreeNode* p = head;
         head = head->next;
         length--;
@@ -60,7 +60,7 @@ public:
 
 
     inline T* Alloc() {
-        if (free_list_.IsEmpty()) {
+        if (free_list_.Empty()) {
             slabs_.resize(slabs_.size() + 1);
             Vec<char>& slab = slabs_.back();
             slab.resize(size0_ * size1_ * sizeof(T));
