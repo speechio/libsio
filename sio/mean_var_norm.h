@@ -10,17 +10,17 @@
 #include "sio/common.h"
 
 namespace sio {
-struct MeanVarNorm {
-    int dim = 0;
-    Vec<f64> m_norm_shift;
-    Vec<f64> v_norm_scale;
+class MeanVarNorm {
+    int dim_ = 0;
+    Vec<f64> shift_;
+    Vec<f64> scale_;
 
-
+public:
     Error Load(std::string mean_var_norm_file) {
         /*
         Format of mean_var_norm file, three lines:
         line1: norm_vector_dimension
-        line2: m_norm_shift vector, no brackets, elements seperated by comma or whitespaces
+        line2: shift_ vector, no brackets, elements seperated by comma or whitespaces
         line3: v_nrom_scale vector, same as above
 
         Example mean_var_norm.txt:
@@ -33,26 +33,26 @@ struct MeanVarNorm {
 
         std::string line;
         std::getline(is, line);
-        dim = std::stoi(line);
+        dim_ = std::stoi(line);
 
         Vec<std::string> cols;
 
         std::getline(is, line);
         cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
-        SIO_CHECK_EQ(cols.size(), dim) << "mean norm dim should be consistent with header line";
-        m_norm_shift.clear();
-        m_norm_shift.resize(dim, 0.0);
-        for (int i = 0; i != dim; i++) {
-            m_norm_shift[i] = std::stod(cols[i]);
+        SIO_CHECK_EQ(cols.size(), dim_) << "mean norm dim should be consistent with header line";
+        shift_.clear();
+        shift_.resize(dim_, 0.0);
+        for (int i = 0; i != dim_; i++) {
+            shift_[i] = std::stod(cols[i]);
         }
 
         std::getline(is, line);
         cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
-        SIO_CHECK_EQ(cols.size(), dim) << "var norm dim should be consistent with header line";
-        v_norm_scale.clear();
-        v_norm_scale.resize(dim, 0.0);
-        for (int i = 0; i != dim; i++) {
-            v_norm_scale[i] = std::stod(cols[i]);
+        SIO_CHECK_EQ(cols.size(), dim_) << "var norm dim should be consistent with header line";
+        scale_.clear();
+        scale_.resize(dim_, 0.0);
+        for (int i = 0; i != dim_; i++) {
+            scale_[i] = std::stod(cols[i]);
         }
 
         return Error::OK;
@@ -61,12 +61,12 @@ struct MeanVarNorm {
 
     void Normalize(kaldi::VectorBase<f32> *frame) const {
         SIO_CHECK(frame != nullptr) << "null input to mvn ?";
-        SIO_CHECK_EQ(frame->Dim(), dim) << "feature dim inconsistent with mvn dim";
-        for (int i = 0; i < dim; i++) {
+        SIO_CHECK_EQ(frame->Dim(), dim_) << "feature dim inconsistent with mvn dim";
+        for (int i = 0; i < dim_; i++) {
             // use quote for elem referencing, see:
             // https://github.com/kaldi-asr/kaldi/blob/master/src/matrix/kaldi-vector.h#L82
-            (*frame)(i) += m_norm_shift[i];
-            (*frame)(i) *= v_norm_scale[i];
+            (*frame)(i) += shift_[i];
+            (*frame)(i) *= scale_[i];
         }
     }
 
