@@ -42,8 +42,10 @@ public:
             Vec<char>& s = slabs_.back();
             s.resize(size0_ * size1_ * sizeof(T));
 
+            char* p = s.data();
             for (int i = 0; i < size0_; i++) {
-                FreeListPush( (FreeNode*)(s.data() + i * size1_ * sizeof(T)) );
+                FreeListPush((FreeNode*)p);
+                p += size1_ * sizeof(T);
             }
         }
 
