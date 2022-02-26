@@ -52,10 +52,15 @@ class Fsm {
 
     Str version_; // TODO: make version a part of binary header
 
+    // Use i64 instead of size_t, for platform independent binary
+    // TODO: bit/little endian compatibility
+    i64 num_states_ = 0;
+    i64 num_arcs_ = 0;
+
     StateId start_state_ = 0;
     StateId final_state_ = 0;
 
-    Vec<State> states_;
+    Vec<State> states_;  // There is one extra sentinel at the end: states_.size() = num_states_ + 1
     Vec<Arc> arcs_;
 
 public:
@@ -76,16 +81,13 @@ public:
     };
 
 
-    inline bool Empty() const { return states_.size() == 0; }
+    inline bool Empty() const { return states_.empty(); }
+
+    i64 NumStates() const { SIO_CHECK(!Empty()); return num_states_; }
+    i64 NumArcs()   const { SIO_CHECK(!Empty()); return num_arcs_; }
 
     inline StateId Start() const { SIO_CHECK(!Empty()); return start_state_; }
     inline StateId Final() const { SIO_CHECK(!Empty()); return final_state_; }
-
-    // Use i64 as return type instead of size_t,
-    // because size_t is not suitable for platform independent binary
-    // TODO: bit/little endian compatibility
-    i64 NumStates() const { SIO_CHECK(!Empty()); return states_.size() - 1; } // -1: last sentinel is not counted as valid Fsm state
-    i64 NumArcs()   const { SIO_CHECK(!Empty()); return arcs_.size(); }
 
 
     ArcIterator GetArcIterator(StateId i) const {
@@ -114,12 +116,10 @@ public:
         */
 
         ExpectToken(is, binary, "<NumStates>");
-        i64 num_states = 0;
-        ReadBasicType(is, binary, &num_states);
+        ReadBasicType(is, binary, &num_states_);
 
         ExpectToken(is, binary, "<NumArcs>");
-        i64 num_arcs = 0;
-        ReadBasicType(is, binary, &num_arcs);
+        ReadBasicType(is, binary, &num_arcs_);
 
         ExpectToken(is, binary, "<Start>");
         ReadBasicType(is, binary, &start_state_);
@@ -127,16 +127,16 @@ public:
 
         ExpectToken(is, binary, "<Final>");
         ReadBasicType(is, binary, &final_state_);
-        SIO_CHECK_EQ(final_state_, num_states - 1); // conform to K2
+        SIO_CHECK_EQ(final_state_, num_states_ - 1); // conform to K2
 
         ExpectToken(is, binary, "<States>");
-        auto num_states_plus_sentinel = num_states + 1;
+        auto num_states_plus_sentinel = num_states_ + 1;
         states_.resize(num_states_plus_sentinel);
         is.read(reinterpret_cast<char*>(states_.data()), num_states_plus_sentinel * sizeof(State));
 
         ExpectToken(is, binary, "<Arcs>");
-        arcs_.resize(num_arcs);
-        is.read(reinterpret_cast<char*>(arcs_.data()), num_arcs * sizeof(Arc));
+        arcs_.resize(num_arcs_);
+        is.read(reinterpret_cast<char*>(arcs_.data()), num_arcs_ * sizeof(Arc));
 
         return Error::OK;
     }
@@ -187,7 +187,6 @@ public:
 
         Str line;
         Vec<Str> cols;
-        size_t num_states, num_arcs;
 
         /* 1: Parse header */
         {
@@ -196,19 +195,19 @@ public:
             cols = absl::StrSplit(line, ',', absl::SkipWhitespace());
             SIO_CHECK_EQ(cols.size(), 4);
 
-            num_states   = std::stoi(cols[0]);
-            num_arcs     = std::stoi(cols[1]);
+            num_states_  = std::stoi(cols[0]);
+            num_arcs_    = std::stoi(cols[1]);
             start_state_ = std::stoi(cols[2]);
             final_state_ = std::stoi(cols[3]);
 
             // K2Fsa conformance checks
             SIO_CHECK_EQ(start_state_, 0);
-            SIO_CHECK_EQ(final_state_, num_states - 1);
+            SIO_CHECK_EQ(final_state_, num_states_ - 1);
         }
 
         /* 2: Parse & load all arcs */
         {
-            size_t n = 0;
+            i64 n = 0;
             while (std::getline(is, line)) {
                 cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
                 SIO_CHECK_EQ(cols.size(), 3);
@@ -229,7 +228,7 @@ public:
                 );
                 n++;
             }
-            SIO_CHECK_EQ(num_arcs, n) << "Num of arcs loaded is inconsistent with header.";
+            SIO_CHECK_EQ(num_arcs_, n) << "Num of arcs loaded is inconsistent with header.";
 
             /* Sort all arcs, first by source state, then by ilabel */
             std::sort(arcs_.begin(), arcs_.end(), 
@@ -241,17 +240,16 @@ public:
 
         /* 3: Setup states */
         {
-            size_t num_states_plus_sentinel = num_states + 1;
-            states_.resize(num_states_plus_sentinel);
+            states_.resize(num_states_ + 1); // + 1 sentinel
+            Vec<i32> out_degree(num_states_, 0);
 
-            Vec<i32> out_degree(num_states, 0);
             for (const auto& arc : arcs_) {
                 out_degree[arc.src]++;
             }
 
-            size_t n = 0;
             // invariant: n = sum{ arcs of states_[0, s) }
-            for (StateId s = 0; s != num_states; s++) {
+            i64 n = 0;
+            for (StateId s = 0; s != num_states_; s++) {
                 states_[s].arcs_begin = n;
                 n += out_degree[s];
             }
@@ -293,6 +291,7 @@ public:
             // 1c: "InputEnd" represents the end of input sequence (follows K2Fsa convention)
             final_state_ = cur_state;
             AddArc(start_state_, final_state_, kFsmInputEnd, tokenizer.eos);
+            num_arcs_ = arcs_.size();
 
             // 1d: Sort all arcs, first by source state, then by ilabel
             std::sort(arcs_.begin(), arcs_.end(), 
@@ -304,18 +303,17 @@ public:
 
         /* 2: Setup states */
         {
-            size_t num_states = final_state_ + 1;
-            size_t num_states_plus_sentinel = num_states + 1;
-            states_.resize(num_states_plus_sentinel);
+            num_states_ = final_state_ + 1;
+            states_.resize(num_states_ + 1); // + 1 sentinel
 
-            Vec<i32> out_degree(num_states, 0);
+            Vec<i32> out_degree(num_states_, 0);
             for (const auto& arc : arcs_) {
                 out_degree[arc.src]++;
             }
 
-            size_t n = 0;
             // invariant: n = sum{ arcs of states_[0, s) }
-            for (StateId s = 0; s != num_states; s++) {
+            size_t n = 0;
+            for (StateId s = 0; s != num_states_; s++) {
                 states_[s].arcs_begin = n;
                 n += out_degree[s];
             }
