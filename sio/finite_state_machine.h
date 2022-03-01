@@ -113,11 +113,11 @@ struct Fsm {
         ExpectToken(is, binary, "<NumArcs>");
         ReadBasicType(is, binary, &this->num_arcs);
 
-        ExpectToken(is, binary, "<Start>");
+        ExpectToken(is, binary, "<StartState>");
         ReadBasicType(is, binary, &this->start_state);
         SIO_CHECK(this->start_state == 0); // conform to K2
 
-        ExpectToken(is, binary, "<Final>");
+        ExpectToken(is, binary, "<FinalState>");
         ReadBasicType(is, binary, &this->final_state);
         SIO_CHECK_EQ(this->final_state, this->num_states - 1); // conform to K2
 
@@ -155,10 +155,10 @@ struct Fsm {
         WriteToken(os, binary, "<NumArcs>");
         WriteBasicType(os, binary, this->num_arcs);
 
-        WriteToken(os, binary, "<Start>");
+        WriteToken(os, binary, "<StartState>");
         WriteBasicType(os, binary, this->start_state);
 
-        WriteToken(os, binary, "<Final>");
+        WriteToken(os, binary, "<FinalState>");
         WriteBasicType(os, binary, this->final_state);
 
         WriteToken(os, binary, "<States>");
