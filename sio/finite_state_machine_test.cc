@@ -19,10 +19,10 @@ TEST(Fsm, Basic) {
     Fsm fsm2;
     std::ifstream is2("testdata/T.fsm", std::ios::binary);
     fsm2.Load(is2);
-    EXPECT_EQ(fsm2.NumStates(), 4);
-    EXPECT_EQ(fsm2.NumArcs(), 8);
-    EXPECT_EQ(fsm2.Start(), 0);
-    EXPECT_EQ(fsm2.Final(), 3);
+    EXPECT_EQ(fsm2.num_states, 4);
+    EXPECT_EQ(fsm2.num_arcs, 8);
+    EXPECT_EQ(fsm2.start_state, 0);
+    EXPECT_EQ(fsm2.final_state, 3);
     fsm2.Print();
     {
         std::ofstream os("testdata/T2.fsm", std::ios::binary);
