@@ -199,7 +199,7 @@ struct Fsm {
 
         /* 2: Parse & load all arcs */
         {
-            i64 n = 0;
+            i32 n = 0;
             while (std::getline(is, line)) {
                 cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
                 SIO_CHECK_EQ(cols.size(), 3);
@@ -240,7 +240,7 @@ struct Fsm {
             }
 
             // invariant: n = sum{ arcs of this->states[0, s) }
-            i64 n = 0;
+            i32 n = 0;
             for (StateId s = 0; s != this->num_states; s++) {
                 this->states[s].arcs_begin = n;
                 n += out_degree[s];
