@@ -304,7 +304,7 @@ struct Fsm {
             }
 
             // invariant: n = sum{ arcs of this->states[0, s) }
-            size_t n = 0;
+            i32 n = 0;
             for (StateId s = 0; s != this->num_states; s++) {
                 this->states[s].arcs_begin = n;
                 n += out_degree[s];
