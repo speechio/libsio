@@ -28,10 +28,10 @@ struct FeatureExtractorConfig {
 class FeatureExtractor {
     const FeatureExtractorConfig* config_ = nullptr;
 
-    // need pointer here to support multiple types of extractor_s (e.g. fbank, mfcc)
-    Unique<kaldi::OnlineBaseFeature *> extractor_;
+    // need pointer here to support fbank, mfcc etc
+    Unique<kaldi::OnlineBaseFeature*> extractor_;
 
-    Nullable<const MeanVarNorm *> mean_var_norm_ = nullptr;
+    Nullable<const MeanVarNorm*> mean_var_norm_ = nullptr;
 
     //[0, cur_frame_) popped frames, [cur_frame_, NumFramesReady()) remainder frames.
     index_t cur_frame_ = 0;
