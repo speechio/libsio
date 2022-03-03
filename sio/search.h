@@ -82,7 +82,6 @@ private:
 //
 // Entire beam search space = (search state axis * search time axis) 
 using SearchStateId = FsmStateId;
-using SearchTimeId = int;
 
 
 struct Token;
@@ -114,7 +113,7 @@ struct Token {
 
 
 struct LatticeNode {
-    SearchTimeId time = 0;
+    int time = 0;
     SearchStateId state = 0;
     Nullable<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
 };
