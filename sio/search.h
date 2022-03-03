@@ -63,7 +63,7 @@ private:
 // These LMs are normally represented as *Deterministic Fsa*, 
 // so that shallow-fusion based contextual biasing can be applied 
 // via on-the-fly rescoring.
-#define SIO_MAX_CONTEXT_LM 4
+#define SIO_MAX_LM 4
 
 
 // SearchStateId:
@@ -90,7 +90,7 @@ struct LatticeNode;
 
 struct TokenContext {
     size_t prefix_state = 0;
-    LmStateId lm_states[SIO_MAX_CONTEXT_LM] = {};
+    LmStateId lm_states[SIO_MAX_LM] = {};
 };
 
 
@@ -98,7 +98,7 @@ struct TraceBack {
     Token* token = nullptr;
     FsmArc arc;
     f32 score = 0.0;
-    LmScore rescores[SIO_MAX_CONTEXT_LM] = {};
+    LmScore rescores[SIO_MAX_LM] = {};
 };
 
 
