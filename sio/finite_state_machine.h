@@ -41,15 +41,22 @@ struct FsmArc {
 };
 
 
+class FsmArcIterator {
+    const FsmArc* cur_ = nullptr;
+    const FsmArc* end_ = nullptr;
+
+public:
+    FsmArcIterator(const FsmArc* begin, const FsmArc* end) : cur_(begin), end_(end) { }
+
+    const FsmArc& Value() const { return *cur_; }
+
+    void Next() { ++cur_; }
+
+    bool Done() const { return cur_ >= end_; }
+};
+
+
 struct Fsm {
-    using StateId = FsmStateId;
-    using ArcId   = FsmArcId;
-    using Label   = FsmLabel;
-    using Score   = FsmScore;
-
-    using State = FsmState;
-    using Arc   = FsmArc;
-
     Str version; // TODO: make version a part of binary header
 
     // Use i64 instead of size_t, for platform independent binary
@@ -57,35 +64,20 @@ struct Fsm {
     i64 num_states = 0;
     i64 num_arcs = 0;
 
-    StateId start_state = 0;
-    StateId final_state = 0;
+    FsmStateId start_state = 0;
+    FsmStateId final_state = 0;
 
-    Vec<State> states;  // one extra sentinel at the end: states.size() = num_states + 1
-    Vec<Arc> arcs;
-
-
-    class ArcIterator {
-        const Arc* cur_ = nullptr;
-        const Arc* end_ = nullptr;
-
-      public:
-        ArcIterator(const Arc* begin, const Arc* end) : cur_(begin), end_(end) {}
-
-        const Arc& Value() const { return *cur_; }
-
-        void Next() { ++cur_; }
-
-        bool Done() const { return cur_ >= end_; }
-    };
+    Vec<FsmState> states;  // one extra sentinel at the end: states.size() = num_states + 1
+    Vec<FsmArc> arcs;
 
 
     inline bool Empty() const { return this->states.empty(); }
 
 
-    ArcIterator GetArcIterator(StateId i) const {
+    FsmArcIterator GetArcIterator(FsmStateId i) const {
         SIO_CHECK(!Empty());
         SIO_CHECK_NE(i, this->states.size() - 1); // block external access to sentinel
-        return ArcIterator(
+        return FsmArcIterator(
             &this->arcs[this->states[i  ].arcs_begin],
             &this->arcs[this->states[i+1].arcs_begin]
         );
@@ -124,11 +116,11 @@ struct Fsm {
         ExpectToken(is, binary, "<States>");
         auto num_states_plus_sentinel = this->num_states + 1;
         this->states.resize(num_states_plus_sentinel);
-        is.read(reinterpret_cast<char*>(this->states.data()), num_states_plus_sentinel * sizeof(State));
+        is.read(reinterpret_cast<char*>(this->states.data()), num_states_plus_sentinel * sizeof(FsmState));
 
         ExpectToken(is, binary, "<Arcs>");
         this->arcs.resize(this->num_arcs);
-        is.read(reinterpret_cast<char*>(this->arcs.data()), this->num_arcs * sizeof(Arc));
+        is.read(reinterpret_cast<char*>(this->arcs.data()), this->num_arcs * sizeof(FsmArc));
 
         return Error::OK;
     }
@@ -163,10 +155,10 @@ struct Fsm {
 
         WriteToken(os, binary, "<States>");
         auto num_states_plus_sentinel = this->num_states + 1;
-        os.write(reinterpret_cast<const char*>(this->states.data()), num_states_plus_sentinel * sizeof(State));
+        os.write(reinterpret_cast<const char*>(this->states.data()), num_states_plus_sentinel * sizeof(FsmState));
 
         WriteToken(os, binary, "<Arcs>");
-        os.write(reinterpret_cast<const char*>(this->arcs.data()), this->num_arcs * sizeof(Arc));
+        os.write(reinterpret_cast<const char*>(this->arcs.data()), this->num_arcs * sizeof(FsmArc));
 
         return Error::OK;
     }
@@ -224,7 +216,7 @@ struct Fsm {
 
             /* Sort all arcs, first by source state, then by ilabel */
             std::sort(this->arcs.begin(), this->arcs.end(), 
-                [](const Arc& x, const Arc& y) { 
+                [](const FsmArc& x, const FsmArc& y) { 
                     return (x.src != y.src) ? (x.src < y.src) : (x.ilabel < y.ilabel);
                 }
             );
@@ -241,7 +233,7 @@ struct Fsm {
 
             // invariant: n = sum{ arcs of this->states[0, s) }
             int n = 0;
-            for (StateId s = 0; s != this->num_states; s++) {
+            for (FsmStateId s = 0; s != this->num_states; s++) {
                 this->states[s].arcs_begin = n;
                 n += out_degree[s];
             }
@@ -266,7 +258,7 @@ struct Fsm {
             AddArc(this->start_state, this->start_state, tokenizer.blk, kFsmEpsilon);
 
             // 1b: Arcs of normal tokens
-            StateId cur_state = 1; // 0 is already occupied by start state
+            FsmStateId cur_state = 1; // 0 is already occupied by start state
             // Invariant: arcs for states[0, cur_state) & tokens[0, t) are built.
             for (TokenId t = 0; t != tokenizer.Size(); t++) {
                 if (t == tokenizer.blk) continue;
@@ -287,7 +279,7 @@ struct Fsm {
 
             // 1d: Sort all arcs, first by source state, then by ilabel
             std::sort(this->arcs.begin(), this->arcs.end(), 
-                [](const Arc& x, const Arc& y) { 
+                [](const FsmArc& x, const FsmArc& y) { 
                     return (x.src != y.src) ? (x.src < y.src) : (x.ilabel < y.ilabel);
                 }
             );
@@ -305,7 +297,7 @@ struct Fsm {
 
             // invariant: n = sum{ arcs of this->states[0, s) }
             int n = 0;
-            for (StateId s = 0; s != this->num_states; s++) {
+            for (FsmStateId s = 0; s != this->num_states; s++) {
                 this->states[s].arcs_begin = n;
                 n += out_degree[s];
             }
@@ -318,9 +310,9 @@ struct Fsm {
 
     void Print() const {
         printf("%d,%d,%d,%d\n", this->num_states, this->num_arcs, this->start_state, this->final_state);
-        for (StateId s = 0; s < this->num_states; s++) {
+        for (FsmStateId s = 0; s < this->num_states; s++) {
             for (auto aiter = GetArcIterator(s); !aiter.Done(); aiter.Next()) {
-                const Arc& arc = aiter.Value();
+                const FsmArc& arc = aiter.Value();
                 printf("%d\t%d\t%d:%d/%f\n", arc.src, arc.dst, arc.ilabel, arc.olabel, arc.score);
             }
         }
@@ -329,8 +321,8 @@ struct Fsm {
 
 private:
 
-    void AddArc(StateId src, StateId dst, Label ilabel, Label olabel, Score score = 0.0) {
-        Arc arc;
+    void AddArc(FsmStateId src, FsmStateId dst, FsmLabel ilabel, FsmLabel olabel, FsmScore score = 0.0) {
+        FsmArc arc;
         arc.Set(src, dst, ilabel, olabel, score);
         this->arcs.push_back(arc);
     }
