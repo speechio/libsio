@@ -199,7 +199,7 @@ struct Fsm {
 
         /* 2: Parse & load all arcs */
         {
-            i32 n = 0;
+            int n = 0;
             while (std::getline(is, line)) {
                 cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
                 SIO_CHECK_EQ(cols.size(), 3);
@@ -233,14 +233,14 @@ struct Fsm {
         /* 3: Setup states */
         {
             this->states.resize(this->num_states + 1); // + 1 sentinel
-            Vec<i32> out_degree(this->num_states, 0);
+            Vec<int> out_degree(this->num_states, 0);
 
             for (const auto& arc : this->arcs) {
                 out_degree[arc.src]++;
             }
 
             // invariant: n = sum{ arcs of this->states[0, s) }
-            i32 n = 0;
+            int n = 0;
             for (StateId s = 0; s != this->num_states; s++) {
                 this->states[s].arcs_begin = n;
                 n += out_degree[s];
@@ -298,13 +298,13 @@ struct Fsm {
             this->num_states = this->final_state + 1;
             this->states.resize(this->num_states + 1); // + 1 sentinel
 
-            Vec<i32> out_degree(this->num_states, 0);
+            Vec<int> out_degree(this->num_states, 0);
             for (const auto& arc : this->arcs) {
                 out_degree[arc.src]++;
             }
 
             // invariant: n = sum{ arcs of this->states[0, s) }
-            i32 n = 0;
+            int n = 0;
             for (StateId s = 0; s != this->num_states; s++) {
                 this->states[s].arcs_begin = n;
                 n += out_degree[s];
