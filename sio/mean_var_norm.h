@@ -30,13 +30,14 @@ public:
 
         */
         std::ifstream is(mean_var_norm_file);
-
         std::string line;
+        Vec<Str> cols;
+
+        // header line
         std::getline(is, line);
         dim_ = std::stoi(line);
 
-        Vec<std::string> cols;
-
+        // shift
         std::getline(is, line);
         cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
         SIO_CHECK_EQ(cols.size(), dim_) << "mean norm dim should be consistent with header line";
@@ -46,6 +47,7 @@ public:
             shift_[i] = std::stod(cols[i]);
         }
 
+        // scale
         std::getline(is, line);
         cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
         SIO_CHECK_EQ(cols.size(), dim_) << "var norm dim should be consistent with header line";
