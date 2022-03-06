@@ -1,19 +1,31 @@
 #ifndef SIO_SPEECH_TO_TEXT_MODEL_H
 #define SIO_SPEECH_TO_TEXT_MODEL_H
 
+#include <fstream>
+
 #include <torch/script.h>
 
 #include "sio/common.h"
 #include "sio/tokenizer.h"
+#include "sio/finite_state_machine.h"
 #include "sio/speech_to_text_config.h"
 
 namespace sio {
+/*
+ * SpeechToTextModel stores stateless resources, 
+ * can be shared by different threads.
+ * TODO: check torchscript multi-thread usage.
+ */
 struct SpeechToTextModel {
     SpeechToTextConfig config;
-    torch::jit::script::Module nnet;
-    Tokenizer tokenizer;
+
     Unique<MeanVarNorm*> mean_var_norm;
 
+    Tokenizer tokenizer;
+
+    torch::jit::script::Module nnet;
+
+    Fsm graph;
 
     Error Load(std::string config_file) { 
         config.Load(config_file);
@@ -31,6 +43,12 @@ struct SpeechToTextModel {
         SIO_CHECK(config.nnet != "") << "stt nnet is required";
         SIO_INFO << "Loading torchscript nnet from: " << config.nnet; 
         nnet = torch::jit::load(config.nnet);
+
+        SIO_CHECK(config.graph != "") << "decoding graph is required";
+        SIO_INFO << "Loading decoding graph from: " << config.graph;
+        std::ifstream is(config.graph, std::ios::binary);
+        SIO_CHECK(is.good()) << "Cannot open decoding graph file";
+        graph.Load(is);
 
         return Error::OK;
     }

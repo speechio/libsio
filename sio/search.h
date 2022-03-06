@@ -53,6 +53,37 @@ private:
 }; // class GreedySearch
 
 
+struct BeamSearchConfig {
+    f32 beam = 16.0;
+    i32 min_active = 8;
+    i32 max_active = 12;
+
+    f32 node_beam = 0.01;
+    f32 node_topk = 1;
+
+    i32 token_arena_realloc = 5000;
+
+    bool use_score_offset = true;
+
+    bool debug_mode = false;
+
+    Error Register(StructLoader* loader, const std::string module = "") {
+        loader->AddEntry(module + ".beam", &beam);
+        loader->AddEntry(module + ".min_active", &min_active);
+        loader->AddEntry(module + ".max_active", &max_active);
+
+        loader->AddEntry(module + ".node_beam", &node_beam);
+        loader->AddEntry(module + ".node_topk", &node_topk);
+
+        loader->AddEntry(module + ".token_arena_realloc", &token_arena_realloc);
+
+        loader->AddEntry(module + ".use_score_offset", &use_score_offset);
+
+        loader->AddEntry(module + ".debug_mode", &debug_mode);
+
+        return Error::OK;
+    }
+};
 
 // Typical rescoring language models are:
 // 1. Lookahead-LM or Internal-LM subtractor
@@ -120,16 +151,46 @@ struct LatticeNode {
 
 
 class BeamSearch {
+    const BeamSearchConfig* config_ = nullptr;
+    const Fsm* graph_ = nullptr;
+
     SlabAllocator<Token> token_arena_;
 
     Vec<Vec<LatticeNode>> lattice_; // [time, node_id]
 
     Vec<LatticeNode> frontier_nodes_;
     Map<SearchStateId, int> frontier_; // search state -> frontier lattice node
-    f32 beam_score_max_;
-    f32 beam_score_min_;
+    f32 score_min_ = 0.0;
+    f32 score_max_ = 0.0;
 
 public:
+    Error Load(const BeamSearchConfig& config, const Fsm& graph) {
+        config_ = &config;
+        graph_ = &graph;
+
+        return Error::OK;
+    }
+
+    Error StartSession() {
+        token_arena_.SetSlabSize(config_->token_arena_realloc);
+        frontier_.reserve(config_->max_active * 2);
+
+        return Error::OK;
+    }
+
+    Error Push() {
+
+        return Error::OK;
+    }
+
+    Error PushEnd() {
+
+        return Error::OK;
+    }
+
+    Error StopSession() {
+        return Error::OK;
+    }
 
 }; // class BeamSearch
 

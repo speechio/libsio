@@ -25,6 +25,7 @@ struct SpeechToTextConfig {
     std::string context;
     bool do_endpointing = false;
 
+    BeamSearchConfig beam_search;
 
     Error Register(StructLoader* loader, const std::string module = "") {
         loader->AddEntry(module + ".online", &online);
@@ -41,6 +42,8 @@ struct SpeechToTextConfig {
         loader->AddEntry(module + ".graph", &graph);
         loader->AddEntry(module + ".context", &context);
         loader->AddEntry(module + ".do_endpointing", &do_endpointing);
+
+        beam_search.Register(loader, module + ".beam_search");
 
         return Error::OK;
     }

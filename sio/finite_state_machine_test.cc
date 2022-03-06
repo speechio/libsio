@@ -40,5 +40,17 @@ TEST(Fsm, Basic) {
         std::ofstream os("testdata/T3.fsm", std::ios::binary);
         fsm3.Dump(os);
     }
+
+/*
+    Fsm tmp;
+    Tokenizer tmp_tokenizer;
+    tmp_tokenizer.Load("model/tokenizer.vocab");
+    tmp.BuildTokenTopology(tmp_tokenizer);
+    tmp.Print();
+    {
+        std::ofstream os("model/graph.fsm", std::ios::binary);
+        tmp.Dump(os);
+    }
+*/
 }
 }

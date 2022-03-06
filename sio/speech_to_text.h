@@ -24,23 +24,31 @@ class SpeechToText {
     Scorer scorer_;
 
     GreedySearch search_;
+    BeamSearch beam_search_;
 
 public:
-
-    Error LoadModel(SpeechToTextModel& model) {
+    Error Load(SpeechToTextModel& model) {
         SIO_CHECK(tokenizer_ == nullptr) << "Tokenizer initialized already.";
         tokenizer_ = &model.tokenizer;
 
+        SIO_INFO << "Loading feature extractor ...";
         feature_extractor_.Load(
             model.config.feature_extractor, 
             model.mean_var_norm.get()
         );
 
+        SIO_INFO << "Loading scorer ...";
         scorer_.Load(
             model.config.scorer,
             model.nnet,
             feature_extractor_.Dim(),
             tokenizer_->Size()
+        );
+
+        SIO_INFO << "Loading beam search ...";
+        beam_search_.Load(
+            model.config.beam_search,
+            model.graph
         );
 
         return Error::OK;
