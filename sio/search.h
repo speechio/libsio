@@ -61,7 +61,7 @@ struct BeamSearchConfig {
     f32 node_beam = 0.01;
     f32 node_topk = 1;
 
-    i32 token_arena_realloc = 5000;
+    i32 token_slab_size = 5000;
 
     bool use_score_offset = true;
 
@@ -75,7 +75,7 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".node_beam", &node_beam);
         loader->AddEntry(module + ".node_topk", &node_topk);
 
-        loader->AddEntry(module + ".token_arena_realloc", &token_arena_realloc);
+        loader->AddEntry(module + ".token_slab_size", &token_slab_size);
 
         loader->AddEntry(module + ".use_score_offset", &use_score_offset);
 
@@ -182,7 +182,7 @@ public:
         session_key_ = session_key;
 
         SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
-        token_arena_.SetSlabSize(config_.token_arena_realloc);
+        token_arena_.SetSlabSize(config_.token_slab_size);
 
         SIO_CHECK(lattice_.empty());
         lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
