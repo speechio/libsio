@@ -42,14 +42,14 @@ TEST(Fsm, Basic) {
     }
 
 /*
-    Fsm tmp;
-    Tokenizer tmp_tokenizer;
-    tmp_tokenizer.Load("model/tokenizer.vocab");
-    tmp.BuildTokenTopology(tmp_tokenizer);
-    tmp.Print();
+    Fsm ctc_graph;
+    Tokenizer t;
+    t.Load("model/tokenizer.vocab");
+    ctc_graph.BuildTokenTopology(t);
+    ctc_graph.Print();
     {
-        std::ofstream os("model/graph.fsm", std::ios::binary);
-        tmp.Dump(os);
+        std::ofstream os("model/compact_ctc.fsm", std::ios::binary);
+        ctc_graph.Dump(os);
     }
 */
 }

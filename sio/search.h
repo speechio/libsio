@@ -6,7 +6,7 @@
 #include "sio/tokenizer.h"
 #include "sio/finite_state_machine.h"
 #include "sio/language_model.h"
-//#include "sio/dbg.h"
+#include "sio/dbg.h"
 
 namespace sio {
 class GreedySearch {
@@ -151,49 +151,103 @@ struct LatticeNode {
 
 
 class BeamSearch {
-    const BeamSearchConfig* config_ = nullptr;
+    Str session_key_;
+
+    BeamSearchConfig config_;
     const Fsm* graph_ = nullptr;
+
+    Vec<f32> score_offset_;
 
     SlabAllocator<Token> token_arena_;
 
-    Vec<Vec<LatticeNode>> lattice_; // [time, node_id]
+    Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
 
     Vec<LatticeNode> frontier_nodes_;
     Map<SearchStateId, int> frontier_; // search state -> frontier lattice node
     f32 score_min_ = 0.0;
     f32 score_max_ = 0.0;
 
+    Vec<Unique<LanguageModel*>> lms_;
+
 public:
     Error Load(const BeamSearchConfig& config, const Fsm& graph) {
-        config_ = &config;
+        config_ = config;
         graph_ = &graph;
 
         return Error::OK;
     }
 
-    Error StartSession() {
-        token_arena_.SetSlabSize(config_->token_arena_realloc);
-        frontier_.reserve(config_->max_active * 2);
+
+    Error StartSession(const Str session_key = "default_session_key") {
+        session_key_ = session_key;
+
+        SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
+        token_arena_.SetSlabSize(config_.token_arena_realloc);
+
+        SIO_CHECK(lattice.empty());
+        lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
+
+        SIO_CHECK(frontier_nodes_.empty());
+        frontier_nodes_.reserve(config_.max_active * 3);
+
+        SIO_CHECK(frontier_.empty());
+        frontier_.reserve(frontier_nodes_.capacity() / 0.5); // presumably 50% load factoer
+
+        if (config_.use_score_offset) {
+            SIO_CHECK(score_offset_.empty());
+        }
 
         return Error::OK;
     }
 
-    Error Push() {
 
+    Error Push(const torch::Tensor frame_score) {
+        const float* score_data = frame_score.data_ptr<float>();
+        //dbg(frame_score.size(0));
+        //for (int i = 0; i != frame_score.size(0); i++) {
+        //    dbg(frame_score[i].item<float>(), score_data[i]);
+        //    if (score_data[i] != frame_score[i].item<float>()) {
+        //        SIO_FATAL << i;
+        //    }
+        //}
+        Advance(score_data, false);
         return Error::OK;
     }
+
 
     Error PushEnd() {
+        Advance(nullptr, true);
+        return Error::OK;
+    }
+
+
+    Error StopSession() {
+        frontier_.clear();
+        frontier_nodes_.clear();
+
+        lattice_.clear();
+        token_arena_.Reset();
+
+        if (config_.use_score_offset) {
+            score_offset_.clear();
+        }
 
         return Error::OK;
     }
 
-    Error StopSession() {
+
+    Error Reset() {
+        this->StopSession();
+        this->StartSession();
+
+        return Error::OK;
+    }
+
+private:
+    Error Advance(const float* score, bool eos) {
         return Error::OK;
     }
 
 }; // class BeamSearch
-
 }  // namespace sio
 #endif
-

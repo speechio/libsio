@@ -318,9 +318,7 @@ struct Fsm {
         }
     }
 
-
 private:
-
     void AddArc(FsmStateId src, FsmStateId dst, FsmLabel ilabel, FsmLabel olabel, FsmScore score = 0.0) {
         FsmArc arc;
         arc.Set(src, dst, ilabel, olabel, score);

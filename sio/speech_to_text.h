@@ -23,7 +23,7 @@ class SpeechToText {
 
     Scorer scorer_;
 
-    GreedySearch search_;
+    GreedySearch greedy_search_;
     BeamSearch beam_search_;
 
 public:
@@ -67,7 +67,7 @@ public:
 
 
     Error Text(std::string* result) { 
-        auto best_path = search_.BestPath();
+        auto best_path = greedy_search_.BestPath();
         for (index_t i = 0; i < best_path.size(); i++) {
             *result += tokenizer_->Token(best_path[i]);
         }
@@ -78,7 +78,10 @@ public:
     Error Reset() { 
         feature_extractor_.Reset();
         scorer_.Reset();
-        search_.Reset();
+
+        greedy_search_.Reset();
+        beam_search_.Reset();
+
         return Error::OK; 
     }
 
@@ -102,10 +105,12 @@ private:
 
         while (scorer_.Size() > 0) {
             auto score_frame = scorer_.Pop();
-            search_.Push(score_frame);
+            greedy_search_.Push(score_frame);
+            beam_search_.Push(score_frame);
         }
         if (eos) {
-            search_.PushEnd();
+            greedy_search_.PushEnd();
+            beam_search_.PushEnd();
         }
 
         return Error::OK;
