@@ -178,13 +178,13 @@ public:
     }
 
 
-    Error StartSession(const Str session_key = "default_session_key") {
+    Error StartSession(const Str session_key = "default_session") {
         session_key_ = session_key;
 
         SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
         token_arena_.SetSlabSize(config_.token_arena_realloc);
 
-        SIO_CHECK(lattice.empty());
+        SIO_CHECK(lattice_.empty());
         lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
 
         SIO_CHECK(frontier_nodes_.empty());
