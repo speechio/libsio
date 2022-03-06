@@ -245,6 +245,9 @@ public:
 
 private:
     Error Advance(const float* score, bool eos) {
+        SIO_CHECK(frontier_.empty());
+        SIO_CHECK(frontier_nodes_.empty());
+
         return Error::OK;
     }
 
