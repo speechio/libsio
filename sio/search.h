@@ -209,7 +209,7 @@ public:
         }
 
         LatticeNode* node = FindOrAddFrontier(0, graph_->start_state);
-        node->head = token;
+        node->head = token; // TODO: replace with AddTokenToNode() ?
 
         score_max_ = token->score;
         score_cutoff_ = score_max_ - config_.beam;
