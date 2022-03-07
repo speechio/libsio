@@ -119,12 +119,6 @@ struct Token;
 struct LatticeNode;
 
 
-struct TokenContext {
-    size_t prefix_state = 0;
-    LmStateId lm_states[SIO_MAX_LM] = {};
-};
-
-
 struct TraceBack {
     Token* token = nullptr;
     FsmArc arc;
@@ -134,11 +128,14 @@ struct TraceBack {
 
 
 struct Token {
-    LatticeNode* master = nullptr;
+    //LatticeNode* master = nullptr;
     Nullable<Token*> next = nullptr; // nullptr -> last token in a lattice node
 
     f32 score = 0.0;
-    TokenContext context;
+
+    u64 prefix = 0;
+    LmStateId lm_states[SIO_MAX_LM] = {};
+
     TraceBack trace_back;
 };
 
@@ -147,8 +144,8 @@ struct Token {
 // i.e. a (time, state) pair
 // Each node holds a list of tokens that store search scores, rescores, tracebacks etc
 struct LatticeNode {
-    int time = 0;
-    SearchStateId state = 0;
+    int t = 0;
+    SearchStateId s = 0;
     Nullable<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
 };
 
@@ -165,8 +162,8 @@ class BeamSearch {
     // beam search frontier 
     Vec<LatticeNode> frontier_nodes_;
     Map<SearchStateId, int> frontier_; // search state -> frontier lattice node index
-    f32 score_min_ = 0.0;
     f32 score_max_ = 0.0;
+    f32 score_cutoff_ = 0.0;
 
     Vec<f32> score_offset_;
 
@@ -199,6 +196,29 @@ public:
         if (config_.apply_score_offset) {
             SIO_CHECK(score_offset_.empty());
         }
+
+        Token* token = NewToken();
+        for (int i = 0; i != lms_.size(); i++) {
+            LanguageModel* lm = lms_[i].get();
+
+            f32 score = 0.0;
+            bool r = lm->GetScore(lm->NullState(), lm->Bos(), &score, &token->lm_states[i]);
+            SIO_CHECK(r == true);
+
+            token->score += score;
+        }
+
+        LatticeNode* node = FindOrAddFrontier(0, graph_->start_state);
+        node->head = token;
+
+        score_max_ = token->score;
+        score_cutoff_ = score_max_ - config_.beam;
+
+        ProcessNonemitting();
+
+        lattice_.push_back(frontier_nodes_);
+        frontier_.clear();
+        frontier_nodes_.clear();
 
         return Error::OK;
     }
@@ -247,11 +267,43 @@ public:
     }
 
 private:
-    Error Advance(const float* score, bool eos) {
-        SIO_CHECK(frontier_.empty());
-        SIO_CHECK(frontier_nodes_.empty());
+    Token* NewToken() {
+        Token* p = token_arena_.Alloc();
+        new (p) Token(); // placement new
+        return p;
+    }
 
-        return Error::OK;
+    LatticeNode* FindOrAddFrontier(int t, SearchStateId s) {
+        SIO_CHECK_EQ(lattice_.size(), t) << "frontier&lattice size invariant unsatified.";
+
+        int ni; // node index
+        auto it = frontier_.find(s);
+        if (it == frontier_.end()) {
+            LatticeNode node;
+            node.t = t;
+            node.s = s;
+
+            ni = frontier_nodes_.size();
+
+            frontier_nodes_.push_back(node);
+            frontier_.insert({s, ni});
+        } else {
+            ni = it->second;
+        }
+
+        return &frontier_nodes_[ni];
+    }
+
+    void Advance(const float* score, bool eos) {
+    }
+
+    void ProcessEmitting() {
+    }
+
+    void ProcessNonemitting() {
+    }
+
+    void ProcessInputEnd() {
     }
 
 }; // class BeamSearch
