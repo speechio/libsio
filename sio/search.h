@@ -162,13 +162,13 @@ class BeamSearch {
     SlabAllocator<Token> token_arena_;
     Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
 
+    // beam search frontier 
     Vec<LatticeNode> frontier_nodes_;
     Map<SearchStateId, int> frontier_; // search state -> frontier lattice node index
-
-    Vec<f32> score_offset_;
-
     f32 score_min_ = 0.0;
     f32 score_max_ = 0.0;
+
+    Vec<f32> score_offset_;
 
     Vec<Unique<LanguageModel*>> lms_;
 
