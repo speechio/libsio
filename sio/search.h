@@ -267,14 +267,19 @@ public:
     }
 
 private:
-    Token* NewToken() {
+    inline Token* NewToken() {
         Token* p = token_arena_.Alloc();
         new (p) Token(); // placement new
         return p;
     }
 
+    inline void DeleteToken(Token *p) {
+        //p->~Token();
+        token_arena_.Free(p);
+    }
+
     LatticeNode* FindOrAddFrontier(int t, SearchStateId s) {
-        SIO_CHECK_EQ(lattice_.size(), t) << "frontier&lattice size invariant unsatified.";
+        SIO_CHECK_EQ(lattice_.size(), t) << "frontier time & lattice size mismatch.";
 
         int ni; // node index
         auto it = frontier_.find(s);
