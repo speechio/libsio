@@ -6,7 +6,7 @@ rm -f build/torchscript
 cmake -S . -B build
 cmake --build build -j 40
 SIO_VERBOSITY=DEBUG build/unittest
-#SIO_VERBOSITY=INFO build/stt
+SIO_VERBOSITY=INFO build/stt
 
 #build/torchscript
 

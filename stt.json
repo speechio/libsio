@@ -28,7 +28,7 @@
         "node_beam": 0.01,
         "node_topk": 1,
         "token_slab_size": 10000,
-        "use_score_offset": true,
+        "apply_score_offset": true,
         "debug_mode": false
     }
 }

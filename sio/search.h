@@ -63,7 +63,7 @@ struct BeamSearchConfig {
 
     i32 token_slab_size = 5000;
 
-    bool use_score_offset = true;
+    bool apply_score_offset = true; // used to improve numeric stability
 
     bool debug_mode = false;
 
@@ -77,7 +77,7 @@ struct BeamSearchConfig {
 
         loader->AddEntry(module + ".token_slab_size", &token_slab_size);
 
-        loader->AddEntry(module + ".use_score_offset", &use_score_offset);
+        loader->AddEntry(module + ".apply_score_offset", &apply_score_offset);
 
         loader->AddEntry(module + ".debug_mode", &debug_mode);
 
@@ -193,7 +193,7 @@ public:
         SIO_CHECK(frontier_.empty());
         frontier_.reserve(frontier_nodes_.capacity() / 0.5); // presumably 50% load factoer
 
-        if (config_.use_score_offset) {
+        if (config_.apply_score_offset) {
             SIO_CHECK(score_offset_.empty());
         }
 
@@ -228,7 +228,7 @@ public:
         lattice_.clear();
         token_arena_.Reset();
 
-        if (config_.use_score_offset) {
+        if (config_.apply_score_offset) {
             score_offset_.clear();
         }
 
