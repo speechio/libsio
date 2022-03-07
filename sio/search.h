@@ -143,6 +143,9 @@ struct Token {
 };
 
 
+// LatticeNode represents a searched point in beam search space (also called trellis space):
+// i.e. a (time, state) pair
+// Each node holds a list of tokens that store search scores, rescores, tracebacks etc
 struct LatticeNode {
     int time = 0;
     SearchStateId state = 0;
