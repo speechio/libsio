@@ -44,11 +44,15 @@ struct SpeechToTextModel {
         SIO_INFO << "Loading torchscript nnet from: " << config.nnet; 
         nnet = torch::jit::load(config.nnet);
 
-        SIO_CHECK(config.graph != "") << "decoding graph is required";
-        SIO_INFO << "Loading decoding graph from: " << config.graph;
-        std::ifstream is(config.graph, std::ios::binary);
-        SIO_CHECK(is.good()) << "Cannot open decoding graph file";
-        graph.Load(is);
+        if (config.graph != "") {
+            SIO_INFO << "Loading decoding graph from: " << config.graph;
+            std::ifstream is(config.graph, std::ios::binary);
+            SIO_CHECK(is.good()) << "Cannot open decoding graph file";
+            graph.Load(is);
+        } else {
+            SIO_INFO << "Building decoding graph from: " << config.tokenizer_vocab;
+            graph.BuildTokenTopology(tokenizer);
+        }
 
         return Error::OK;
     }
