@@ -167,11 +167,11 @@ class BeamSearch {
     SlabAllocator<Token> token_arena_;
     Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
 
-    // time & frame indexing invariant:
+    // invariant of time & frame indexing:
     //   {time=k} ---[frame=k]---> {time=k+1}, where k ~ [0, total_num_feature_frames)
     int cur_time_ = 0;
 
-    // Search frontier
+    // search frontier
     Map<SearchStateId, int> frontier_;  // search state -> frontier lattice node index
     Vec<LatticeNode> frontier_nodes_;
     Vec<int> queue_;  // helper to store indexes of all nonemitting frontier nodes
@@ -180,7 +180,7 @@ class BeamSearch {
     f32 score_max_ = 0.0;
     f32 score_cutoff_ = 0.0;
 
-    Vec<f32> score_offset_;  // Ensure numeric stability of accumulated scores for long audio
+    Vec<f32> score_offset_;  // ensure numeric stability of accumulated scores for long audio
 
 public:
 
