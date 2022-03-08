@@ -150,11 +150,20 @@ struct LatticeNode {
 };
 
 
+enum class SessionStatus : int {
+    kIdle,
+    kBusy,
+    kDone,
+};
+
+
 class BeamSearch {
-    Str session_key_;
+    Str session_key_ = "default_session";
+    SessionStatus status_ = SessionStatus::kIdle;
 
     BeamSearchConfig config_;
     const Fsm* graph_ = nullptr;
+    Vec<Unique<LanguageModel*>> lms_;
 
     SlabAllocator<Token> token_arena_;
     Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
@@ -167,8 +176,6 @@ class BeamSearch {
 
     Vec<f32> score_offset_;
 
-    Vec<Unique<LanguageModel*>> lms_;
-
 public:
     Error Load(const BeamSearchConfig& config, const Fsm& graph) {
         config_ = config;
@@ -178,92 +185,36 @@ public:
     }
 
 
-    Error StartSession(const Str session_key = "default_session") {
-        session_key_ = session_key;
-
-        SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
-        token_arena_.SetSlabSize(config_.token_slab_size);
-
-        SIO_CHECK(lattice_.empty());
-        lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
-
-        SIO_CHECK(frontier_nodes_.empty());
-        frontier_nodes_.reserve(config_.max_active * 3);
-
-        SIO_CHECK(frontier_.empty());
-        frontier_.reserve(frontier_nodes_.capacity() / 0.5); // presumably 50% load factoer
-
-        if (config_.apply_score_offset) {
-            SIO_CHECK(score_offset_.empty());
-        }
-
-        Token* token = NewToken();
-        for (int i = 0; i != lms_.size(); i++) {
-            LanguageModel* lm = lms_[i].get();
-
-            f32 score = 0.0;
-            bool r = lm->GetScore(lm->NullState(), lm->Bos(), &score, &token->lm_states[i]);
-            SIO_CHECK(r == true);
-
-            token->score += score;
-        }
-
-        LatticeNode* node = FindOrAddFrontier(0, graph_->start_state);
-        node->head = token; // TODO: replace with AddTokenToNode() ?
-
-        score_max_ = token->score;
-        score_cutoff_ = score_max_ - config_.beam;
-
-        ProcessNonemitting();
-
-        lattice_.push_back(frontier_nodes_);
-        frontier_.clear();
-        frontier_nodes_.clear();
-
-        return Error::OK;
-    }
-
-
     Error Push(const torch::Tensor frame_score) {
+        SIO_CHECK(status_ == SessionStatus::kIdle || status_ == SessionStatus::kBusy);
+        if (status_ == SessionStatus::kIdle) {
+            InitSession();
+        }
+
         const float* score_data = frame_score.data_ptr<float>();
-        //dbg(frame_score.size(0));
-        //for (int i = 0; i != frame_score.size(0); i++) {
-        //    dbg(frame_score[i].item<float>(), score_data[i]);
-        //    if (score_data[i] != frame_score[i].item<float>()) {
-        //        SIO_FATAL << i;
+        //{ // Check whether LibTorch tensor elements can be accessed via raw data pointer
+        //    dbg(frame_score.size(0));
+        //    for (int i = 0; i != frame_score.size(0); i++) {
+        //        dbg(frame_score[i].item<float>(), score_data[i]);
+        //        if (score_data[i] != frame_score[i].item<float>()) {
+        //            SIO_FATAL << i;
+        //        }
         //    }
         //}
-        Advance(score_data, false);
+        ProcessEmitting(score_data);
+        ProcessNonemitting();
         return Error::OK;
     }
 
 
     Error PushEnd() {
-        Advance(nullptr, true);
-        return Error::OK;
-    }
-
-
-    Error StopSession() {
-        frontier_.clear();
-        frontier_nodes_.clear();
-
-        lattice_.clear();
-        token_arena_.Reset();
-
-        if (config_.apply_score_offset) {
-            score_offset_.clear();
-        }
-
+        ProcessEnd();
         return Error::OK;
     }
 
 
     Error Reset() {
-        this->StopSession();
-        this->StartSession();
-
-        return Error::OK;
+        return DeinitSession();
     }
 
 private:
@@ -299,16 +250,93 @@ private:
         return &frontier_nodes_[ni];
     }
 
-    void Advance(const float* score, bool eos) {
+    Error InitSession() {
+        // Precondition checks
+        SIO_CHECK(status_ == SessionStatus::kIdle);
+
+        SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
+        token_arena_.SetSlabSize(config_.token_slab_size);
+
+        SIO_CHECK(lattice_.empty());
+        lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
+
+        SIO_CHECK(frontier_nodes_.empty());
+        frontier_nodes_.reserve(config_.max_active * 3);
+
+        SIO_CHECK(frontier_.empty());
+        frontier_.reserve(frontier_nodes_.capacity() / 0.5); // presumably 50% load factoer
+
+        if (config_.apply_score_offset) {
+            SIO_CHECK(score_offset_.empty());
+        }
+
+        // Initialize decoding session
+        status_ = SessionStatus::kBusy;
+
+        Token* token = NewToken();
+        for (int i = 0; i != lms_.size(); i++) {
+            LanguageModel* lm = lms_[i].get();
+
+            f32 score = 0.0;
+            bool r = lm->GetScore(lm->NullState(), lm->Bos(), &score, &token->lm_states[i]);
+            SIO_CHECK(r == true);
+
+            token->score += score;
+        }
+
+        LatticeNode* node = FindOrAddFrontier(0, graph_->start_state);
+        node->head = token; // TODO: replace with AddTokenToNode() ?
+
+        score_max_ = token->score;
+        score_cutoff_ = score_max_ - config_.beam;
+
+        ProcessNonemitting();
+
+        lattice_.push_back(frontier_nodes_);
+        frontier_.clear();
+        frontier_nodes_.clear();
+
+        dbg(lattice_.size(), lattice_.capacity());
+
+        return Error::OK;
     }
 
-    void ProcessEmitting() {
+    Error DeinitSession() {
+        if (status_ == SessionStatus::kDone) {
+            frontier_.clear();
+            frontier_nodes_.clear();
+
+            lattice_.clear();
+            token_arena_.Reset();
+
+            if (config_.apply_score_offset) {
+                score_offset_.clear();
+            }
+
+            status_ = SessionStatus::kIdle;
+        }
+        SIO_CHECK(status_ == SessionStatus::kIdle) << "Cannot deinitialize a busy session.";
+
+        return Error::OK;
     }
 
-    void ProcessNonemitting() {
+    Error ProcessEmitting(const float* score) {
+        SIO_CHECK(status_ == SessionStatus::kBusy);
+
+        return Error::OK;
     }
 
-    void ProcessInputEnd() {
+    Error ProcessNonemitting() {
+        SIO_CHECK(status_ == SessionStatus::kBusy);
+
+        return Error::OK;
+    }
+
+    Error ProcessEnd() {
+        SIO_CHECK(status_ == SessionStatus::kBusy);
+
+        status_ = SessionStatus::kDone;
+        return Error::OK;
     }
 
 }; // class BeamSearch
