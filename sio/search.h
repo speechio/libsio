@@ -244,7 +244,7 @@ private:
     }
 
 
-    LatticeNode* FindOrAddFrontier(int t, SearchStateId s) {
+    LatticeNode* FindOrExpandFrontier(int t, SearchStateId s) {
         SIO_CHECK_EQ(lattice_.size(), t) << "frontier time & lattice size mismatch.";
 
         int ni; // node index
@@ -306,7 +306,7 @@ private:
             token->score += score;
         }
 
-        LatticeNode* node = FindOrAddFrontier(0, graph_->start_state);
+        LatticeNode* node = FindOrExpandFrontier(0, graph_->start_state);
         node->head = token; // TODO: replace with AddTokenToNode()?
 
         score_max_ = token->score;
