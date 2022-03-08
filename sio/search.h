@@ -178,6 +178,7 @@ public:
 
     Error Load(const BeamSearchConfig& config, const Fsm& graph) {
         SIO_CHECK(graph_ == nullptr);
+
         config_ = config;
         graph_ = &graph;
         SIO_CHECK(status_ == SessionStatus::kIdle);
@@ -188,11 +189,12 @@ public:
 
     Error Push(const torch::Tensor score) {
         SIO_CHECK(status_ == SessionStatus::kIdle || status_ == SessionStatus::kBusy);
-        SIO_CHECK_EQ(score.dim(), 1) << "Can't push multiple frames.";
         if (status_ == SessionStatus::kIdle) {
             InitSession();
         }
+        SIO_CHECK(status_ == SessionStatus::kBusy);
 
+        SIO_CHECK_EQ(score.dim(), 1) << "Can't push multiple frames.";
         const float* score_data = score.data_ptr<float>();
         //{ // Check whether LibTorch tensor elements can be accessed via raw data pointer
         //    dbg(score.size(0));
@@ -213,13 +215,18 @@ public:
 
     Error PushEnd() {
         SIO_CHECK(status_ == SessionStatus::kBusy);
+
         status_ = SessionStatus::kDone;
         return Error::OK;
     }
 
 
     Error Reset() {
-        return DeinitSession();
+        SIO_CHECK(status_ == SessionStatus::kDone);
+        DeinitSession();
+        SIO_CHECK(status_ == SessionStatus::kIdle);
+
+        return Error::OK; 
     }
 
 private:
@@ -261,8 +268,6 @@ private:
 
     Error InitSession() {
         // Precondition checks
-        SIO_CHECK(status_ == SessionStatus::kIdle);
-
         SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
         token_arena_.SetSlabSize(config_.token_slab_size);
 
@@ -312,8 +317,6 @@ private:
 
 
     Error DeinitSession() {
-        SIO_CHECK(status_ == SessionStatus::kDone);
-
         frontier_.clear();
         frontier_nodes_.clear();
 
@@ -331,13 +334,11 @@ private:
 
 
     Error ProcessEmitting(const float* score) {
-        SIO_CHECK(status_ == SessionStatus::kBusy);
         return Error::OK;
     }
 
 
     Error ProcessNonemitting() {
-        SIO_CHECK(status_ == SessionStatus::kBusy);
         return Error::OK;
     }
 
