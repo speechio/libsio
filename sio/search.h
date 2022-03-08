@@ -140,9 +140,8 @@ struct Token {
 };
 
 
-// LatticeNode represents a searched point in beam search space (also called trellis space):
-// i.e. a (time, state) pair
-// Each node holds a list of tokens that store search scores, rescores, tracebacks etc
+// LatticeNode represents a point in beam search space, i.e. a (time, state) pair.
+// Each node holds a list of tokens that store hypothesis scores, rescores, tracebacks etc
 struct LatticeNode {
     int t = 0;
     SearchStateId s = 0;
@@ -177,6 +176,7 @@ class BeamSearch {
     Vec<f32> score_offset_;
 
 public:
+
     Error Load(const BeamSearchConfig& config, const Fsm& graph) {
         SIO_CHECK(graph_ == nullptr);
         config_ = config;
