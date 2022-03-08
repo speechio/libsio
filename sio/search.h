@@ -164,11 +164,19 @@ class BeamSearch {
     Vec<Unique<LanguageModel*>> lms_;
 
     SlabAllocator<Token> token_arena_;
+
     Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
 
-    // beam search frontier 
-    Vec<LatticeNode> frontier_nodes_;
+    // Search frontier 
+    //   time & frame indexing invariant:
+    //   frame index range: f ~ [0, F), where F = total num of feature frames
+    //   time index range:  t ~ [0, F + 1)
+    //   {time=k} ---[frame=k]---> {time=k+1}
+    int cur_time_ = 0;
     Map<SearchStateId, int> frontier_; // search state -> frontier lattice node index
+    Vec<LatticeNode> frontier_nodes_;
+    Vec<int> queue_; 
+
     f32 score_max_ = 0.0;
     f32 score_cutoff_ = 0.0;
 
@@ -206,8 +214,9 @@ public:
         //    }
         //}
         
-        ProcessEmitting(score_data);
-        ProcessNonemitting();
+        ExpandFrontierEmitting(score_data);
+        ExpandFrontierNonemitting();
+        PinFrontierToLattice();
 
         return Error::OK;
     }
@@ -244,7 +253,7 @@ private:
     }
 
 
-    LatticeNode* FindOrExpandFrontier(int t, SearchStateId s) {
+    LatticeNode* FindOrAddFrontierNode(int t, SearchStateId s) {
         SIO_CHECK_EQ(lattice_.size(), t) << "frontier time & lattice size mismatch.";
 
         int ni; // node index
@@ -266,16 +275,7 @@ private:
     }
 
 
-    void PinFrontierToLattice() {
-        lattice_.push_back(frontier_nodes_); // capacity is not copy-assigned
-
-        frontier_.clear();
-        frontier_nodes_.clear();
-    }
-
-
     Error InitSession() {
-        // Precondition checks
         SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
         token_arena_.SetSlabSize(config_.token_slab_size);
 
@@ -306,14 +306,14 @@ private:
             token->score += score;
         }
 
-        LatticeNode* node = FindOrExpandFrontier(0, graph_->start_state);
+        SIO_CHECK_EQ(cur_time_, 0);
+        LatticeNode* node = FindOrAddFrontierNode(cur_time_, graph_->start_state);
         SIO_CHECK(node->head == nullptr);
         node->head = token; // TODO: replace with AddTokenToNode()?
 
         score_max_ = token->score;
         score_cutoff_ = score_max_ - config_.beam;
-        ProcessNonemitting();
-
+        ExpandFrontierNonemitting();
         PinFrontierToLattice();
 
         return Error::OK;
@@ -321,6 +321,7 @@ private:
 
 
     Error DeinitSession() {
+        cur_time_ = 0;
         frontier_.clear();
         frontier_nodes_.clear();
 
@@ -337,15 +338,25 @@ private:
     }
 
 
-    Error ProcessEmitting(const float* score) {
+    Error ExpandFrontierEmitting(const float* score) {
+        cur_time_++;
         return Error::OK;
     }
 
 
-    Error ProcessNonemitting() {
+    Error ExpandFrontierNonemitting() {
         return Error::OK;
     }
 
+
+    Error PinFrontierToLattice() {
+        lattice_.push_back(frontier_nodes_); // capacity is not copy-assigned
+
+        frontier_.clear();
+        frontier_nodes_.clear();
+
+        return Error::OK;
+    }
 
 }; // class BeamSearch
 }  // namespace sio

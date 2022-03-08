@@ -72,6 +72,10 @@ struct Fsm {
 
 
     inline bool Empty() const { return this->states.empty(); }
+    inline bool ContainEpsilonArc(FsmStateId s) {
+        const FsmArc& first_arc = this->arcs[this->states[s].arcs_begin];
+        return (first_arc.ilabel == kFsmEpsilon);
+    }
 
 
     FsmArcIterator GetArcIterator(FsmStateId i) const {
@@ -82,6 +86,8 @@ struct Fsm {
             &this->arcs[this->states[i+1].arcs_begin]
         );
     }
+
+
 
 
     Error Load(std::istream& is) {
