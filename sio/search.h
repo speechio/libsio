@@ -292,14 +292,14 @@ private:
         }
 
         LatticeNode* node = FindOrAddFrontier(0, graph_->start_state);
-        node->head = token; // TODO: replace with AddTokenToNode() ?
+        node->head = token; // TODO: replace with AddTokenToNode()?
 
         score_max_ = token->score;
         score_cutoff_ = score_max_ - config_.beam;
 
         ProcessNonemitting();
 
-        lattice_.push_back(frontier_nodes_);
+        lattice_.push_back(frontier_nodes_); // capacity is not copy-assigned
         frontier_.clear();
         frontier_nodes_.clear();
 
