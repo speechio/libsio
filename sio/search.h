@@ -160,27 +160,27 @@ class BeamSearch {
     SessionStatus status_ = SessionStatus::kIdle;
 
     BeamSearchConfig config_;
+
     const Fsm* graph_ = nullptr;
     Vec<Unique<LanguageModel*>> lms_;
 
     SlabAllocator<Token> token_arena_;
-
     Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
 
-    // Search frontier 
-    //   time & frame indexing invariant:
-    //   frame index range: f ~ [0, F), where F = total num of feature frames
-    //   time index range:  t ~ [0, F + 1)
-    //   {time=k} ---[frame=k]---> {time=k+1}
+    // time & frame indexing invariant:
+    //   {time=k} ---[frame=k]---> {time=k+1}, where k ~ [0, total_num_feature_frames)
     int cur_time_ = 0;
-    Map<SearchStateId, int> frontier_; // search state -> frontier lattice node index
-    Vec<LatticeNode> frontier_nodes_;
-    Vec<int> queue_; 
 
+    // Search frontier
+    Map<SearchStateId, int> frontier_;  // search state -> frontier lattice node index
+    Vec<LatticeNode> frontier_nodes_;
+    Vec<int> queue_;  // helper to store indexes of all nonemitting frontier nodes
+
+    // score range for beam pruning
     f32 score_max_ = 0.0;
     f32 score_cutoff_ = 0.0;
 
-    Vec<f32> score_offset_;
+    Vec<f32> score_offset_;  // Ensure numeric stability of accumulated scores for long audio
 
 public:
 
@@ -253,7 +253,7 @@ private:
     }
 
 
-    LatticeNode* FindOrAddFrontierNode(int t, SearchStateId s) {
+    inline LatticeNode* FindOrAddFrontierNode(int t, SearchStateId s) {
         SIO_CHECK_EQ(lattice_.size(), t) << "frontier time & lattice size mismatch.";
 
         int ni; // node index
