@@ -307,6 +307,7 @@ private:
         }
 
         LatticeNode* node = FindOrExpandFrontier(0, graph_->start_state);
+        SIO_CHECK(node->head == nullptr);
         node->head = token; // TODO: replace with AddTokenToNode()?
 
         score_max_ = token->score;
