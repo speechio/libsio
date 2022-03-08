@@ -11,12 +11,11 @@
 namespace sio {
 class GreedySearch {
 public:
-    void Push(const torch::Tensor frame_score) {
-        std::tuple<torch::Tensor, torch::Tensor> best = frame_score.topk(1);
-        auto score = std::get<0>(best).item<f32>();
-        auto token = std::get<1>(best).item<TokenId>();
-        best_path_tokens_.push_back(token);
-        best_path_scores_.push_back(score);
+    void Push(const torch::Tensor score) {
+        std::tuple<torch::Tensor, torch::Tensor> best = score.topk(1);
+
+        best_path_scores_.push_back(std::get<0>(best).item<f32>());
+        best_path_tokens_.push_back(std::get<1>(best).item<TokenId>());
     }
 
 
@@ -187,24 +186,27 @@ public:
     }
 
 
-    Error Push(const torch::Tensor frame_score) {
+    Error Push(const torch::Tensor score) {
         SIO_CHECK(status_ == SessionStatus::kIdle || status_ == SessionStatus::kBusy);
+        SIO_CHECK_EQ(score.dim(), 1) << "Can't push multiple frames.";
         if (status_ == SessionStatus::kIdle) {
             InitSession();
         }
 
-        const float* score_data = frame_score.data_ptr<float>();
+        const float* score_data = score.data_ptr<float>();
         //{ // Check whether LibTorch tensor elements can be accessed via raw data pointer
-        //    dbg(frame_score.size(0));
-        //    for (int i = 0; i != frame_score.size(0); i++) {
-        //        dbg(frame_score[i].item<float>(), score_data[i]);
-        //        if (score_data[i] != frame_score[i].item<float>()) {
+        //    dbg(score.size(0));
+        //    for (int i = 0; i != score.size(0); i++) {
+        //        dbg(score[i].item<float>(), score_data[i]);
+        //        if (score_data[i] != score[i].item<float>()) {
         //            SIO_FATAL << i;
         //        }
         //    }
         //}
+        
         ProcessEmitting(score_data);
         ProcessNonemitting();
+
         return Error::OK;
     }
 
