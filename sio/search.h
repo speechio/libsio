@@ -312,7 +312,6 @@ private:
 
         score_max_ = token->score;
         score_cutoff_ = score_max_ - config_.beam;
-
         ProcessNonemitting();
 
         PinFrontierToLattice();
