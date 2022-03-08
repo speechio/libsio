@@ -172,9 +172,9 @@ class BeamSearch {
     int cur_time_ = 0;
 
     // search frontier
-    Map<SearchStateId, int> frontier_;  // search state -> frontier lattice node index
     Vec<LatticeNode> frontier_nodes_;
-    Vec<int> queue_;  // helper to store indexes of all nonemitting frontier nodes
+    Map<SearchStateId, int> frontier_;  // search state -> frontier lattice node index
+    Vec<int> queue_;
 
     // score range for beam pruning
     f32 score_max_ = 0.0;
