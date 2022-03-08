@@ -178,8 +178,10 @@ class BeamSearch {
 
 public:
     Error Load(const BeamSearchConfig& config, const Fsm& graph) {
+        SIO_CHECK(graph_ == nullptr);
         config_ = config;
         graph_ = &graph;
+        SIO_CHECK(status_ == SessionStatus::kIdle);
 
         return Error::OK;
     }
@@ -208,7 +210,8 @@ public:
 
 
     Error PushEnd() {
-        ProcessEnd();
+        SIO_CHECK(status_ == SessionStatus::kBusy);
+        status_ = SessionStatus::kDone;
         return Error::OK;
     }
 
@@ -218,16 +221,19 @@ public:
     }
 
 private:
+
     inline Token* NewToken() {
         Token* p = token_arena_.Alloc();
         new (p) Token(); // placement new
         return p;
     }
 
+
     inline void DeleteToken(Token *p) {
         //p->~Token();
         token_arena_.Free(p);
     }
+
 
     LatticeNode* FindOrAddFrontier(int t, SearchStateId s) {
         SIO_CHECK_EQ(lattice_.size(), t) << "frontier time & lattice size mismatch.";
@@ -250,6 +256,7 @@ private:
         return &frontier_nodes_[ni];
     }
 
+
     Error InitSession() {
         // Precondition checks
         SIO_CHECK(status_ == SessionStatus::kIdle);
@@ -270,7 +277,7 @@ private:
             SIO_CHECK(score_offset_.empty());
         }
 
-        // Initialize decoding session
+        // Initialize search session
         status_ = SessionStatus::kBusy;
 
         Token* token = NewToken();
@@ -296,48 +303,42 @@ private:
         frontier_.clear();
         frontier_nodes_.clear();
 
-        dbg(lattice_.size(), lattice_.capacity());
+        //dbg(lattice_.size(), lattice_.capacity());
 
         return Error::OK;
     }
+
 
     Error DeinitSession() {
-        if (status_ == SessionStatus::kDone) {
-            frontier_.clear();
-            frontier_nodes_.clear();
+        SIO_CHECK(status_ == SessionStatus::kDone);
 
-            lattice_.clear();
-            token_arena_.Reset();
+        frontier_.clear();
+        frontier_nodes_.clear();
 
-            if (config_.apply_score_offset) {
-                score_offset_.clear();
-            }
+        lattice_.clear();
+        token_arena_.Reset();
 
-            status_ = SessionStatus::kIdle;
+        if (config_.apply_score_offset) {
+            score_offset_.clear();
         }
-        SIO_CHECK(status_ == SessionStatus::kIdle) << "Cannot deinitialize a busy session.";
+
+        status_ = SessionStatus::kIdle;
 
         return Error::OK;
     }
+
 
     Error ProcessEmitting(const float* score) {
         SIO_CHECK(status_ == SessionStatus::kBusy);
-
         return Error::OK;
     }
+
 
     Error ProcessNonemitting() {
         SIO_CHECK(status_ == SessionStatus::kBusy);
-
         return Error::OK;
     }
 
-    Error ProcessEnd() {
-        SIO_CHECK(status_ == SessionStatus::kBusy);
-
-        status_ = SessionStatus::kDone;
-        return Error::OK;
-    }
 
 }; // class BeamSearch
 }  // namespace sio
