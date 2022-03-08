@@ -266,6 +266,14 @@ private:
     }
 
 
+    void PinFrontierToLattice() {
+        lattice_.push_back(frontier_nodes_); // capacity is not copy-assigned
+
+        frontier_.clear();
+        frontier_nodes_.clear();
+    }
+
+
     Error InitSession() {
         // Precondition checks
         SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
@@ -306,11 +314,7 @@ private:
 
         ProcessNonemitting();
 
-        lattice_.push_back(frontier_nodes_); // capacity is not copy-assigned
-        frontier_.clear();
-        frontier_nodes_.clear();
-
-        //dbg(lattice_.size(), lattice_.capacity());
+        PinFrontierToLattice();
 
         return Error::OK;
     }
