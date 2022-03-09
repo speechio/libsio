@@ -255,7 +255,7 @@ private:
 
 
     inline TokenSet* FindOrAddTokenSet(int t, SearchStateId s) {
-        SIO_CHECK_EQ(token_net_.size(), t) << "frontier time & lattice size mismatch.";
+        SIO_CHECK_EQ(cur_time_, t) << "Cannot find or add non-frontier TokenSet.";
 
         int k;
         auto it = frontier_map_.find(s);
