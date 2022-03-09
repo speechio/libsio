@@ -62,7 +62,7 @@ struct BeamSearchConfig {
 
     i32 token_allocator_slab_size = 5000;
 
-    bool apply_score_offset = true;  // for numerical stability of long audio score
+    bool apply_score_offset = true;  // for numerical stability of long audio scores
 
     bool debug_mode = false;
 
@@ -180,7 +180,7 @@ class BeamSearch {
     f32 score_max_ = 0.0;
     f32 score_cutoff_ = 0.0;
 
-    Vec<f32> score_offset_;  // ensure numeric stability of accumulated scores for long audio
+    Vec<f32> score_offset_;  // for numerical stability of long audio scores
 
 public:
 
