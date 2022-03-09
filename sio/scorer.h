@@ -93,7 +93,7 @@ public:
     }
 
 
-    void PushEnd() {
+    void PushEos() {
         if (feat_cache_.size() > right_context_) {
             Advance();
         }

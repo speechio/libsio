@@ -92,15 +92,14 @@ private:
             feature_extractor_.Push(samples, num_samples, sample_rate);
         }
         if (eos) {
-            feature_extractor_.PushEnd();
+            feature_extractor_.PushEos();
         }
 
         while (feature_extractor_.Size() > 0) {
-            auto feat_frame = feature_extractor_.Pop();
-            scorer_.Push(feat_frame);
+            scorer_.Push(feature_extractor_.Pop());
         }
         if (eos) {
-            scorer_.PushEnd();
+            scorer_.PushEos();
         }
 
         while (scorer_.Size() > 0) {
@@ -109,8 +108,8 @@ private:
             beam_search_.Push(score_frame);
         }
         if (eos) {
-            greedy_search_.PushEnd();
-            beam_search_.PushEnd();
+            greedy_search_.PushEos();
+            beam_search_.PushEos();
         }
 
         return Error::OK;

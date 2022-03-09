@@ -62,7 +62,7 @@ public:
     }
 
 
-    void PushEnd() {
+    void PushEos() {
         extractor_->InputFinished();
     }
 

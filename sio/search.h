@@ -19,7 +19,7 @@ public:
     }
 
 
-    void PushEnd() { }
+    void PushEos() { }
 
 
     void Reset() {
@@ -223,7 +223,7 @@ public:
     }
 
 
-    Error PushEnd() {
+    Error PushEos() {
         SIO_CHECK(status_ == SessionStatus::kBusy);
 
         status_ = SessionStatus::kDone;
