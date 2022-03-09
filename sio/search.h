@@ -62,7 +62,7 @@ struct BeamSearchConfig {
 
     i32 token_allocator_slab_size = 5000;
 
-    bool apply_score_offset = true; // used to improve numeric stability
+    bool apply_score_offset = true;  // for numeric stability of long audio score
 
     bool debug_mode = false;
 
