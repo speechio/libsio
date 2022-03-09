@@ -254,19 +254,19 @@ private:
     }
 
 
-    inline TokenSet* FindOrAddTokenSet(int time, SearchStateId state) {
-        SIO_CHECK_EQ(token_net_.size(), time) << "frontier time & lattice size mismatch.";
+    inline TokenSet* FindOrAddTokenSet(int t, SearchStateId s) {
+        SIO_CHECK_EQ(token_net_.size(), t) << "frontier time & lattice size mismatch.";
 
         int k;
-        auto it = frontier_map_.find(state);
+        auto it = frontier_map_.find(s);
         if (it == frontier_map_.end()) {
             TokenSet token_set;
-            token_set.t = time;
-            token_set.s = state;
+            token_set.t = t;
+            token_set.s = s;
 
             k = frontier_.size();
             frontier_.push_back(token_set);
-            frontier_map_.insert({state, k});
+            frontier_map_.insert({s, k});
         } else {
             k = it->second;
         }
