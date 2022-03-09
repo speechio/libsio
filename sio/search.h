@@ -57,10 +57,10 @@ struct BeamSearchConfig {
     i32 min_active = 8;
     i32 max_active = 12;
 
-    f32 node_beam = 0.01;
-    f32 node_topk = 1;
+    f32 token_set_size = 1;
+    f32 token_set_beam = 0.01;
 
-    i32 token_slab_size = 5000;
+    i32 token_allocator_slab_size = 5000;
 
     bool apply_score_offset = true; // used to improve numeric stability
 
@@ -71,10 +71,10 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".min_active", &min_active);
         loader->AddEntry(module + ".max_active", &max_active);
 
-        loader->AddEntry(module + ".node_beam", &node_beam);
-        loader->AddEntry(module + ".node_topk", &node_topk);
+        loader->AddEntry(module + ".token_set_size", &token_set_size);
+        loader->AddEntry(module + ".token_set_beam", &token_set_beam);
 
-        loader->AddEntry(module + ".token_slab_size", &token_slab_size);
+        loader->AddEntry(module + ".token_allocator_slab_size", &token_allocator_slab_size);
 
         loader->AddEntry(module + ".apply_score_offset", &apply_score_offset);
 
@@ -114,9 +114,15 @@ struct BeamSearchConfig {
 using SearchStateId = FsmStateId;
 
 
-struct Token;
-struct LatticeNode;
+enum class SessionStatus : int {
+    kIdle,
+    kBusy,
+    kDone,
+};
 
+
+struct Token;
+struct TokenSet;
 
 struct TraceBack {
     Token* token = nullptr;
@@ -127,53 +133,47 @@ struct TraceBack {
 
 
 struct Token {
-    //LatticeNode* master = nullptr;
-    Nullable<Token*> next = nullptr; // nullptr -> last token in a lattice node
+    //TokenSet* master = nullptr;
+    Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
 
     f32 score = 0.0;
 
-    u64 prefix = 0;
+    u64 prefix_hash = 0;
     LmStateId lm_states[SIO_MAX_LM] = {};
 
     TraceBack trace_back;
 };
 
 
-// LatticeNode represents a point in beam search space, i.e. a (time, state) pair.
-// Each node holds a list of tokens that store hypothesis scores, rescores, tracebacks etc
-struct LatticeNode {
+// TokenSet represents a point(time, state) in beam search space (sometimes called trellis space),
+// Each TokenSet holds a list of tokens representing search hypotheses
+struct TokenSet {
     int t = 0;
     SearchStateId s = 0;
-    Nullable<Token*> head = nullptr; // nullptr -> lattice node pruned or inactive
-};
-
-
-enum class SessionStatus : int {
-    kIdle,
-    kBusy,
-    kDone,
+    Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 };
 
 
 class BeamSearch {
-    Str session_key_ = "default_session";
-    SessionStatus status_ = SessionStatus::kIdle;
-
     BeamSearchConfig config_;
-
     const Fsm* graph_ = nullptr;
     Vec<Unique<LanguageModel*>> lms_;
 
-    SlabAllocator<Token> token_arena_;
-    Vec<Vec<LatticeNode>> lattice_; // [time, node_index]
+    Str session_key_ = "default_session";
+    SessionStatus status_ = SessionStatus::kIdle;
+
+    SlabAllocator<Token> token_allocator_;
+    Vec<Vec<TokenSet>> token_net_;  // [time, token_set_index]
 
     // invariant of time & frame indexing:
-    //   {time=k} ---[frame=k]---> {time=k+1}, where k ~ [0, total_num_feature_frames)
-    int cur_time_ = 0;
+    //   {time=k} ---[frame=k]---> {time=k+1}
+    // where:
+    //   k ~ [0, total_num_feature_frames)
+    int cur_time_ = 0;  // current frontier location on time axis
 
     // search frontier
-    Vec<LatticeNode> frontier_nodes_;
-    Map<SearchStateId, int> frontier_;  // search state -> frontier lattice node index
+    Vec<TokenSet> frontier_;
+    Map<SearchStateId, int> frontier_map_;  // search state -> frontier token set index
     Vec<int> queue_;
 
     // score range for beam pruning
@@ -216,7 +216,8 @@ public:
         
         ExpandFrontierEmitting(score_data);
         ExpandFrontierNonemitting();
-        PinFrontierToLattice();
+        PruneFrontier();
+        PinFrontier();
 
         return Error::OK;
     }
@@ -241,7 +242,7 @@ public:
 private:
 
     inline Token* NewToken() {
-        Token* p = token_arena_.Alloc();
+        Token* p = token_allocator_.Alloc();
         new (p) Token(); // placement new
         return p;
     }
@@ -249,44 +250,43 @@ private:
 
     inline void DeleteToken(Token *p) {
         //p->~Token();
-        token_arena_.Free(p);
+        token_allocator_.Free(p);
     }
 
 
-    inline LatticeNode* FindOrAddFrontierNode(int t, SearchStateId s) {
-        SIO_CHECK_EQ(lattice_.size(), t) << "frontier time & lattice size mismatch.";
+    inline TokenSet* FindOrAddTokenSet(int time, SearchStateId state) {
+        SIO_CHECK_EQ(token_net_.size(), time) << "frontier time & lattice size mismatch.";
 
-        int ni; // node index
-        auto it = frontier_.find(s);
-        if (it == frontier_.end()) {
-            LatticeNode node;
-            node.t = t;
-            node.s = s;
+        int k;
+        auto it = frontier_map_.find(state);
+        if (it == frontier_map_.end()) {
+            TokenSet token_set;
+            token_set.t = time;
+            token_set.s = state;
 
-            ni = frontier_nodes_.size();
-
-            frontier_nodes_.push_back(node);
-            frontier_.insert({s, ni});
+            k = frontier_.size();
+            frontier_.push_back(token_set);
+            frontier_map_.insert({state, k});
         } else {
-            ni = it->second;
+            k = it->second;
         }
 
-        return &frontier_nodes_[ni];
+        return &frontier_[k];
     }
 
 
     Error InitSession() {
-        SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
-        token_arena_.SetSlabSize(config_.token_slab_size);
+        SIO_CHECK_EQ(token_allocator_.NumUsed(), 0);
+        token_allocator_.SetSlabSize(config_.token_allocator_slab_size);
 
-        SIO_CHECK(lattice_.empty());
-        lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
-
-        SIO_CHECK(frontier_nodes_.empty());
-        frontier_nodes_.reserve(config_.max_active * 3);
+        SIO_CHECK(token_net_.empty());
+        token_net_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
 
         SIO_CHECK(frontier_.empty());
-        frontier_.reserve(frontier_nodes_.capacity() / 0.5); // presumably 50% load factoer
+        frontier_.reserve(config_.max_active * 3);
+
+        SIO_CHECK(frontier_map_.empty());
+        frontier_map_.reserve(frontier_.capacity() * 2); // presumably 50% load factoer
 
         if (config_.apply_score_offset) {
             SIO_CHECK(score_offset_.empty());
@@ -307,14 +307,14 @@ private:
         }
 
         SIO_CHECK_EQ(cur_time_, 0);
-        LatticeNode* node = FindOrAddFrontierNode(cur_time_, graph_->start_state);
-        SIO_CHECK(node->head == nullptr);
-        node->head = token; // TODO: replace with AddTokenToNode()?
+        TokenSet* token_set = FindOrAddTokenSet(cur_time_, graph_->start_state);
+        SIO_CHECK(token_set->head == nullptr);
+        token_set->head = token; // TODO: replace with AddTokenToSet()?
 
         score_max_ = token->score;
         score_cutoff_ = score_max_ - config_.beam;
         ExpandFrontierNonemitting();
-        PinFrontierToLattice();
+        PinFrontier();
 
         return Error::OK;
     }
@@ -323,10 +323,10 @@ private:
     Error DeinitSession() {
         cur_time_ = 0;
         frontier_.clear();
-        frontier_nodes_.clear();
+        frontier_map_.clear();
 
-        lattice_.clear();
-        token_arena_.Reset();
+        token_net_.clear();
+        token_allocator_.Reset();
 
         if (config_.apply_score_offset) {
             score_offset_.clear();
@@ -349,11 +349,20 @@ private:
     }
 
 
-    Error PinFrontierToLattice() {
-        lattice_.push_back(frontier_nodes_); // capacity is not copy-assigned
+    Error PruneFrontier() {
+        return Error::OK;
+    }
 
+
+    Error PinFrontier() {
+        // intentially push_back() via "copy" instead of "move"
+        token_net_.push_back(frontier_);
+
+        // frontier's capacity() is reserved after clear(),
+        // avoiding unnecessary reallocations across frames.
         frontier_.clear();
-        frontier_nodes_.clear();
+
+        frontier_map_.clear();
 
         return Error::OK;
     }

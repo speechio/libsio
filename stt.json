@@ -25,9 +25,9 @@
         "beam": 12.0,
         "min_active": 8,
         "max_active": 14,
-        "node_beam": 0.01,
-        "node_topk": 1,
-        "token_slab_size": 10000,
+        "token_set_size": 1,
+        "token_set_beam": 0.01,
+        "token_allocator_slab_size": 10000,
         "apply_score_offset": true,
         "debug_mode": false
     }
