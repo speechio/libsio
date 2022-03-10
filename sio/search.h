@@ -150,6 +150,8 @@ struct Token {
 struct TokenSet {
     int t = 0;
     SearchStateId s = 0;
+
+    f32 best_score = 0.0f;
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 };
 
