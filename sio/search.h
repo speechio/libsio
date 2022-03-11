@@ -219,6 +219,7 @@ public:
         FrontierExpandEmitting(score_data);
         FrontierExpandNonemitting();
         FrontierPruning();
+
         PinFrontier();
 
         return Error::OK;
