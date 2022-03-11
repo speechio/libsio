@@ -164,18 +164,18 @@ class BeamSearch {
     Str session_key_ = "default_session";
     SessionStatus status_ = SessionStatus::kIdle;
 
-    SlabAllocator<Token> token_allocator_;
-    Vec<Vec<TokenSet>> lattice_;  // [time, token_set_index]
-
+    // lattice indexes: 
+    //   [time, token_set_index]
     // invariant of time & frame indexing:
     //   {time=k} ---[frame=k]---> {time=k+1}
-    // where:
-    //   k ~ [0, total_num_feature_frames)
-    int cur_time_ = 0;  // current frontier location on time axis
+    //   where: k ~ [0, total_frames)
+    Vec<Vec<TokenSet>> lattice_;
+    SlabAllocator<Token> token_allocator_;
 
     // search frontier
     Vec<TokenSet> frontier_;
     Map<SearchStateId, int> frontier_map_;  // search state -> frontier token set index
+    int cur_time_ = 0;  // current frontier location on time axis
     Vec<int> queue_;
 
     // score range for beam pruning
