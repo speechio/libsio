@@ -165,7 +165,7 @@ class BeamSearch {
     SessionStatus status_ = SessionStatus::kIdle;
 
     SlabAllocator<Token> token_allocator_;
-    Vec<Vec<TokenSet>> token_net_;  // [time, token_set_index]
+    Vec<Vec<TokenSet>> lattice_;  // [time, token_set_index]
 
     // invariant of time & frame indexing:
     //   {time=k} ---[frame=k]---> {time=k+1}
@@ -216,9 +216,9 @@ public:
         //    }
         //}
         
-        ExpandFrontierEmitting(score_data);
-        ExpandFrontierNonemitting();
-        PruneFrontier();
+        FrontierExpandEmitting(score_data);
+        FrontierExpandNonemitting();
+        FrontierPruning();
         PinFrontier();
 
         return Error::OK;
@@ -281,8 +281,8 @@ private:
         SIO_CHECK_EQ(token_allocator_.NumUsed(), 0);
         token_allocator_.SetSlabSize(config_.token_allocator_slab_size);
 
-        SIO_CHECK(token_net_.empty());
-        token_net_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
+        SIO_CHECK(lattice_.empty());
+        lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
 
         SIO_CHECK(frontier_.empty());
         frontier_.reserve(config_.max_active * 3);
@@ -315,7 +315,7 @@ private:
 
         score_max_ = token->score;
         score_cutoff_ = score_max_ - config_.beam;
-        ExpandFrontierNonemitting();
+        FrontierExpandNonemitting();
         PinFrontier();
 
         return Error::OK;
@@ -327,7 +327,7 @@ private:
         frontier_.clear();
         frontier_map_.clear();
 
-        token_net_.clear();
+        lattice_.clear();
         token_allocator_.Reset();
 
         if (config_.apply_score_offset) {
@@ -340,30 +340,29 @@ private:
     }
 
 
-    Error ExpandFrontierEmitting(const float* score) {
+    Error FrontierExpandEmitting(const float* score) {
         cur_time_++;
         return Error::OK;
     }
 
 
-    Error ExpandFrontierNonemitting() {
+    Error FrontierExpandNonemitting() {
         return Error::OK;
     }
 
 
-    Error PruneFrontier() {
+    Error FrontierPruning() {
         return Error::OK;
     }
 
 
     Error PinFrontier() {
         // intentially push_back() via "copy" instead of "move"
-        token_net_.push_back(frontier_);
+        lattice_.push_back(frontier_);
 
         // frontier's capacity() is reserved after clear(),
         // avoiding unnecessary reallocations across frames.
         frontier_.clear();
-
         frontier_map_.clear();
 
         return Error::OK;
