@@ -216,9 +216,9 @@ public:
         //    }
         //}
         
-        FrontierExpandEmitting(score_data);
-        FrontierExpandNonemitting();
-        FrontierPruning();
+        ExpandFrontierEmitting(score_data);
+        ExpandFrontierNonemitting();
+        PruneFrontier();
 
         PinFrontierToLattice();
 
@@ -316,7 +316,7 @@ private:
 
         score_max_ = token->score;
         score_cutoff_ = score_max_ - config_.beam;
-        FrontierExpandNonemitting();
+        ExpandFrontierNonemitting();
         PinFrontierToLattice();
 
         return Error::OK;
@@ -341,18 +341,18 @@ private:
     }
 
 
-    Error FrontierExpandEmitting(const float* score) {
+    Error ExpandFrontierEmitting(const float* score) {
         cur_time_++;
         return Error::OK;
     }
 
 
-    Error FrontierExpandNonemitting() {
+    Error ExpandFrontierNonemitting() {
         return Error::OK;
     }
 
 
-    Error FrontierPruning() {
+    Error PruneFrontier() {
         return Error::OK;
     }
 
