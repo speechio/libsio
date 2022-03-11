@@ -173,9 +173,9 @@ class BeamSearch {
     SlabAllocator<Token> token_allocator_;
 
     // search frontier
+    int cur_time_ = 0;  // frontier location on time axis
     Vec<TokenSet> frontier_;
     Map<SearchStateId, int> frontier_map_;  // search state -> frontier token set index
-    int cur_time_ = 0;  // current frontier location on time axis
     Vec<int> queue_;
 
     // score range for beam pruning
