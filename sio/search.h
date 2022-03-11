@@ -220,7 +220,7 @@ public:
         FrontierExpandNonemitting();
         FrontierPruning();
 
-        PinFrontier();
+        PinFrontierToLattice();
 
         return Error::OK;
     }
@@ -317,7 +317,7 @@ private:
         score_max_ = token->score;
         score_cutoff_ = score_max_ - config_.beam;
         FrontierExpandNonemitting();
-        PinFrontier();
+        PinFrontierToLattice();
 
         return Error::OK;
     }
@@ -357,7 +357,7 @@ private:
     }
 
 
-    Error PinFrontier() {
+    Error PinFrontierToLattice() {
         // intentially push_back() via "copy" instead of "move"
         lattice_.push_back(frontier_);
 
