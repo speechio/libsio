@@ -228,8 +228,9 @@ public:
 
     Error PushEos() {
         SIO_CHECK(status_ == SessionStatus::kBusy);
+        ExpandFrontierEos();
+        SIO_CHECK(status_ == SessionStatus::kDone);
 
-        status_ = SessionStatus::kDone;
         return Error::OK;
     }
 
@@ -348,6 +349,13 @@ private:
 
 
     Error ExpandFrontierNonemitting() {
+        return Error::OK;
+    }
+
+
+    Error ExpandFrontierEos() {
+
+        status_ = SessionStatus::kDone;
         return Error::OK;
     }
 
