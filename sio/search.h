@@ -128,12 +128,12 @@ struct TraceBack {
     Token* token = nullptr;
     FsmArc arc;
     f32 score = 0.0;
-    LmScore rescores[SIO_MAX_LM] = {};
+    LmScore lm_scores[SIO_MAX_LM] = {};
 };
 
 
 struct Token {
-    //TokenSet* master = nullptr;
+    TokenSet* master = nullptr;
     Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
 
     f32 score = 0.0;
@@ -148,11 +148,11 @@ struct Token {
 // TokenSet represents a point(time, state) in beam search space (sometimes called trellis space),
 // Each TokenSet holds a list of tokens representing search hypotheses
 struct TokenSet {
-    int t = 0;
-    SearchStateId s = 0;
-
     f32 best_score = 0.0f;
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
+
+    int t = 0;
+    SearchStateId s = 0;
 };
 
 
