@@ -137,7 +137,7 @@ struct Token {
     int master = -1;
     Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
 
-    f32 score = 0.0;
+    f32 total_score = 0.0;
 
     u64 prefix_hash = 0;
     LmStateId lm_states[SIO_MAX_LM] = {};
@@ -304,11 +304,11 @@ private:
         for (int i = 0; i != lms_.size(); i++) {
             LanguageModel* lm = lms_[i].get();
 
-            f32 score = 0.0;
-            bool r = lm->GetScore(lm->NullState(), lm->Bos(), &score, &token->lm_states[i]);
+            f32 bos_score = 0.0;
+            bool r = lm->GetScore(lm->NullState(), lm->Bos(), &bos_score, &token->lm_states[i]);
             SIO_CHECK(r == true);
 
-            token->score += score;
+            token->total_score += bos_score;
         }
 
         SIO_CHECK_EQ(cur_time_, 0);
@@ -316,7 +316,7 @@ private:
         SIO_CHECK(token_set->head == nullptr);
         token_set->head = token; // TODO: replace with AddTokenToSet()?
 
-        score_max_ = token->score;
+        score_max_ = token->total_score;
         score_cutoff_ = score_max_ - config_.beam;
         ExpandFrontierNonemitting();
         PinFrontierToLattice();
@@ -355,7 +355,6 @@ private:
 
 
     Error ExpandFrontierEos() {
-
         status_ = SessionStatus::kDone;
         return Error::OK;
     }
@@ -374,6 +373,13 @@ private:
         // avoiding unnecessary reallocations across frames.
         frontier_.clear();
         frontier_map_.clear();
+
+        Vec<TokenSet>& v = lattice_.back();
+        for (int k = 0; k != v.size() ; k++) {
+            for (Token* t = v[k].head; t != nullptr; t = t->next) {
+                t->master = k;
+            }
+        }
 
         return Error::OK;
     }
