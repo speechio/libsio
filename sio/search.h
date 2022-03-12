@@ -133,8 +133,7 @@ struct TraceBack {
 
 
 struct Token {
-    //TokenSet* master = nullptr;
-    int master = -1;
+    TokenSet* master = nullptr;
     Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
 
     f32 total_score = 0.0;
@@ -377,7 +376,7 @@ private:
         Vec<TokenSet>& v = lattice_.back();
         for (int k = 0; k != v.size() ; k++) {
             for (Token* t = v[k].head; t != nullptr; t = t->next) {
-                t->master = k;
+                t->master = &v[k];
             }
         }
 
