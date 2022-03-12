@@ -133,7 +133,8 @@ struct TraceBack {
 
 
 struct Token {
-    TokenSet* master = nullptr;
+    //TokenSet* master = nullptr;
+    int master = -1;
     Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
 
     f32 score = 0.0;
@@ -168,7 +169,7 @@ class BeamSearch {
     //   [time, token_set_index]
     // invariant of time & frame indexing:
     //   {time=k} ---[frame=k]---> {time=k+1}
-    //   where: k ~ [0, total_frames)
+    // where: k ~ [0, total_frames)
     Vec<Vec<TokenSet>> lattice_;
     SlabAllocator<Token> token_allocator_;
 
