@@ -263,6 +263,17 @@ private:
     }
 
 
+    inline void ClearTokenSet(TokenSet *ts) {
+        Token* t = ts->head;
+        while (t != nullptr) {
+            Token* next = t->next;
+            DeleteToken(t);
+            t = next;
+        }
+        ts->head = nullptr;
+    }
+
+
     inline int FindOrAddTokenSet(int t, SearchStateId s) {
         SIO_CHECK_EQ(cur_time_, t) << "Cannot find or add non-frontier TokenSet.";
 
@@ -284,8 +295,49 @@ private:
     }
 
 
-    bool TokenPassing(const TokenSet& src, const FsmArc& arc, f32 passing_score, TokenSet* dst) {
+    inline bool AddTokenToTokenSet(Token* t, TokenSet* ts)  {
         return false;
+    }
+
+
+    bool TokenPassing(const TokenSet& src, const FsmArc& arc, f32 score, TokenSet* dst) {
+        bool changed = false;
+
+        for (Token* p = src.head; p != nullptr; p = p->next) {
+            Token* q = NewToken();
+
+            q->total_score = p->total_score + arc.score + score;
+
+            q->trace_back.token = p;
+            q->trace_back.arc = arc;
+            q->trace_back.score = score;
+
+            // lm scoring
+            if (arc.olabel != kFsmEpsilon) {
+                // without external LMs, resort to prefix_hash as hypothesis identifier
+                if (lms_.empty()) {
+                    constexpr u64 prime = 7853; // picked from Kaldi's VectorHasher: https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
+                    q->prefix_hash = p->prefix_hash * prime + (u64)arc.olabel;
+                }
+
+                for (int i = 0; i != lms_.size(); i++) {
+                    LanguageModel* lm = lms_[i].get();
+
+                    f32 lm_score = 0.0;
+                    bool found = lm->GetScore(p->lm_states[i], arc.olabel, &lm_score, &q->lm_states[i]);
+                    SIO_CHECK(found == true);
+
+                    q->total_score += lm_score;
+                    q->trace_back.lm_scores[i] = lm_score;
+                }
+            }
+
+            if (AddTokenToTokenSet(q, dst)) {
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
 
@@ -364,6 +416,7 @@ private:
 
     Error ExpandFrontierEpsilon() {
         SIO_CHECK(eps_queue_.empty());
+
         for (int k = 0; k != frontier_.size(); k++) {
             if (graph_->ContainEpsilonArc(S2G(frontier_[k].state))) {
                 eps_queue_.push_back(k);
@@ -371,23 +424,25 @@ private:
         }
 
         while (!eps_queue_.empty()) {
-            int src_k = eps_queue_.back();
-            eps_queue_.pop_back();
-
+            int src_k = eps_queue_.back(); eps_queue_.pop_back();
             const TokenSet& src = frontier_[src_k];
 
-            if (src.best_score > score_cutoff_) {
-                FsmStateId s = S2G(src.state);
-                for (auto aiter = graph_->GetArcIterator(s); !aiter.Done(); aiter.Next()) {
-                    const auto& arc = aiter.Value();
+            if (src.best_score < score_cutoff_) {
+                continue;
+            }
 
-                    int dst_k = FindOrAddTokenSet(cur_time_, G2S(arc.dst));
-                    TokenSet& dst = frontier_[dst_k];
+            for (auto aiter = graph_->GetArcIterator(S2G(src.state)); !aiter.Done(); aiter.Next()) {
+                const auto& arc = aiter.Value();
+                if (arc.ilabel == kFsmEpsilon) {
+                    if (src.best_score + arc.score >= score_cutoff_) {
+                        int dst_k = FindOrAddTokenSet(cur_time_, G2S(arc.dst));
+                        TokenSet& dst = frontier_[dst_k];
 
-                    bool changed = TokenPassing(src, arc, arc.score, &dst);
+                        bool changed = TokenPassing(src, arc, 0.0, &dst);
 
-                    if (changed && graph_->ContainEpsilonArc(arc.dst)) {
-                        eps_queue_.push_back(dst_k);
+                        if (changed && graph_->ContainEpsilonArc(arc.dst)) {
+                            eps_queue_.push_back(dst_k);
+                        }
                     }
                 }
             }
