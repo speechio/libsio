@@ -151,8 +151,8 @@ struct TokenSet {
     f32 best_score = 0.0f;
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 
-    int t = 0;
-    SearchStateId s = 0;
+    int time = 0;
+    SearchStateId state = 0;
 };
 
 
@@ -176,7 +176,7 @@ class BeamSearch {
     int cur_time_ = 0;  // frontier location on time axis
     Vec<TokenSet> frontier_;
     Map<SearchStateId, int> frontier_map_;  // search state -> frontier token set index
-    Vec<int> queue_;
+    Vec<int> eps_queue_;
 
     // score range for beam pruning
     f32 score_max_ = 0.0;
@@ -217,7 +217,7 @@ public:
         //}
         
         ExpandFrontierEmitting(score_data);
-        ExpandFrontierNonemitting();
+        ExpandFrontierEpsilon();
         PruneFrontier();
 
         PinFrontierToLattice();
@@ -258,15 +258,24 @@ private:
     }
 
 
-    inline TokenSet* FindOrAddTokenSet(int t, SearchStateId s) {
+    static inline FsmStateId S2G(SearchStateId s) {
+        return (FsmStateId)s;
+    }
+
+    static inline SearchStateId G2S(FsmStateId s) {
+        return (SearchStateId)s;
+    }
+
+
+    inline int FindOrAddTokenSet(int t, SearchStateId s) {
         SIO_CHECK_EQ(cur_time_, t) << "Cannot find or add non-frontier TokenSet.";
 
         int k;
         auto it = frontier_map_.find(s);
         if (it == frontier_map_.end()) {
             TokenSet token_set;
-            token_set.t = t;
-            token_set.s = s;
+            token_set.time = t;
+            token_set.state = s;
 
             k = frontier_.size();
             frontier_.push_back(token_set);
@@ -275,7 +284,12 @@ private:
             k = it->second;
         }
 
-        return &frontier_[k];
+        return k;
+    }
+
+
+    bool TokenPassing(const TokenSet& src, const FsmArc& arc, f32 passing_score, TokenSet* dst) {
+        return false;
     }
 
 
@@ -311,13 +325,16 @@ private:
         }
 
         SIO_CHECK_EQ(cur_time_, 0);
-        TokenSet* token_set = FindOrAddTokenSet(cur_time_, graph_->start_state);
+        int k = FindOrAddTokenSet(cur_time_, graph_->start_state);
+        SIO_CHECK_EQ(k, 0);
+        TokenSet* token_set = &frontier_[0];
+
         SIO_CHECK(token_set->head == nullptr);
         token_set->head = token; // TODO: replace with AddTokenToSet()?
 
         score_max_ = token->total_score;
         score_cutoff_ = score_max_ - config_.beam;
-        ExpandFrontierNonemitting();
+        ExpandFrontierEpsilon();
         PinFrontierToLattice();
 
         return Error::OK;
@@ -348,7 +365,37 @@ private:
     }
 
 
-    Error ExpandFrontierNonemitting() {
+    Error ExpandFrontierEpsilon() {
+        SIO_CHECK(eps_queue_.empty());
+        for (int k = 0; k != frontier_.size(); k++) {
+            if (graph_->ContainEpsilonArc(S2G(frontier_[k].state))) {
+                eps_queue_.push_back(k);
+            }
+        }
+
+        while (!eps_queue_.empty()) {
+            int src_k = eps_queue_.back();
+            eps_queue_.pop_back();
+
+            const TokenSet& src = frontier_[src_k];
+
+            if (src.best_score > score_cutoff_) {
+                FsmStateId s = S2G(src.state);
+                for (auto aiter = graph_->GetArcIterator(s); !aiter.Done(); aiter.Next()) {
+                    const auto& arc = aiter.Value();
+
+                    int dst_k = FindOrAddTokenSet(cur_time_, G2S(arc.dst));
+                    TokenSet& dst = frontier_[dst_k];
+
+                    bool changed = TokenPassing(src, arc, arc.score, &dst);
+
+                    if (changed && graph_->ContainEpsilonArc(arc.dst)) {
+                        eps_queue_.push_back(dst_k);
+                    }
+                }
+            }
+        }
+
         return Error::OK;
     }
 

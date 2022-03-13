@@ -72,7 +72,7 @@ struct Fsm {
 
 
     inline bool Empty() const { return this->states.empty(); }
-    inline bool ContainEpsilonArc(FsmStateId s) {
+    inline bool ContainEpsilonArc(FsmStateId s) const {
         const FsmArc& first_arc = this->arcs[this->states[s].arcs_begin];
         return (first_arc.ilabel == kFsmEpsilon);
     }
