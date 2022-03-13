@@ -323,10 +323,10 @@ private:
         SIO_CHECK_EQ(cur_time_, 0);
         int k = FindOrAddTokenSet(cur_time_, graph_->start_state);
         SIO_CHECK_EQ(k, 0);
-        TokenSet* token_set = &frontier_[0];
+        TokenSet& token_set = frontier_[0];
 
-        SIO_CHECK(token_set->head == nullptr);
-        token_set->head = token; // TODO: replace with AddTokenToSet()?
+        SIO_CHECK(token_set.head == nullptr);
+        token_set.head = token; // TODO: replace with AddTokenToSet()?
 
         score_max_ = token->total_score;
         score_cutoff_ = score_max_ - config_.beam;
