@@ -269,12 +269,12 @@ private:
         int k;
         auto it = frontier_map_.find(s);
         if (it == frontier_map_.end()) {
-            TokenSet token_set;
-            token_set.time = t;
-            token_set.state = s;
+            TokenSet ts;
+            ts.time = t;
+            ts.state = s;
 
             k = frontier_.size();
-            frontier_.push_back(token_set);
+            frontier_.push_back(ts);
             frontier_map_.insert({s, k});
         } else {
             k = it->second;
@@ -309,26 +309,27 @@ private:
         // Initialize search session
         status_ = SessionStatus::kBusy;
 
-        Token* token = NewToken();
+        Token* t = NewToken();
         for (int i = 0; i != lms_.size(); i++) {
             LanguageModel* lm = lms_[i].get();
 
             f32 bos_score = 0.0;
-            bool r = lm->GetScore(lm->NullState(), lm->Bos(), &bos_score, &token->lm_states[i]);
-            SIO_CHECK(r == true);
+            bool found = lm->GetScore(lm->NullState(), lm->Bos(), &bos_score, &t->lm_states[i]);
+            SIO_CHECK(found == true);
 
-            token->total_score += bos_score;
+            t->total_score += bos_score;
         }
 
         SIO_CHECK_EQ(cur_time_, 0);
         int k = FindOrAddTokenSet(cur_time_, graph_->start_state);
         SIO_CHECK_EQ(k, 0);
-        TokenSet& token_set = frontier_[0];
+        TokenSet& ts = frontier_[0];
 
-        SIO_CHECK(token_set.head == nullptr);
-        token_set.head = token; // TODO: replace with AddTokenToSet()?
+        SIO_CHECK(ts.head == nullptr);
+        ts.head = t; // TODO: replace with AddTokenToSet()?
+        ts.best_score = t->total_score;
 
-        score_max_ = token->total_score;
+        score_max_ = ts.best_score;
         score_cutoff_ = score_max_ - config_.beam;
         ExpandFrontierEpsilon();
         PinFrontierToLattice();
