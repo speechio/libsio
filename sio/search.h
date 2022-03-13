@@ -178,7 +178,7 @@ class BeamSearch {
     Map<SearchStateId, int> frontier_map_;  // search state -> frontier token set index
     Vec<int> eps_queue_;
 
-    // score range for beam pruning
+    // score pruning beam
     f32 score_max_ = 0.0;
     f32 score_cutoff_ = 0.0;
 
