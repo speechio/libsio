@@ -427,16 +427,12 @@ private:
             int src_k = eps_queue_.back(); eps_queue_.pop_back();
             const TokenSet& src = frontier_[src_k];
 
-            if (src.best_score < score_cutoff_) {
-                continue;
-            }
+            if (src.best_score < score_cutoff_) continue;
 
             for (auto aiter = graph_->GetArcIterator(S2G(src.state)); !aiter.Done(); aiter.Next()) {
                 const auto& arc = aiter.Value();
                 if (arc.ilabel == kFsmEpsilon) {
-                    if (src.best_score + arc.score >= score_cutoff_) {
-                        continue;
-                    }
+                    if (src.best_score + arc.score < score_cutoff_)  continue;
 
                     int dst_k = FindOrAddTokenSet(cur_time_, G2S(arc.dst));
                     TokenSet& dst = frontier_[dst_k];
