@@ -435,14 +435,16 @@ private:
                 const auto& arc = aiter.Value();
                 if (arc.ilabel == kFsmEpsilon) {
                     if (src.best_score + arc.score >= score_cutoff_) {
-                        int dst_k = FindOrAddTokenSet(cur_time_, G2S(arc.dst));
-                        TokenSet& dst = frontier_[dst_k];
+                        continue;
+                    }
 
-                        bool changed = TokenPassing(src, arc, 0.0, &dst);
+                    int dst_k = FindOrAddTokenSet(cur_time_, G2S(arc.dst));
+                    TokenSet& dst = frontier_[dst_k];
 
-                        if (changed && graph_->ContainEpsilonArc(arc.dst)) {
-                            eps_queue_.push_back(dst_k);
-                        }
+                    bool changed = TokenPassing(src, arc, 0.0, &dst);
+
+                    if (changed && graph_->ContainEpsilonArc(arc.dst)) {
+                        eps_queue_.push_back(dst_k);
                     }
                 }
             }
