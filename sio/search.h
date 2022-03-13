@@ -245,6 +245,11 @@ public:
 
 private:
 
+    // Seach <-> Graph state conversion
+    static inline FsmStateId S2G(SearchStateId s) { return (FsmStateId)s; }
+    static inline SearchStateId G2S(FsmStateId s) { return (SearchStateId)s; }
+
+
     inline Token* NewToken() {
         Token* p = token_allocator_.Alloc();
         new (p) Token(); // placement new
@@ -255,15 +260,6 @@ private:
     inline void DeleteToken(Token *p) {
         //p->~Token();
         token_allocator_.Free(p);
-    }
-
-
-    static inline FsmStateId S2G(SearchStateId s) {
-        return (FsmStateId)s;
-    }
-
-    static inline SearchStateId G2S(FsmStateId s) {
-        return (SearchStateId)s;
     }
 
 
