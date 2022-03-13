@@ -246,8 +246,8 @@ public:
 private:
 
     // Seach <-> Graph state conversion
-    static inline FsmStateId S2G(SearchStateId s) { return (FsmStateId)s; }
-    static inline SearchStateId G2S(FsmStateId s) { return (SearchStateId)s; }
+    static inline FsmStateId S2G(SearchStateId s) { return s; }
+    static inline SearchStateId G2S(FsmStateId s) { return s; }
 
 
     inline Token* NewToken() {
