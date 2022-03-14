@@ -98,7 +98,8 @@ struct BeamSearchConfig {
 #define SIO_MAX_LM 4
 
 
-// GraphNodeId: represents a unique node in the search graph.
+// GraphNodeId: 
+//   GraphNodeId represents a unique node in the search graph.
 //   Conceptually, search graph may contain multiple sub-graphs
 //   to support nested grammar, class-based LM etc ...
 //
