@@ -1,6 +1,8 @@
 #ifndef SIO_SEARCH_H
 #define SIO_SEARCH_H
 
+#include <limits>
+
 #include "sio/common.h"
 #include "sio/allocator.h"
 #include "sio/tokenizer.h"
