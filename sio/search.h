@@ -98,21 +98,23 @@ struct BeamSearchConfig {
 #define SIO_MAX_LM 4
 
 
-// GraphNodeId:
-//   GraphNodeId represents a node in the *search graph*.
-//   the conceptual search graph may contain multiple sub-graphs,
+// GraphNodeId: represents a unique node in the search graph.
+//   Conceptually, search graph may contain multiple sub-graphs
 //   to support nested grammar, class-based LM etc ...
 //
 // For single-graph decoding: 
-//   GraphNodeId = FsmStateId. i.e. the search graph *is* a Fsm.
+//   GraphNodeId = FsmStateId. i.e. the search graph *is* a Fsm, for example:
+//     * T for vanilla CTC
+//     * TLG for CTC with lexicon & external LM
+//     * HCLG for WFST
 //
 // For multi-graph decoding:
 //   Say, GraphNodeId = 64-bits(32 + 32) integer type:
 //     1st 32 bits represent a Fsm
 //     2nd 32 bits represent a state inside that Fsm
-//   More sophisticated bit-packing can be designed for GraphNodeId.
+//   More sophisticated bit-packing can be designed.
 //
-// Entire beam search space = (time axis * graph node axis) 
+// Entire beam search space = (time axis * graph_node axis) 
 using GraphNodeId = FsmStateId;
 
 
