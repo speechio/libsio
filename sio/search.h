@@ -98,21 +98,21 @@ struct BeamSearchConfig {
 #define SIO_MAX_LM 4
 
 
-// BeamSearchStateHandle: 
-//   BeamSearchStateHandle represents a unique state in the decoding graph.
+// SearchStateHandle: 
+//   SearchStateHandle represents a unique state in the decoding graph.
 //
 // For single-graph decoding:
-//   BeamSearchStateHandle = FsmStateId. i.e. the search graph *is* a Fsm:
+//   SearchStateHandle = FsmStateId. i.e. the search graph *is* a Fsm:
 //     * T for vanilla CTC
 //     * TLG for CTC with lexicon & external LM
 //     * HCLG for WFST
 //
 // For multi-graph decoding:
-//   Say, BeamSearchStateHandle = 64-bits(32 + 32) integer type:
+//   Say, SearchStateHandle = 64-bits(32 + 32) integer type:
 //     1st 32 bits represent a Fsm
 //     2nd 32 bits represent a state inside that Fsm
 //   More sophisticated bit-packing can be designed.
-using BeamSearchStateHandle = FsmStateId;
+using SearchStateHandle = FsmStateId;
 
 
 enum class SearchStatus : int {
@@ -153,7 +153,7 @@ struct TokenSet {
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 
     int time = 0;
-    BeamSearchStateHandle state = 0;
+    SearchStateHandle state = 0;
 };
 
 
@@ -176,7 +176,7 @@ class BeamSearch {
     // search frontier
     int cur_time_ = 0;  // frontier location on time axis
     Vec<TokenSet> frontier_;
-    Map<BeamSearchStateHandle, int> frontier_map_;  // beam search state -> token set index in frontier
+    Map<SearchStateHandle, int> frontier_map_;  // beam search state -> token set index in frontier
     Vec<int> eps_queue_;
 
     // beam
@@ -246,18 +246,20 @@ public:
 
 private:
 
-    // Two mappings are needed for beam search:
-    //   BeamSearchStateHandle -> (Fsm index & FsmStateId)
-    //   (Fsm index & FsmStateId) -> BeamSearchStateHandle
-    //
-    // For single-graph decoding, Fsm index is unnecessary because:
-    //   BeamSearchStateHandle == FsmStateId
-    // The following conversions look dummy but they are needed for future extensions.
-    //
-    // H: beam search state (H)andle
-    // S: Fsm (S)tate
-    static inline FsmStateId H2S(BeamSearchStateHandle h) { return h; }
-    static inline BeamSearchStateHandle S2H(FsmStateId s) { return s; }
+    static inline SearchStateHandle ComposeHandle(int g, FsmStateId s) {
+        //return (static_cast<SearchStateHandle>(g) << 32) + static_cast<SearchStateHandle>(s);
+        return s;
+    }
+
+    static inline int HandleToGraph(SearchStateHandle h) {
+        //return static_cast<int>(static_cast<u32>(h >> 32));
+        return 0;
+    }
+
+    static inline FsmStateId HandleToState(SearchStateHandle h) {
+        //return static_cast<FsmStateId>(static_cast<u32>(h))
+        return h;
+    }
 
 
     inline Token* NewToken() {
@@ -284,7 +286,7 @@ private:
     }
 
 
-    inline int FindOrAddTokenSet(int time, BeamSearchStateHandle state) {
+    inline int FindOrAddTokenSet(int time, SearchStateHandle state) {
         SIO_CHECK_EQ(cur_time_, time) << "Cannot find or add non-frontier TokenSet.";
 
         int k;
@@ -430,7 +432,7 @@ private:
         SIO_CHECK(eps_queue_.empty());
 
         for (int k = 0; k != frontier_.size(); k++) {
-            if (graph_->ContainEpsilonArc(H2S(frontier_[k].state))) {
+            if (graph_->ContainEpsilonArc(HandleToState(frontier_[k].state))) {
                 eps_queue_.push_back(k);
             }
         }
@@ -441,12 +443,12 @@ private:
 
             if (src.best_score < score_cutoff_) continue;
 
-            for (auto aiter = graph_->GetArcIterator(H2S(src.state)); !aiter.Done(); aiter.Next()) {
+            for (auto aiter = graph_->GetArcIterator(HandleToState(src.state)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
                 if (arc.ilabel == kFsmEpsilon) {
                     if (src.best_score + arc.score < score_cutoff_) continue;
 
-                    int dst_k = FindOrAddTokenSet(cur_time_, S2H(arc.dst));
+                    int dst_k = FindOrAddTokenSet(cur_time_, ComposeHandle(0, arc.dst));
                     TokenSet& dst = frontier_[dst_k];
 
                     bool changed = TokenPassing(src, arc, 0.0, &dst);
