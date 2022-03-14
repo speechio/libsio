@@ -98,25 +98,21 @@ struct BeamSearchConfig {
 #define SIO_MAX_LM 4
 
 
-// GraphNodeId: 
-//   GraphNodeId represents a unique node in the search graph.
-//   Conceptually, search graph may contain multiple sub-graphs
-//   to support nested grammar, class-based LM etc ...
+// BeamSearchStateHandle: 
+//   BeamSearchStateHandle represents a unique state in the decoding graph.
 //
-// For single-graph decoding: 
-//   GraphNodeId = FsmStateId. i.e. the search graph *is* a Fsm, for example:
+// For single-graph decoding:
+//   BeamSearchStateHandle = FsmStateId. i.e. the search graph *is* a Fsm:
 //     * T for vanilla CTC
 //     * TLG for CTC with lexicon & external LM
 //     * HCLG for WFST
 //
 // For multi-graph decoding:
-//   Say, GraphNodeId = 64-bits(32 + 32) integer type:
+//   Say, BeamSearchStateHandle = 64-bits(32 + 32) integer type:
 //     1st 32 bits represent a Fsm
 //     2nd 32 bits represent a state inside that Fsm
 //   More sophisticated bit-packing can be designed.
-//
-// Entire beam search space = (time axis * graph_node axis) 
-using GraphNodeId = FsmStateId;
+using BeamSearchStateHandle = FsmStateId;
 
 
 enum class SearchStatus : int {
@@ -150,14 +146,14 @@ struct Token {
 };
 
 
-// TokenSet represents a location(time, graph_node) in beam search space (sometimes called trellis space),
+// TokenSet represents a location(time, state) in beam search space (sometimes called trellis space),
 // Each TokenSet holds a list of tokens representing search hypotheses
 struct TokenSet {
     f32 best_score = -std::numeric_limits<f32>::infinity();
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 
     int time = 0;
-    GraphNodeId node = 0;
+    BeamSearchStateHandle state = 0;
 };
 
 
@@ -180,10 +176,10 @@ class BeamSearch {
     // search frontier
     int cur_time_ = 0;  // frontier location on time axis
     Vec<TokenSet> frontier_;
-    Map<GraphNodeId, int> frontier_map_;  // search graph node -> token set index in frontier
+    Map<BeamSearchStateHandle, int> frontier_map_;  // beam search state -> token set index in frontier
     Vec<int> eps_queue_;
 
-    // score pruning beam
+    // beam
     f32 score_max_ = 0.0;
     f32 score_cutoff_ = 0.0;
 
@@ -251,17 +247,17 @@ public:
 private:
 
     // Two mappings are needed for beam search:
-    //   GraphNodeId -> (Fsm index & FsmStateId)
-    //   (Fsm index & FsmStateId) -> GraphNodeId
+    //   BeamSearchStateHandle -> (Fsm index & FsmStateId)
+    //   (Fsm index & FsmStateId) -> BeamSearchStateHandle
     //
     // For single-graph decoding, Fsm index is unnecessary because:
-    //   GraphNodeId == FsmStateId
+    //   BeamSearchStateHandle == FsmStateId
     // The following conversions look dummy but they are needed for future extensions.
     //
-    // N: search graph (N)ode
-    // S: finite-state-machine (S)tate
-    static inline FsmStateId N2S(GraphNodeId n) { return n; }
-    static inline GraphNodeId S2N(FsmStateId s) { return s; }
+    // H: beam search state (H)andle
+    // S: Fsm (S)tate
+    static inline FsmStateId H2S(BeamSearchStateHandle h) { return h; }
+    static inline BeamSearchStateHandle S2H(FsmStateId s) { return s; }
 
 
     inline Token* NewToken() {
@@ -288,19 +284,19 @@ private:
     }
 
 
-    inline int FindOrAddTokenSet(int time, GraphNodeId node) {
+    inline int FindOrAddTokenSet(int time, BeamSearchStateHandle state) {
         SIO_CHECK_EQ(cur_time_, time) << "Cannot find or add non-frontier TokenSet.";
 
         int k;
-        auto it = frontier_map_.find(node);
+        auto it = frontier_map_.find(state);
         if (it == frontier_map_.end()) {
             TokenSet ts;
             ts.time = time;
-            ts.node = node;
+            ts.state = state;
 
             k = frontier_.size();
             frontier_.push_back(ts);
-            frontier_map_.insert({node, k});
+            frontier_map_.insert({state, k});
         } else {
             k = it->second;
         }
@@ -434,7 +430,7 @@ private:
         SIO_CHECK(eps_queue_.empty());
 
         for (int k = 0; k != frontier_.size(); k++) {
-            if (graph_->ContainEpsilonArc(N2S(frontier_[k].node))) {
+            if (graph_->ContainEpsilonArc(H2S(frontier_[k].state))) {
                 eps_queue_.push_back(k);
             }
         }
@@ -445,12 +441,12 @@ private:
 
             if (src.best_score < score_cutoff_) continue;
 
-            for (auto aiter = graph_->GetArcIterator(N2S(src.node)); !aiter.Done(); aiter.Next()) {
+            for (auto aiter = graph_->GetArcIterator(H2S(src.state)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
                 if (arc.ilabel == kFsmEpsilon) {
                     if (src.best_score + arc.score < score_cutoff_) continue;
 
-                    int dst_k = FindOrAddTokenSet(cur_time_, S2N(arc.dst));
+                    int dst_k = FindOrAddTokenSet(cur_time_, S2H(arc.dst));
                     TokenSet& dst = frontier_[dst_k];
 
                     bool changed = TokenPassing(src, arc, 0.0, &dst);
