@@ -246,7 +246,7 @@ public:
 
 private:
 
-    static inline SearchStateHandle ComposeHandle(int g, FsmStateId s) {
+    static inline SearchStateHandle StateHandle(int g, FsmStateId s) {
         //return (static_cast<SearchStateHandle>(g) << 32) + static_cast<SearchStateHandle>(s);
         return s;
     }
@@ -446,7 +446,7 @@ private:
                 if (arc.ilabel == kFsmEpsilon) {
                     if (src.best_score + arc.score < score_cutoff_) continue;
 
-                    int dst_k = FindOrAddTokenSet(cur_time_, ComposeHandle(0, arc.dst));
+                    int dst_k = FindOrAddTokenSet(cur_time_, StateHandle(0, arc.dst));
                     TokenSet& dst = frontier_[dst_k];
 
                     bool changed = TokenPassing(src, arc, 0.0, &dst);
