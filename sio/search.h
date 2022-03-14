@@ -119,7 +119,7 @@ struct BeamSearchConfig {
 using GraphNodeId = FsmStateId;
 
 
-enum class SessionStatus : int {
+enum class SearchStatus : int {
     kIdle,
     kBusy,
     kDone,
@@ -167,7 +167,7 @@ class BeamSearch {
     Vec<Unique<LanguageModel*>> lms_;
 
     Str session_key_ = "default_session";
-    SessionStatus status_ = SessionStatus::kIdle;
+    SearchStatus status_ = SearchStatus::kIdle;
 
     // lattice indexes: 
     //   [time, token_set_index]
@@ -196,18 +196,18 @@ public:
 
         config_ = config;
         graph_ = &graph;
-        SIO_CHECK(status_ == SessionStatus::kIdle);
+        SIO_CHECK(status_ == SearchStatus::kIdle);
 
         return Error::OK;
     }
 
 
     Error Push(const torch::Tensor score) {
-        SIO_CHECK(status_ == SessionStatus::kIdle || status_ == SessionStatus::kBusy);
-        if (status_ == SessionStatus::kIdle) {
+        SIO_CHECK(status_ == SearchStatus::kIdle || status_ == SearchStatus::kBusy);
+        if (status_ == SearchStatus::kIdle) {
             InitSession();
         }
-        SIO_CHECK(status_ == SessionStatus::kBusy);
+        SIO_CHECK(status_ == SearchStatus::kBusy);
 
         SIO_CHECK_EQ(score.dim(), 1) << "Can't push multiple frames.";
         const float* score_data = score.data_ptr<float>();
@@ -232,18 +232,18 @@ public:
 
 
     Error PushEos() {
-        SIO_CHECK(status_ == SessionStatus::kBusy);
+        SIO_CHECK(status_ == SearchStatus::kBusy);
         ExpandFrontierEos();
-        SIO_CHECK(status_ == SessionStatus::kDone);
+        SIO_CHECK(status_ == SearchStatus::kDone);
 
         return Error::OK;
     }
 
 
     Error Reset() {
-        SIO_CHECK(status_ == SessionStatus::kDone);
+        SIO_CHECK(status_ == SearchStatus::kDone);
         DeinitSession();
-        SIO_CHECK(status_ == SessionStatus::kIdle);
+        SIO_CHECK(status_ == SearchStatus::kIdle);
 
         return Error::OK; 
     }
@@ -375,7 +375,7 @@ private:
         }
 
         // Initialize search session
-        status_ = SessionStatus::kBusy;
+        status_ = SearchStatus::kBusy;
 
         Token* t = NewToken();
         for (int i = 0; i != lms_.size(); i++) {
@@ -418,7 +418,7 @@ private:
             score_offset_.clear();
         }
 
-        status_ = SessionStatus::kIdle;
+        status_ = SearchStatus::kIdle;
 
         return Error::OK;
     }
@@ -467,7 +467,7 @@ private:
 
 
     Error ExpandFrontierEos() {
-        status_ = SessionStatus::kDone;
+        status_ = SearchStatus::kDone;
         return Error::OK;
     }
 
