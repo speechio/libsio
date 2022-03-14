@@ -250,6 +250,14 @@ public:
 
 private:
 
+    // Two mappings are needed for beam search:
+    //   GraphNodeId -> (Fsm index & FsmStateId)
+    //   (Fsm index & FsmStateId) -> GraphNodeId
+    //
+    // For single-graph decoding, Fsm index is unnecessary because:
+    //   GraphNodeId == FsmStateId
+    // The following conversions look dummy but they are needed for future extensions.
+    //
     // N: search graph (N)ode
     // S: finite-state-machine (S)tate
     static inline FsmStateId N2S(GraphNodeId n) { return n; }
