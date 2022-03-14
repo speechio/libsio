@@ -316,7 +316,9 @@ private:
             if (arc.olabel != kFsmEpsilon) {
                 // without external LMs, resort to prefix_hash as hypothesis identifier
                 if (lms_.empty()) {
-                    constexpr u64 prime = 7853; // picked from Kaldi's VectorHasher: https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
+                    // prime picked from Kaldi's VectorHasher: 
+                    //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
+                    constexpr u64 prime = 7853;
                     q->prefix_hash = p->prefix_hash * prime + (u64)arc.olabel;
                 }
 
@@ -430,7 +432,7 @@ private:
             if (src.best_score < score_cutoff_) continue;
 
             for (auto aiter = graph_->GetArcIterator(S2G(src.state)); !aiter.Done(); aiter.Next()) {
-                const auto& arc = aiter.Value();
+                const FsmArc& arc = aiter.Value();
                 if (arc.ilabel == kFsmEpsilon) {
                     if (src.best_score + arc.score < score_cutoff_) continue;
 
