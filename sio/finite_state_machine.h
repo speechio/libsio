@@ -88,8 +88,6 @@ struct Fsm {
     }
 
 
-
-
     Error Load(std::istream& is) {
         SIO_CHECK(Empty()) << "Reloading is not supported.";
         SIO_CHECK(is.good());

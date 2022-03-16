@@ -86,6 +86,14 @@ struct BeamSearchConfig {
     }
 };
 
+
+enum class SearchStatus : int {
+    kIdle,
+    kBusy,
+    kDone,
+};
+
+
 // Typical rescoring language models are:
 // 1. Lookahead-LM or Internal-LM subtractor
 // 2. Big-LM or External-LM
@@ -113,13 +121,6 @@ struct BeamSearchConfig {
 //     2nd 32 bits represent a state inside that Fsm
 //   More sophisticated bit-packing can be designed.
 using SearchStateHandle = FsmStateId;
-
-
-enum class SearchStatus : int {
-    kIdle,
-    kBusy,
-    kDone,
-};
 
 
 struct Token;
