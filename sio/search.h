@@ -285,19 +285,19 @@ private:
     }
 
 
-    inline int FindOrAddTokenSet(int time, SearchStateHandle state) {
-        SIO_CHECK_EQ(cur_time_, time) << "Cannot find or add non-frontier TokenSet.";
+    inline int FindOrAddTokenSet(int t, SearchStateHandle s) {
+        SIO_CHECK_EQ(cur_time_, t) << "Cannot find or add non-frontier TokenSet.";
 
         int k;
-        auto it = frontier_map_.find(state);
+        auto it = frontier_map_.find(s);
         if (it == frontier_map_.end()) {
             TokenSet ts;
-            ts.time = time;
-            ts.state = state;
+            ts.time = t;
+            ts.state = s;
 
             k = frontier_.size();
             frontier_.push_back(ts);
-            frontier_map_.insert({state, k});
+            frontier_map_.insert({s, k});
         } else {
             k = it->second;
         }
