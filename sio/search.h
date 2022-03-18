@@ -306,7 +306,7 @@ private:
     }
 
 
-    inline int TokenContextEqual(const Token& x, const Token& y) {
+    inline int ContextEqual(const Token& x, const Token& y) {
         if (lms_.empty()) {
             return x.prefix_hash == y.prefix_hash;
         }
@@ -367,15 +367,15 @@ private:
                 int k = 0;
                 Token** p = &dst->head;
                 for ( ; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
-                    if (TokenContextEqual(**p, *nt)) { // found collision
-                        if ((*p)->total_score <= nt->total_score) {
+                    if (ContextEqual(**p, *nt)) {
+                        if ((*p)->total_score < nt->total_score) {
                             // existing token is worse, remove it from token set
                             // new token will be inserted later
                             Token *next = (*p)->next;
                             DeleteToken(*p);
                             *p = next;
                         } else {
-                            // existing token is better, just delete new token
+                            // existing token is better, just delete the new token
                             DeleteToken(nt);
                             nt = nullptr;
                         }
