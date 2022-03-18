@@ -335,10 +335,10 @@ private:
             // and create a heap copy only after its survival.
             Token nt = *t;
 
-            // update graph & AM score
+            // 1. update graph & AM score
             nt.total_score += (arc.score + score);
 
-            // update LM
+            // 2. update LM
             if (arc.olabel != kFsmEpsilon) {
                 if (lms_.empty()) {
                     // prime picked from Kaldi's VectorHasher: 
@@ -357,6 +357,12 @@ private:
                     nt.total_score += lm_score;
                 }
             }
+
+            // 3. update trace back 
+            // this can be moved to back for optimization, keep it here for simplicity
+            nt.trace_back.token = const_cast<Token*>(t);
+            nt.trace_back.arc = arc;
+            nt.trace_back.score = score;
 
             // beam pruning
             if (nt.total_score < score_cutoff_ || nt.total_score < dst->head->total_score - config_.token_set_beam) {
@@ -404,12 +410,7 @@ private:
                 }
 
                 if (k != config_.token_set_size) {
-                    // fix new token's traceback
-                    nt.trace_back.token = const_cast<Token*>(t);
-                    nt.trace_back.arc = arc;
-                    nt.trace_back.score = score;
-
-                    // create a copy of probing stack token, on heap
+                    // create a heap-based copy of stack-based probing token for actual insertion
                     Token* q = NewToken(&nt);
 
                     // insert
