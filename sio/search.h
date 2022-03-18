@@ -326,17 +326,13 @@ private:
 
         for (Token* t = src.head; t != nullptr; t = t->next) {
             Token* nt = NewToken();
-
             nt->total_score = t->total_score + arc.score + score;
 
-            nt->trace_back.token = t;
-            nt->trace_back.arc = arc;
-            nt->trace_back.score = score;
-
-            // lm scoring
+            // language model scoring
             if (arc.olabel != kFsmEpsilon) {
-                // need prefix_hash as unique hypothesis identifier if there is no external LM
                 if (lms_.empty()) {
+                    // prefix_hash as unique hypothesis identifier, when no external LM available
+                    // 
                     // prime picked from Kaldi's VectorHasher: 
                     //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
                     constexpr u64 prime = 7853;
@@ -363,7 +359,7 @@ private:
                 continue;
             }
 
-            // eliminate token context collision
+            // eliminate context collision with dst token set
             {
                 int k = 0;
                 Token** p = &dst->head;
@@ -399,8 +395,14 @@ private:
 
                 // insert
                 if (k != config_.token_set_size) {
+                    // complete traceback info
+                    nt->trace_back.token = t;
+                    nt->trace_back.arc = arc;
+                    nt->trace_back.score = score;
+
                     nt->next = *p;
                     *p = nt;
+
                     changed = true;
                 }
             }
