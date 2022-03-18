@@ -306,49 +306,109 @@ private:
     }
 
 
-    inline bool AddTokenToTokenSet(Token* t, TokenSet* ts)  {
-        return false;
+    inline int TokenContextEqual(const Token& x, const Token& y) {
+        if (lms_.empty()) {
+            return x.prefix_hash == y.prefix_hash;
+        }
+
+        for (int i = 0; i != lms_.size(); i++) {
+            if (x.lm_states[i] != y.lm_states[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
 
     bool TokenPassing(const TokenSet& src, const FsmArc& arc, f32 score, TokenSet* dst) {
-        bool changed = false;
+        bool changed = false; // dst token set is changed
 
-        for (Token* p = src.head; p != nullptr; p = p->next) {
-            Token* q = NewToken();
+        for (Token* t = src.head; t != nullptr; t = t->next) {
+            Token* nt = NewToken();
 
-            q->total_score = p->total_score + arc.score + score;
+            nt->total_score = t->total_score + arc.score + score;
 
-            q->trace_back.token = p;
-            q->trace_back.arc = arc;
-            q->trace_back.score = score;
+            nt->trace_back.token = t;
+            nt->trace_back.arc = arc;
+            nt->trace_back.score = score;
 
             // lm scoring
             if (arc.olabel != kFsmEpsilon) {
-                // without external LMs, resort to prefix_hash as hypothesis identifier
+                // need prefix_hash as unique hypothesis identifier if there is no external LM
                 if (lms_.empty()) {
                     // prime picked from Kaldi's VectorHasher: 
                     //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
                     constexpr u64 prime = 7853;
-                    q->prefix_hash = p->prefix_hash * prime + (u64)arc.olabel;
+                    nt->prefix_hash = t->prefix_hash * prime + (u64)arc.olabel;
                 }
 
                 for (int i = 0; i != lms_.size(); i++) {
                     LanguageModel* lm = lms_[i].get();
 
                     f32 lm_score = 0.0;
-                    bool found = lm->GetScore(p->lm_states[i], arc.olabel, &lm_score, &q->lm_states[i]);
+                    bool found = lm->GetScore(t->lm_states[i], arc.olabel, &lm_score, &nt->lm_states[i]);
                     SIO_CHECK(found == true);
 
-                    q->total_score += lm_score;
-                    q->trace_back.lm_scores[i] = lm_score;
+                    nt->total_score += lm_score;
+                    nt->trace_back.lm_scores[i] = lm_score;
                 }
             }
 
-            if (AddTokenToTokenSet(q, dst)) {
-                changed = true;
+            if (
+                nt->total_score < score_cutoff_ ||
+                nt->total_score < dst->best_score - config_.token_set_beam
+               ) 
+            {
+                DeleteToken(nt);
+                continue;
             }
-        }
+
+            // eliminate token context collision
+            {
+                int k = 0;
+                Token** p = &dst->head;
+                for ( ; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
+                    if (TokenContextEqual(**p, *nt)) { // found collision
+                        if ((*p)->total_score <= nt->total_score) {
+                            // existing token is worse, 
+                            // remove existing one from token set
+                            // new token will be inserted later
+                            Token *next = (*p)->next;
+                            DeleteToken(*p);
+                            *p = next;
+                        } else {
+                            // existing token is better, 
+                            // just delete new token, and set new token pointer to null
+                            DeleteToken(nt);
+                            nt = nullptr;
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+            // insert new token
+            if (nt != nullptr) {
+                int k = 0;
+                Token** p = &dst->head;
+
+                // find position
+                for ( ; *p != NULL && k != config_.token_set_size; p = &(*p)->next, k++) {
+                    if ((*p)->total_score <= nt->total_score) {
+                        break;
+                    }
+                }
+
+                if (k != config_.token_set_size) {
+                    nt->next = *p;
+                    *p = nt;
+                    changed = true;
+                }
+            }
+
+        } // for each token in src token set
 
         return changed;
     }
