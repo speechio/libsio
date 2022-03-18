@@ -376,7 +376,7 @@ private:
                 for ( ; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
                     if (ContextEqual(**p, nt)) {
                         if ((*p)->total_score < nt.total_score) {
-                            // existing token is worse, remove it from token set
+                            // existing token is worse, remove it from dst token set
                             // new token will be inserted later
                             Token *next = (*p)->next;
                             DeleteToken(*p);
@@ -384,7 +384,7 @@ private:
 
                             changed = true;
                         } else {
-                            // existing token is better, no need to add the new token at all
+                            // existing token is better, no need to propagate this new token later
                             new_token_gone = true;
                         }
 
