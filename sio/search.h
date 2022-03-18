@@ -105,6 +105,7 @@ enum class SearchStatus : int {
 // via on-the-fly rescoring.
 #define SIO_MAX_LM 4
 
+static constexpr f32 kF32INF = std::numeric_limits<f32>::infinity();
 
 // SearchStateHandle: 
 //   SearchStateHandle represents a unique state in the decoding graph.
@@ -130,27 +131,27 @@ struct TraceBack {
     Token* token = nullptr;
     FsmArc arc;
     f32 score = 0.0;
-    LmScore lm_scores[SIO_MAX_LM] = {};
+    LmScore lm_scores[SIO_MAX_LM] = {}; // zero initialized to 0.0
 };
 
 
 struct Token {
-    TokenSet* master = nullptr;
     Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
+    TokenSet* master = nullptr;
 
-    f32 total_score = 0.0;
-
-    u64 prefix_uid = 0;
-    LmStateId lm_states[SIO_MAX_LM] = {};
+    f32 total_score = -kF32INF;
 
     TraceBack trace_back;
+
+    u64 prefix_uid = 0;
+    LmStateId lm_states[SIO_MAX_LM] = {}; // zero initialized to 0 
 };
 
 
 // TokenSet represents a location(time, state) in beam search space (sometimes called trellis space),
 // Each TokenSet holds a list of tokens representing search hypotheses
 struct TokenSet {
-    f32 best_score = -std::numeric_limits<f32>::infinity();
+    f32 best_score = -kF32INF;
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 
     int time = 0;
@@ -261,9 +262,13 @@ private:
     }
 
 
-    inline Token* NewToken() {
+    inline Token* NewToken(const Token* copy_from = nullptr) {
         Token* p = token_allocator_.Alloc();
-        new (p) Token(); // placement new
+        if (copy_from == nullptr) {
+            new (p) Token(); // placement new via default constructor
+        } else {
+            *p = *copy_from; // POD copy
+        }
         return p;
     }
 
@@ -324,9 +329,12 @@ private:
     bool TokenPassing(const TokenSet& src, const FsmArc& arc, f32 score, TokenSet* dst) {
         bool changed = false; // dst token set is changed
 
-        for (Token* t = src.head; t != nullptr; t = t->next) {
-            Token* nt = NewToken();
-            nt->total_score = t->total_score + arc.score + score;
+        for (const Token* t = src.head; t != nullptr; t = t->next) {
+            // most tokens won't survive pruning and context recombination,
+            // here we use a probing "new token" on stack, 
+            // and create a copy on heap only when it actually survived.
+            Token nt;
+            nt.total_score = t->total_score + arc.score + score;
 
             // language model scoring
             if (arc.olabel != kFsmEpsilon) {
@@ -334,71 +342,76 @@ private:
                     // prime picked from Kaldi's VectorHasher: 
                     //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
                     constexpr u64 prime = 7853;
-                    nt->prefix_uid = t->prefix_uid * prime + (u64)arc.olabel;
+                    nt.prefix_uid = t->prefix_uid * prime + (u64)arc.olabel;
                 }
 
                 for (int i = 0; i != lms_.size(); i++) {
                     LanguageModel* lm = lms_[i].get();
-                    f32& lm_score = nt->trace_back.lm_scores[i];
+                    f32& lm_score = nt.trace_back.lm_scores[i];
 
-                    bool found = lm->GetScore(t->lm_states[i], arc.olabel, &lm_score, &nt->lm_states[i]);
+                    bool found = lm->GetScore(t->lm_states[i], arc.olabel, &lm_score, &nt.lm_states[i]);
                     SIO_CHECK(found == true);
 
-                    nt->total_score += lm_score;
+                    nt.total_score += lm_score;
                 }
             }
 
-            // beam pruning
-            if (nt->total_score < score_cutoff_ ||
-                nt->total_score < dst->best_score - config_.token_set_beam) 
-            {
-                DeleteToken(nt);
+            if (nt.total_score < score_cutoff_ || nt.total_score < dst->head->score - config_.token_set_beam) {
+                // pruned
                 continue;
+            } else if (nt.total_score > score_max_) {
+                // score is high enough to lift current beam range
+                score_cutoff_ += (nt.total_score - score_max_);
+                score_max_ = nt.total_score;
             }
 
-            // eliminate context collision with dst token set
+            // handle context recombination
+            bool new_token_gone = false;
             {
                 int k = 0;
                 Token** p = &dst->head;
                 for ( ; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
-                    if (ContextEqual(**p, *nt)) {
-                        if ((*p)->total_score < nt->total_score) {
+                    if (ContextEqual(**p, nt)) {
+                        if ((*p)->total_score < nt.total_score) {
                             // existing token is worse, remove it from token set
                             // new token will be inserted later
                             Token *next = (*p)->next;
                             DeleteToken(*p);
                             *p = next;
+
+                            changed = true;
                         } else {
-                            // existing token is better, just delete the new token
-                            DeleteToken(nt);
-                            nt = nullptr;
+                            // existing token is better, no need to add the new token at all
+                            new_token_gone = true;
                         }
 
-                        changed = true;
                         break;
                     }
                 }
             }
 
-            if (nt != nullptr) {
-                // find position
+            if (!new_token_gone) {
+                // find position to insert the new token
                 int k = 0;
                 Token** p = &dst->head;
                 for ( ; *p != NULL && k != config_.token_set_size; p = &(*p)->next, k++) {
-                    if ((*p)->total_score <= nt->total_score) {
+                    if ((*p)->total_score <= nt.total_score) {
                         break;
                     }
                 }
 
-                // insert
                 if (k != config_.token_set_size) {
-                    // complete traceback info
-                    nt->trace_back.token = t;
-                    nt->trace_back.arc = arc;
-                    nt->trace_back.score = score;
+                    // complete new token's traceback info
+                    nt.trace_back.token = t;
+                    nt.trace_back.arc = arc;
+                    nt.trace_back.score = score;
 
-                    nt->next = *p;
-                    *p = nt;
+                    // create a copy of probing stack token, on heap
+                    Token* q = NewToken(&nt);
+
+                    // insert
+                    q->next = *p;
+                    *p = q;
 
                     changed = true;
                 }
@@ -435,6 +448,8 @@ private:
         status_ = SearchStatus::kBusy;
 
         Token* t = NewToken();
+        t->total_score = 0.0;
+
         for (int i = 0; i != lms_.size(); i++) {
             LanguageModel* lm = lms_[i].get();
 
@@ -451,7 +466,7 @@ private:
         TokenSet& ts = frontier_[0];
 
         SIO_CHECK(ts.head == nullptr);
-        ts.head = t; // TODO: replace with AddTokenToSet()?
+        ts.head = t;
         ts.best_score = t->total_score;
 
         score_max_ = ts.best_score;
