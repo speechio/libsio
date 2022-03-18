@@ -498,8 +498,22 @@ private:
     }
 
 
-    Error ExpandFrontierEmitting(const float* score) {
+    Error ExpandFrontierEmitting(const float* frame_score) {
+        SIO_CHECK(frontier_.empty());
+
         cur_time_++;
+        for (const auto& src : lattice_.back()) {
+            for (auto aiter = graph_->GetArcIterator(HandleToState(src.state)); !aiter.Done(); aiter.Next()) {
+                const FsmArc& arc = aiter.Value();
+                if (arc.ilabel != kFsmEpsilon && arc.ilabel != kFsmInputEnd) {
+                    TokenSet& dst = frontier_[
+                        FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
+                    ];
+                    f32 score = frame_score[arc.ilabel];
+                    TokenPassing(src, arc, score, &dst);
+                }
+            }
+        }
         return Error::OK;
     }
 
@@ -541,7 +555,22 @@ private:
 
 
     Error ExpandFrontierEos() {
+        SIO_CHECK(frontier_.empty());
+
+        for (const auto& src : lattice_.back()) {
+            for (auto aiter = graph_->GetArcIterator(HandleToState(src.state)); !aiter.Done(); aiter.Next()) {
+                const FsmArc& arc = aiter.Value();
+                if (arc.ilabel == kFsmInputEnd) {
+                    TokenSet& dst = frontier_[
+                        FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
+                    ];
+                    TokenPassing(src, arc, 0.0, &dst);
+                }
+            }
+        }
+
         status_ = SearchStatus::kDone;
+
         return Error::OK;
     }
 
