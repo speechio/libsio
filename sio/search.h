@@ -356,7 +356,7 @@ private:
                 }
             }
 
-            if (nt.total_score < score_cutoff_ || nt.total_score < dst->head->score - config_.token_set_beam) {
+            if (nt.total_score < score_cutoff_ || nt.total_score < dst->head->total_score - config_.token_set_beam) {
                 // pruned
                 continue;
             } else if (nt.total_score > score_max_) {
@@ -402,7 +402,7 @@ private:
 
                 if (k != config_.token_set_size) {
                     // complete new token's traceback info
-                    nt.trace_back.token = t;
+                    nt.trace_back.token = const_cast<Token*>(t);
                     nt.trace_back.arc = arc;
                     nt.trace_back.score = score;
 
