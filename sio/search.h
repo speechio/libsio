@@ -339,13 +339,12 @@ private:
 
                 for (int i = 0; i != lms_.size(); i++) {
                     LanguageModel* lm = lms_[i].get();
+                    f32& lm_score = nt->trace_back.lm_scores[i];
 
-                    f32 lm_score = 0.0;
                     bool found = lm->GetScore(t->lm_states[i], arc.olabel, &lm_score, &nt->lm_states[i]);
                     SIO_CHECK(found == true);
 
                     nt->total_score += lm_score;
-                    nt->trace_back.lm_scores[i] = lm_score;
                 }
             }
 
