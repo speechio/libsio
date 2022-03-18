@@ -139,7 +139,7 @@ struct Token {
     Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
     TokenSet* master = nullptr;
 
-    f32 total_score = -kF32INF;
+    f32 total_score = 0.0;
 
     TraceBack trace_back;
 
@@ -451,7 +451,6 @@ private:
         status_ = SearchStatus::kBusy;
 
         Token* t = NewToken();
-        t->total_score = 0.0;
 
         for (int i = 0; i != lms_.size(); i++) {
             LanguageModel* lm = lms_[i].get();
