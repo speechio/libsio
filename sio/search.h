@@ -355,10 +355,8 @@ private:
                 }
             }
 
-            if (
-                nt->total_score < score_cutoff_ ||
-                nt->total_score < dst->best_score - config_.token_set_beam
-               ) 
+            if (nt->total_score < score_cutoff_ ||
+                nt->total_score < dst->best_score - config_.token_set_beam) 
             {
                 DeleteToken(nt);
                 continue;
@@ -371,15 +369,13 @@ private:
                 for ( ; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
                     if (TokenContextEqual(**p, *nt)) { // found collision
                         if ((*p)->total_score <= nt->total_score) {
-                            // existing token is worse, 
-                            // remove existing one from token set
+                            // existing token is worse, remove it from token set
                             // new token will be inserted later
                             Token *next = (*p)->next;
                             DeleteToken(*p);
                             *p = next;
                         } else {
-                            // existing token is better, 
-                            // just delete new token, and set new token pointer to null
+                            // existing token is better, just delete new token
                             DeleteToken(nt);
                             nt = nullptr;
                         }
