@@ -406,6 +406,10 @@ private:
 
         } // for each token in src token set
 
+        if (changed) {
+            dst->best_score = dst->head->total_score;
+        }
+
         return changed;
     }
 
