@@ -410,10 +410,9 @@ private:
                 }
 
                 if (k != config_.token_set_size) {
-                    // create a heap-based copy of stack-based probing token for actual insertion
+                    // need a heap-based copy of stack-based probing token for actual insertion
                     Token* q = NewToken(&nt);
 
-                    // insert
                     q->next = *p;
                     *p = q;
 
