@@ -380,6 +380,7 @@ private:
                             nt = nullptr;
                         }
 
+                        changed = true;
                         break;
                     }
                 }
