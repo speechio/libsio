@@ -331,12 +331,14 @@ private:
 
         for (const Token* t = src.head; t != nullptr; t = t->next) {
             // most tokens won't survive pruning and context recombination,
-            // here we use a probing "new token" on stack, 
-            // and create a copy on heap only when it actually survived.
-            Token nt;
-            nt.total_score = t->total_score + arc.score + score;
+            // here we use a "new token" on stack for probing, 
+            // and create a heap copy only after its survival.
+            Token nt = *t;
 
-            // language model scoring
+            // update graph & AM score
+            nt.total_score += (arc.score + score);
+
+            // update LM
             if (arc.olabel != kFsmEpsilon) {
                 if (lms_.empty()) {
                     // prime picked from Kaldi's VectorHasher: 
@@ -356,6 +358,7 @@ private:
                 }
             }
 
+            // beam pruning
             if (nt.total_score < score_cutoff_ || nt.total_score < dst->head->total_score - config_.token_set_beam) {
                 // pruned
                 continue;
@@ -365,7 +368,7 @@ private:
                 score_max_ = nt.total_score;
             }
 
-            // handle context recombination
+            // context recombination
             bool new_token_gone = false;
             {
                 int k = 0;
@@ -401,7 +404,7 @@ private:
                 }
 
                 if (k != config_.token_set_size) {
-                    // complete new token's traceback info
+                    // fix new token's traceback
                     nt.trace_back.token = const_cast<Token*>(t);
                     nt.trace_back.arc = arc;
                     nt.trace_back.score = score;
