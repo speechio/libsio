@@ -140,7 +140,7 @@ struct Token {
 
     f32 total_score = 0.0;
 
-    u64 prefix_hash = 0;
+    u64 prefix_uid = 0;
     LmStateId lm_states[SIO_MAX_LM] = {};
 
     TraceBack trace_back;
@@ -308,7 +308,7 @@ private:
 
     inline bool ContextEqual(const Token& x, const Token& y) {
         if (lms_.empty()) {
-            return x.prefix_hash == y.prefix_hash;
+            return x.prefix_uid == y.prefix_uid;
         }
 
         for (int i = 0; i != lms_.size(); i++) {
@@ -331,12 +331,10 @@ private:
             // language model scoring
             if (arc.olabel != kFsmEpsilon) {
                 if (lms_.empty()) {
-                    // prefix_hash as unique hypothesis identifier, when no external LM available
-                    // 
                     // prime picked from Kaldi's VectorHasher: 
                     //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
                     constexpr u64 prime = 7853;
-                    nt->prefix_hash = t->prefix_hash * prime + (u64)arc.olabel;
+                    nt->prefix_uid = t->prefix_uid * prime + (u64)arc.olabel;
                 }
 
                 for (int i = 0; i != lms_.size(); i++) {
