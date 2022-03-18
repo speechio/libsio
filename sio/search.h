@@ -355,6 +355,7 @@ private:
                 }
             }
 
+            // beam pruning
             if (nt->total_score < score_cutoff_ ||
                 nt->total_score < dst->best_score - config_.token_set_beam) 
             {
@@ -386,18 +387,17 @@ private:
                 }
             }
 
-            // insert new token
             if (nt != nullptr) {
+                // find position
                 int k = 0;
                 Token** p = &dst->head;
-
-                // find position
                 for ( ; *p != NULL && k != config_.token_set_size; p = &(*p)->next, k++) {
                     if ((*p)->total_score <= nt->total_score) {
                         break;
                     }
                 }
 
+                // insert
                 if (k != config_.token_set_size) {
                     nt->next = *p;
                     *p = nt;
