@@ -306,7 +306,7 @@ private:
     }
 
 
-    inline int ContextEqual(const Token& x, const Token& y) {
+    inline bool ContextEqual(const Token& x, const Token& y) {
         if (lms_.empty()) {
             return x.prefix_hash == y.prefix_hash;
         }
