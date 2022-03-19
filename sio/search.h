@@ -315,12 +315,12 @@ private:
         if (lms_.empty()) {
             return x.prefix_uid == y.prefix_uid;
         } else {
-            // option A: use the first LM state as prime context identifier
+            // option A: the first LM state as unique context id.
             return x.lm_states[0] == y.lm_states[0];
 
             /*
-            // option B: use all LM states to identify different context
-            // For even more flexibility, these prime LMs can be configured.
+            // option B: All LMs states combined as unique context id,
+            // these LMs can be specified via config for even more flexibility.
             for (int i = 0; i != lms_.size(); i++) {
                 if (x.lm_states[i] != y.lm_states[i]) {
                     return false;
