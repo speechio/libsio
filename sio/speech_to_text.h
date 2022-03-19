@@ -48,7 +48,8 @@ public:
         SIO_INFO << "Loading beam search ...";
         beam_search_.Load(
             model.config.beam_search,
-            model.graph
+            model.graph,
+            model.tokenizer
         );
 
         return Error::OK;
@@ -67,10 +68,17 @@ public:
 
 
     Error Text(std::string* result) { 
-        auto best_path = greedy_search_.BestPath();
-        for (index_t i = 0; i < best_path.size(); i++) {
-            *result += tokenizer_->Token(best_path[i]);
+        auto greedy_best_path = greedy_search_.BestPath();
+        auto beam_best_path = beam_search_.BestPath();
+
+        for (const auto& token : greedy_best_path) {
+            *result += tokenizer_->Token(token);
         }
+
+        for (const auto& token : beam_best_path) {
+            *result += tokenizer_->Token(token);
+        }
+
         return Error::OK;
     }
 

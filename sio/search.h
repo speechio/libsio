@@ -66,7 +66,7 @@ struct BeamSearchConfig {
     i32 max_active = 12;
 
     f32 token_set_size = 1;
-    f32 token_set_beam = 0.01;
+    //f32 token_set_beam = 0.01;
 
     i32 token_allocator_slab_size = 5000;
 
@@ -80,7 +80,7 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".max_active", &max_active);
 
         loader->AddEntry(module + ".token_set_size", &token_set_size);
-        loader->AddEntry(module + ".token_set_beam", &token_set_beam);
+        //loader->AddEntry(module + ".token_set_beam", &token_set_beam);
 
         loader->AddEntry(module + ".token_allocator_slab_size", &token_allocator_slab_size);
 
@@ -168,6 +168,7 @@ class BeamSearch {
     BeamSearchConfig config_;
     const Fsm* graph_ = nullptr;
     Vec<Unique<LanguageModel*>> lms_;
+    const Tokenizer* tokenizer_ = nullptr;
 
     Str session_key_ = "default_session";
     SearchStatus status_ = SearchStatus::kIdle;
@@ -192,13 +193,16 @@ class BeamSearch {
 
     Vec<f32> score_offset_;  // for numerical stability of long audio scores
 
+    Vec<TokenId> best_path_;
+
 public:
 
-    Error Load(const BeamSearchConfig& config, const Fsm& graph) {
+    Error Load(const BeamSearchConfig& config, const Fsm& graph, const Tokenizer& tokenizer) {
         SIO_CHECK(graph_ == nullptr);
 
         config_ = config;
         graph_ = &graph;
+        tokenizer_ = &tokenizer;
         SIO_CHECK(status_ == SearchStatus::kIdle);
 
         return Error::OK;
@@ -237,9 +241,17 @@ public:
     Error PushEos() {
         SIO_CHECK(status_ == SearchStatus::kBusy);
         ExpandFrontierEos();
+        PrepareBestPath();
         SIO_CHECK(status_ == SearchStatus::kDone);
 
+        Analyze();
+
         return Error::OK;
+    }
+
+
+    Vec<TokenId> BestPath() {
+        return best_path_;
     }
 
 
@@ -467,6 +479,7 @@ private:
         status_ = SearchStatus::kBusy;
 
         Token* t = NewToken();
+        t->trace_back.arc.olabel = tokenizer_->bos;
 
         for (int i = 0; i != lms_.size(); i++) {
             LanguageModel* lm = lms_[i].get();
@@ -508,6 +521,8 @@ private:
             score_offset_.clear();
         }
 
+        best_path_.clear();
+
         status_ = SearchStatus::kIdle;
 
         return Error::OK;
@@ -529,7 +544,7 @@ private:
                         FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
                     ];
 
-                    dbg(src.time, src.state, dst.time, dst.state);
+                    //dbg(src.time, src.state, dst.time, dst.state);
                     TokenPassing(src, arc, score, &dst);
                 }
             }
@@ -609,6 +624,11 @@ private:
         frontier_.clear();
         frontier_map_.clear();
 
+        dbg(score_max_);
+        score_max_ = -std::numeric_limits<f32>::infinity();
+        score_cutoff_ = -std::numeric_limits<f32>::infinity();
+
+
         Vec<TokenSet>& v = lattice_.back();
         for (int k = 0; k != v.size() ; k++) {
             for (Token* t = v[k].head; t != nullptr; t = t->next) {
@@ -617,6 +637,28 @@ private:
         }
 
         return Error::OK;
+    }
+
+    void PrepareBestPath() {
+        auto it = frontier_map_.find(ComposeStateHandle(0, graph_->final_state));
+        SIO_CHECK(it != frontier_map_.end());
+        int k = it->second;
+
+        SIO_CHECK(best_path_.empty());
+        for(Token* t = frontier_[k].head; t != nullptr; t = t->trace_back.token) {
+            if (t->trace_back.arc.olabel != kFsmEpsilon) {
+                best_path_.push_back(t->trace_back.arc.olabel);
+            }
+        }
+
+        std::reverse(best_path_.begin(), best_path_.end());
+    }
+
+
+    void Analyze() {
+        for (int i = 0; i != lattice_.size(); i++) {
+            dbg(i, lattice_[i].size());
+        }
     }
 
 }; // class BeamSearch
