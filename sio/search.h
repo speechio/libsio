@@ -338,7 +338,7 @@ private:
         for (const Token* t = src.head; t != nullptr; t = t->next) {
             // most tokens won't survive pruning and context recombination,
             // here we use a "new token" on stack for probing, 
-            // and create a heap copy only after its survival.
+            // and a heap-based copy is created only after its actual survival.
             Token nt = *t;
 
             // 1. update graph & AM score
@@ -372,7 +372,6 @@ private:
 
             // beam pruning
             if (nt.total_score < score_cutoff_) {
-                // pruned
                 continue;
             } else if (nt.total_score > score_max_) {
                 // score is high enough to lift current beam range
