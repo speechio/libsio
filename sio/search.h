@@ -41,7 +41,6 @@ public:
                 res2.push_back(res1[i]);
             }
         }
-
         best_path_ = std::move(res2);
     }
 
@@ -234,6 +233,8 @@ public:
 
         PinFrontierToLattice();
 
+        OnFrameEnd();
+
         return Error::OK;
     }
 
@@ -243,8 +244,7 @@ public:
         ExpandFrontierEos();
         PrepareBestPath();
         SIO_CHECK(status_ == SearchStatus::kDone);
-
-        Analyze();
+        OnSessionEnd();
 
         return Error::OK;
     }
@@ -544,7 +544,6 @@ private:
                         FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
                     ];
 
-                    //dbg(src.time, src.state, dst.time, dst.state);
                     TokenPassing(src, arc, score, &dst);
                 }
             }
@@ -576,7 +575,7 @@ private:
                     int dst_k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst));
                     TokenSet& dst = frontier_[dst_k];
 
-                    bool changed = TokenPassing(src, arc, 0.0, &dst);
+                    bool changed = TokenPassing(src, arc, -1e-6, &dst);
 
                     if (changed && graph_->ContainEpsilonArc(arc.dst)) {
                         eps_queue_.push_back(dst_k);
@@ -624,9 +623,10 @@ private:
         frontier_.clear();
         frontier_map_.clear();
 
-        dbg(score_max_);
-        score_max_ = -std::numeric_limits<f32>::infinity();
-        score_cutoff_ = -std::numeric_limits<f32>::infinity();
+        //score_max_ = -std::numeric_limits<f32>::infinity();
+        //score_cutoff_ = -std::numeric_limits<f32>::infinity();
+        //score_max_ = -1000;
+        //score_cutoff_ = -1000 - config_.beam;
 
 
         Vec<TokenSet>& v = lattice_.back();
@@ -648,17 +648,28 @@ private:
         for(Token* t = frontier_[k].head; t != nullptr; t = t->trace_back.token) {
             if (t->trace_back.arc.olabel != kFsmEpsilon) {
                 best_path_.push_back(t->trace_back.arc.olabel);
-            }
+            }/* else {
+                best_path_.push_back(tokenizer_->blk);
+            }*/
         }
 
         std::reverse(best_path_.begin(), best_path_.end());
     }
 
 
-    void Analyze() {
-        for (int i = 0; i != lattice_.size(); i++) {
-            dbg(i, lattice_[i].size());
-        }
+    void OnFrameEnd() {
+        SIO_CHECK(status_ == SearchStatus::kBusy);
+
+        //dbg(cur_time_, score_max_, score_cutoff_, lattice_.back().size());
+    }
+
+
+    void OnSessionEnd() {
+        SIO_CHECK(status_ == SearchStatus::kDone);
+
+        //for (int i = 0; i != lattice_.size(); i++) {
+        //    dbg(i, lattice_[i].size());
+        //}
     }
 
 }; // class BeamSearch
