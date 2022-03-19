@@ -48,6 +48,7 @@ public:
     void Reset() {
         best_tokens_.clear();
         best_scores_.clear();
+        best_path_.clear();
     }
 
 
