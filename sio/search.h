@@ -14,6 +14,7 @@ namespace sio {
 class GreedySearch {
     Vec<TokenId> best_tokens_;
     Vec<f32> best_scores_;
+    Vec<TokenId> best_path_;
 
 public:
     void Push(const torch::Tensor score) {
@@ -24,16 +25,7 @@ public:
     }
 
 
-    void PushEos() { }
-
-
-    void Reset() {
-        best_tokens_.clear();
-        best_scores_.clear();
-    }
-
-
-    Vec<TokenId> BestPath() {
+    void PushEos() {
         // deduplication
         Vec<TokenId> res1;
         for (index_t i = 0; i < best_tokens_.size(); i++) {
@@ -48,7 +40,19 @@ public:
                 res2.push_back(res1[i]);
             }
         }
-        return std::move(res2);
+
+        best_path_ = std::move(res2);
+    }
+
+
+    void Reset() {
+        best_tokens_.clear();
+        best_scores_.clear();
+    }
+
+
+    Vec<TokenId> BestPath() {
+        return best_path_;
     }
 
 }; // class GreedySearch
