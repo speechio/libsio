@@ -485,7 +485,7 @@ private:
             LanguageModel* lm = lms_[i].get();
 
             f32 bos_score = 0.0;
-            bool found = lm->GetScore(lm->NullState(), lm->Bos(), &bos_score, &t->lm_states[i]);
+            bool found = lm->GetScore(lm->NullState(), tokenizer_->bos, &bos_score, &t->lm_states[i]);
             SIO_CHECK(found == true);
 
             t->total_score += bos_score;

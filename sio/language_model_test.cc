@@ -12,7 +12,7 @@ TEST(LanguageModel, PrefixLm) {
     //dbg(tokenizer.index_to_token);
 
     PrefixLm prefix_lm;
-    prefix_lm.Load(tokenizer);
+    prefix_lm.Load();
 
     LanguageModel* m = &prefix_lm;
 

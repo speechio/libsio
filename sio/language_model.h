@@ -13,10 +13,6 @@ using LmScore = f32;
 
 class LanguageModel {
 public:
-    virtual LmWordId Bos() const = 0;
-    virtual LmWordId Eos() const = 0;
-    virtual LmWordId Unk() const = 0;
-
     virtual LmStateId NullState() const = 0;
 
     virtual bool GetScore(LmStateId src, LmWordId word, LmScore* score, LmStateId* dst) = 0;

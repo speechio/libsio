@@ -4,20 +4,15 @@
 namespace sio {
 
 class PrefixLm : public LanguageModel {
-    // prefix word sequence is represented with a unique hash of type size_t
-    using PrefixHash = size_t;
+    // prefix word sequence is represented with a unique hash of type u64
+    using PrefixUID = u32;
 
-    const Tokenizer* tokenizer_ = nullptr;
-
-    Vec<PrefixHash> state_to_prefix_;
-    Map<PrefixHash, LmStateId> prefix_to_state_;
+    Vec<PrefixUID> state_to_prefix_;
+    Map<PrefixUID, LmStateId> prefix_to_state_;
 
 public:
 
-    Error Load(const Tokenizer& tokenizer) {
-        SIO_CHECK(tokenizer_ == nullptr);
-        tokenizer_ = &tokenizer;
-
+    Error Load() {
         // Establish null lm state: state index = 0, prefix hash = 0
         SIO_CHECK(state_to_prefix_.empty() && prefix_to_state_.empty());
         state_to_prefix_.push_back(0);
@@ -30,11 +25,6 @@ public:
     }
 
 
-    LmWordId Bos() const override { return tokenizer_->bos; }
-    LmWordId Eos() const override { return tokenizer_->eos; }
-    LmWordId Unk() const override { return tokenizer_->unk; }
-
-
     LmStateId NullState() const override {
         SIO_CHECK(!prefix_to_state_.empty()) << "PrefixLm uninitialzed ?";
         return 0;
@@ -44,18 +34,18 @@ public:
     bool GetScore(LmStateId src_state, LmWordId word, LmScore* score, LmStateId* dst_state) override {
         // prime are picked from Kaldi's VectorHasher:
         //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
-        const int prime = 7853;
+        constexpr u32 prime = 7853;
 
         *score = 0.0;
 
-        size_t src_prefix = state_to_prefix_[src_state];
-        size_t dst_prefix = src_prefix * prime + word; // incremental sequence hashing
+        PrefixUID src = state_to_prefix_[src_state];
+        PrefixUID dst = src * prime + (u32)word; // incremental sequence hashing
 
-        auto it = prefix_to_state_.find(dst_prefix);
+        auto it = prefix_to_state_.find(dst);
         if (it == prefix_to_state_.end()) {
             LmStateId s = state_to_prefix_.size();
-            state_to_prefix_.push_back(dst_prefix);
-            prefix_to_state_[dst_prefix] = s;
+            state_to_prefix_.push_back(dst);
+            prefix_to_state_[dst] = s;
 
             *dst_state = s;
         } else {
