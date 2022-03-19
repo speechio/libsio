@@ -1,6 +1,7 @@
 #ifndef SIO_SEARCH_H
 #define SIO_SEARCH_H
 
+#include "string.h"
 #include <limits>
 
 #include "sio/common.h"
@@ -145,10 +146,10 @@ struct Token {
 
     f32 total_score = 0.0;
 
-    TraceBack trace_back;
-
     u64 prefix_uid = 0;
     LmStateId lm_states[SIO_MAX_LM] = {}; // zero initialized to 0 
+
+    TraceBack trace_back;
 };
 
 
@@ -343,32 +344,38 @@ private:
             // most tokens won't survive pruning and context recombination,
             // here we use a "new token" on stack for probing, 
             // and a heap-based copy is created only after its actual survival.
-            Token nt = *t;
+            Token nt;
 
-            // 1. update graph & AM score
-            nt.total_score += (arc.score + score);
+            // 1. graph & AM score
+            nt.total_score = t->total_score + arc.score + score;
 
-            // 2. update LM
-            if (arc.olabel != kFsmEpsilon) {
+            // 2. LM
+            if (arc.olabel == kFsmEpsilon) {
+                if (lms_.empty()) {
+                    nt.prefix_uid = t->prefix_uid;
+                } else {
+                    memcpy(nt.lm_states, t->lm_states, sizeof(LmStateId) * lms_.size());
+                }
+            } else {  /* word-end arc */
                 if (lms_.empty()) {
                     // prime picked from Kaldi's VectorHasher: 
                     //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
                     constexpr u64 prime = 7853;
                     nt.prefix_uid = t->prefix_uid * prime + (u64)arc.olabel;
-                }
+                } else {
+                    for (int i = 0; i != lms_.size(); i++) {
+                        LanguageModel* lm = lms_[i].get();
+                        f32& lm_score = nt.trace_back.lm_scores[i];
 
-                for (int i = 0; i != lms_.size(); i++) {
-                    LanguageModel* lm = lms_[i].get();
-                    f32& lm_score = nt.trace_back.lm_scores[i];
+                        bool found = lm->GetScore(t->lm_states[i], arc.olabel, &lm_score, &nt.lm_states[i]);
+                        SIO_CHECK(found == true);
 
-                    bool found = lm->GetScore(t->lm_states[i], arc.olabel, &lm_score, &nt.lm_states[i]);
-                    SIO_CHECK(found == true);
-
-                    nt.total_score += lm_score;
+                        nt.total_score += lm_score;
+                    }
                 }
             }
 
-            // 3. update trace back 
+            // 3. trace back 
             // this can be moved to back for optimization, keep it here for simplicity
             nt.trace_back.token = const_cast<Token*>(t);
             nt.trace_back.arc = arc;
