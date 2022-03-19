@@ -4,10 +4,7 @@
 namespace sio {
 
 class PrefixTreeLM : public LanguageModel {
-    // prefix word sequence is represented with a unique hash of type u32
-    using PrefixUID = u32;
 public:
-
     LmStateId NullState() const override {
         return 0;
     }
@@ -15,9 +12,10 @@ public:
     bool GetScore(LmStateId src_state, LmWordId word, LmScore* score, LmStateId* dst_state) override {
         // prime are picked from Kaldi's VectorHasher:
         //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
+        // choose unsigned, because uint has well-defined warp-around behavior by C standard
         constexpr u32 prime = 7853;
-        PrefixUID src = (PrefixUID)src_state;
-        PrefixUID dst = src * prime + (u32)word; // incremental sequence hashing
+        u32 src = (u32)src_state;
+        u32 dst = src * prime + (u32)word; // incremental sequence hashing
 
         *score = 0.0;
         *dst_state = (LmStateId)dst;
