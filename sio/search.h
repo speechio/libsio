@@ -380,7 +380,7 @@ private:
             }
 
             // context recombination
-            bool new_token_gone = false;
+            bool survived = true;
             {
                 int k = 0;
                 Token** p = &dst->head;
@@ -395,8 +395,8 @@ private:
 
                             changed = true;
                         } else {
-                            // existing token is better, no need to propagate this new token later
-                            new_token_gone = true;
+                            // existing token is better, no need to process new token any further
+                            survived = false;
                         }
 
                         break;
@@ -404,7 +404,7 @@ private:
                 }
             }
 
-            if (!new_token_gone) {
+            if (survived) {
                 // find position to insert the new token
                 int k = 0;
                 Token** p = &dst->head;
