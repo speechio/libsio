@@ -12,12 +12,15 @@
 
 namespace sio {
 class GreedySearch {
+    Vec<TokenId> best_tokens_;
+    Vec<f32> best_scores_;
+
 public:
     void Push(const torch::Tensor score) {
         std::tuple<torch::Tensor, torch::Tensor> best = score.topk(1);
 
-        best_path_scores_.push_back(std::get<0>(best).item<f32>());
-        best_path_tokens_.push_back(std::get<1>(best).item<TokenId>());
+        best_scores_.push_back(std::get<0>(best).item<f32>());
+        best_tokens_.push_back(std::get<1>(best).item<TokenId>());
     }
 
 
@@ -25,17 +28,17 @@ public:
 
 
     void Reset() {
-        best_path_tokens_.clear();
-        best_path_scores_.clear();
+        best_tokens_.clear();
+        best_scores_.clear();
     }
 
 
     Vec<TokenId> BestPath() {
-        // dup removal
+        // deduplication
         Vec<TokenId> res1;
-        for (index_t i = 0; i < best_path_tokens_.size(); i++) {
-            if (res1.size() == 0 || best_path_tokens_[i] != res1.back()) {
-                res1.push_back( best_path_tokens_[i] );
+        for (index_t i = 0; i < best_tokens_.size(); i++) {
+            if (res1.size() == 0 || best_tokens_[i] != res1.back()) {
+                res1.push_back( best_tokens_[i] );
             }
         }
         // blank removal
@@ -48,9 +51,6 @@ public:
         return std::move(res2);
     }
 
-private:
-    Vec<TokenId> best_path_tokens_;
-    Vec<f32> best_path_scores_;
 }; // class GreedySearch
 
 
