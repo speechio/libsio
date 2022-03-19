@@ -314,15 +314,21 @@ private:
     inline bool ContextEqual(const Token& x, const Token& y) {
         if (lms_.empty()) {
             return x.prefix_uid == y.prefix_uid;
-        }
+        } else {
+            // option A: use the first LM state as prime context identifier
+            return x.lm_states[0] == y.lm_states[0];
 
-        for (int i = 0; i != lms_.size(); i++) {
-            if (x.lm_states[i] != y.lm_states[i]) {
-                return false;
+            /*
+            // option B: use all LM states to identify different context
+            // For even more flexibility, these prime LMs can be configured.
+            for (int i = 0; i != lms_.size(); i++) {
+                if (x.lm_states[i] != y.lm_states[i]) {
+                    return false;
+                }
             }
+            return true;
+            */
         }
-
-        return true;
     }
 
 
@@ -365,7 +371,7 @@ private:
             nt.trace_back.score = score;
 
             // beam pruning
-            if (nt.total_score < score_cutoff_ || nt.total_score < dst->head->total_score - config_.token_set_beam) {
+            if (nt.total_score < score_cutoff_) {
                 // pruned
                 continue;
             } else if (nt.total_score > score_max_) {
@@ -502,14 +508,18 @@ private:
         SIO_CHECK(frontier_.empty());
 
         cur_time_++;
-        for (const auto& src : lattice_.back()) {
+        for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.state)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
                 if (arc.ilabel != kFsmEpsilon && arc.ilabel != kFsmInputEnd) {
+                    f32 score = frame_score[arc.ilabel];
+                    if (src.best_score + arc.score + score < score_cutoff_) continue;
+
                     TokenSet& dst = frontier_[
                         FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
                     ];
-                    f32 score = frame_score[arc.ilabel];
+
+                    dbg(src.time, src.state, dst.time, dst.state);
                     TokenPassing(src, arc, score, &dst);
                 }
             }
@@ -557,7 +567,7 @@ private:
     Error ExpandFrontierEos() {
         SIO_CHECK(frontier_.empty());
 
-        for (const auto& src : lattice_.back()) {
+        for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.state)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
                 if (arc.ilabel == kFsmInputEnd) {
