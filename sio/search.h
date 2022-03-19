@@ -105,7 +105,6 @@ enum class SearchStatus : int {
 // via on-the-fly rescoring.
 #define SIO_MAX_LM 4
 
-static constexpr f32 kF32INF = std::numeric_limits<f32>::infinity();
 
 // SearchStateHandle: 
 //   SearchStateHandle represents a unique state in the decoding graph.
@@ -151,7 +150,7 @@ struct Token {
 // TokenSet represents a location(time, state) in beam search space (sometimes called trellis space),
 // Each TokenSet holds a list of tokens representing search hypotheses
 struct TokenSet {
-    f32 best_score = -kF32INF;
+    f32 best_score = -std::numeric_limits<f32>::infinity();
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 
     int time = 0;
