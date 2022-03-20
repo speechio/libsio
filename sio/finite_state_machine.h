@@ -235,7 +235,7 @@ struct Fsm {
                 out_degree[arc.src]++;
             }
 
-            // invariant: n = sum{ arcs of this->states[0, s) }
+            // invariant: n = sum( arcs of states[0, s) )
             int n = 0;
             for (FsmStateId s = 0; s != this->num_states; s++) {
                 this->states[s].arcs_offset = n;
@@ -299,7 +299,7 @@ struct Fsm {
                 out_degree[arc.src]++;
             }
 
-            // invariant: n = sum{ arcs of this->states[0, s) }
+            // invariant: n = sum( arcs of states[0, s) )
             int n = 0;
             for (FsmStateId s = 0; s != this->num_states; s++) {
                 this->states[s].arcs_offset = n;
