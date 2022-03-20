@@ -685,17 +685,18 @@ private:
     }
 
     void OnSessionEnd() {
-        //for (int i = 0; i != lattice_.size(); i++) {
-        //    dbg(i, lattice_[i].size());
-        //}
+        if (config_.debug) {
+
+        }
     }
 
     inline void OnFrameBegin() {
     }
 
     inline void OnFrameEnd() {
-        //dbg(cur_time_, score_max_, score_cutoff_, lattice_.back().size());
-        dbg(lattice_.back().size());
+        if (config_.debug) {
+            dbg(lattice_.back().size());
+        }
     }
 
 }; // class BeamSearch
