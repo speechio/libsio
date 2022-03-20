@@ -137,10 +137,7 @@ struct Token {
     TokenSet* master = nullptr;
 
     f32 total_score = 0.0;
-
-    u64 prefix_uid = 0;
     LmStateId lm_states[SIO_MAX_LM] = {}; // zero initialized to 0 
-
     TraceBack trace_back;
 };
 
@@ -199,6 +196,9 @@ public:
 
         SIO_CHECK(tokenizer_ == nullptr);
         tokenizer_ = &tokenizer;
+
+        SIO_CHECK(lms_.empty());
+        lms_.push_back(make_unique<PrefixTreeLM>());
 
         status_ = SearchStatus::kIdle;
 
@@ -331,23 +331,19 @@ private:
 
 
     inline bool ContextEqual(const Token& x, const Token& y) {
-        if (lms_.empty()) {
-            return x.prefix_uid == y.prefix_uid;
-        } else {
-            // option A: the first LM state as unique context id.
-            return x.lm_states[0] == y.lm_states[0];
+        // option A: the first LM state as unique context id.
+        return x.lm_states[0] == y.lm_states[0];
 
-            /*
-            // option B: All LMs states combined as unique context id,
-            // these LMs can be specified via config for even more flexibility.
-            for (int i = 0; i != lms_.size(); i++) {
-                if (x.lm_states[i] != y.lm_states[i]) {
-                    return false;
-                }
+        /*
+        // option B: All LMs states combined as unique context id,
+        // these LMs can be specified via config for even more flexibility.
+        for (int i = 0; i != lms_.size(); i++) {
+            if (x.lm_states[i] != y.lm_states[i]) {
+                return false;
             }
-            return true;
-            */
         }
+        return true;
+        */
     }
 
 
@@ -365,27 +361,16 @@ private:
 
             // 2. LM
             if (arc.olabel == kFsmEpsilon) {
-                if (lms_.empty()) {
-                    nt.prefix_uid = t->prefix_uid;
-                } else {
-                    memcpy(nt.lm_states, t->lm_states, sizeof(LmStateId) * lms_.size());
-                }
+                memcpy(nt.lm_states, t->lm_states, sizeof(LmStateId) * lms_.size());
             } else {  /* word-end arc */
-                if (lms_.empty()) {
-                    // prime picked from Kaldi's VectorHasher: 
-                    //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
-                    constexpr u64 prime = 7853;
-                    nt.prefix_uid = t->prefix_uid * prime + (u64)arc.olabel;
-                } else {
-                    for (int i = 0; i != lms_.size(); i++) {
-                        LanguageModel* lm = lms_[i].get();
-                        f32& lm_score = nt.trace_back.lm_scores[i];
+                for (int i = 0; i != lms_.size(); i++) {
+                    LanguageModel* lm = lms_[i].get();
+                    LmScore& lm_score = nt.trace_back.lm_scores[i];
 
-                        bool found = lm->GetScore(t->lm_states[i], arc.olabel, &lm_score, &nt.lm_states[i]);
-                        SIO_CHECK(found == true);
+                    bool found = lm->GetScore(t->lm_states[i], arc.olabel, &lm_score, &nt.lm_states[i]);
+                    SIO_CHECK(found == true);
 
-                        nt.total_score += lm_score;
-                    }
+                    nt.total_score += lm_score;
                 }
             }
 
