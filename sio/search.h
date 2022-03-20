@@ -63,9 +63,7 @@ struct BeamSearchConfig {
     f32 beam = 16.0;
     i32 min_active = 8;
     i32 max_active = 12;
-
     f32 token_set_size = 1;
-    //f32 token_set_beam = 0.01;
 
     i32 token_allocator_slab_size = 5000;
 
@@ -79,7 +77,6 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".max_active", &max_active);
 
         loader->AddEntry(module + ".token_set_size", &token_set_size);
-        //loader->AddEntry(module + ".token_set_beam", &token_set_beam);
 
         loader->AddEntry(module + ".token_allocator_slab_size", &token_allocator_slab_size);
 
@@ -93,6 +90,7 @@ struct BeamSearchConfig {
 
 
 enum class SearchStatus : int {
+    kUnconstructed,
     kIdle,
     kBusy,
     kDone,
@@ -166,11 +164,11 @@ struct TokenSet {
 class BeamSearch {
     BeamSearchConfig config_;
     const Fsm* graph_ = nullptr;
-    Vec<Unique<LanguageModel*>> lms_;
     const Tokenizer* tokenizer_ = nullptr;
+    Vec<Unique<LanguageModel*>> lms_;
 
     Str session_key_ = "default_session";
-    SearchStatus status_ = SearchStatus::kIdle;
+    SearchStatus status_ = SearchStatus::kUnconstructed;
 
     // lattice indexes: 
     //   [time, token_set_index]
@@ -197,12 +195,17 @@ class BeamSearch {
 public:
 
     Error Load(const BeamSearchConfig& config, const Fsm& graph, const Tokenizer& tokenizer) {
-        SIO_CHECK(graph_ == nullptr);
+        SIO_CHECK(status_ == SearchStatus::kUnconstructed);
 
-        config_ = config;
+        config_ = config; // make a copy to block outside changes 
+
+        SIO_CHECK(graph_ == nullptr);
         graph_ = &graph;
+
+        SIO_CHECK(tokenizer_ == nullptr);
         tokenizer_ = &tokenizer;
-        SIO_CHECK(status_ == SearchStatus::kIdle);
+
+        status_ = SearchStatus::kIdle;
 
         return Error::OK;
     }
@@ -212,6 +215,7 @@ public:
         SIO_CHECK(status_ == SearchStatus::kIdle || status_ == SearchStatus::kBusy);
         if (status_ == SearchStatus::kIdle) {
             InitSession();
+            OnSessionBegin();
         }
         SIO_CHECK(status_ == SearchStatus::kBusy);
 
@@ -227,12 +231,14 @@ public:
         //    }
         //}
         
-        ExpandFrontierEmitting(score_data);
-        ExpandFrontierEpsilon();
-        PruneFrontier();
+        OnFrameBegin();
+        {
+            FrontierExpandEmitting(score_data);
+            FrontierExpandEpsilon();
+            FrontierPrune();
 
-        PinFrontierToLattice();
-
+            PinFrontierToLattice();
+        }
         OnFrameEnd();
 
         return Error::OK;
@@ -244,6 +250,7 @@ public:
         ExpandFrontierEos();
         PrepareBestPath();
         SIO_CHECK(status_ == SearchStatus::kDone);
+
         OnSessionEnd();
 
         return Error::OK;
@@ -502,7 +509,7 @@ private:
 
         score_max_ = ts.best_score;
         score_cutoff_ = score_max_ - config_.beam;
-        ExpandFrontierEpsilon();
+        FrontierExpandEpsilon();
         PinFrontierToLattice();
 
         return Error::OK;
@@ -529,7 +536,7 @@ private:
     }
 
 
-    Error ExpandFrontierEmitting(const float* frame_score) {
+    Error FrontierExpandEmitting(const float* frame_score) {
         SIO_CHECK(frontier_.empty());
 
         cur_time_++;
@@ -552,7 +559,7 @@ private:
     }
 
 
-    Error ExpandFrontierEpsilon() {
+    Error FrontierExpandEpsilon() {
         SIO_CHECK(eps_queue_.empty());
 
         for (int k = 0; k != frontier_.size(); k++) {
@@ -602,14 +609,13 @@ private:
                 }
             }
         }
-
         status_ = SearchStatus::kDone;
 
         return Error::OK;
     }
 
 
-    Error PruneFrontier() {
+    Error FrontierPrune() {
         return Error::OK;
     }
 
@@ -622,12 +628,6 @@ private:
         // avoiding unnecessary reallocations across frames.
         frontier_.clear();
         frontier_map_.clear();
-
-        //score_max_ = -std::numeric_limits<f32>::infinity();
-        //score_cutoff_ = -std::numeric_limits<f32>::infinity();
-        //score_max_ = -1000;
-        //score_cutoff_ = -1000 - config_.beam;
-
 
         Vec<TokenSet>& v = lattice_.back();
         for (int k = 0; k != v.size() ; k++) {
@@ -648,25 +648,24 @@ private:
         for(Token* t = frontier_[k].head; t != nullptr; t = t->trace_back.token) {
             if (t->trace_back.arc.olabel != kFsmEpsilon) {
                 best_path_.push_back(t->trace_back.arc.olabel);
-            }/* else {
-                best_path_.push_back(tokenizer_->blk);
-            }*/
+            }
         }
 
         std::reverse(best_path_.begin(), best_path_.end());
     }
 
 
-    void OnFrameEnd() {
-        SIO_CHECK(status_ == SearchStatus::kBusy);
+    void OnSessionBegin() {
+    }
 
+    inline void OnFrameBegin() {
+    }
+
+    inline void OnFrameEnd() {
         //dbg(cur_time_, score_max_, score_cutoff_, lattice_.back().size());
     }
 
-
     void OnSessionEnd() {
-        SIO_CHECK(status_ == SearchStatus::kDone);
-
         //for (int i = 0; i != lattice_.size(); i++) {
         //    dbg(i, lattice_[i].size());
         //}
