@@ -481,6 +481,7 @@ private:
         status_ = SearchStatus::kBusy;
 
         Token* t = NewToken();
+        t->trace_back.arc.ilabel = kFsmEpsilon;
         t->trace_back.arc.olabel = tokenizer_->bos;
 
         for (int i = 0; i != lms_.size(); i++) {
