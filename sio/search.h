@@ -484,7 +484,7 @@ private:
         for (int i = 0; i != lms_.size(); i++) {
             LanguageModel* lm = lms_[i].get();
 
-            f32 bos_score = 0.0;
+            LmScore bos_score = 0.0;
             bool found = lm->GetScore(lm->NullState(), tokenizer_->bos, &bos_score, &t->lm_states[i]);
             SIO_CHECK(found == true);
 
