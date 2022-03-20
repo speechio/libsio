@@ -61,7 +61,7 @@ public:
 
 struct BeamSearchConfig {
     f32 beam = 16.0;
-    i32 min_active = 8;
+    i32 min_active = 1;
     i32 max_active = 12;
     f32 token_set_size = 1;
 
@@ -75,7 +75,6 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".beam", &beam);
         loader->AddEntry(module + ".min_active", &min_active);
         loader->AddEntry(module + ".max_active", &max_active);
-
         loader->AddEntry(module + ".token_set_size", &token_set_size);
 
         loader->AddEntry(module + ".token_allocator_slab_size", &token_allocator_slab_size);

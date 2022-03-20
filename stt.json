@@ -23,8 +23,8 @@
     },
     "beam_search": {
         "beam": 12.0,
-        "min_active": 8,
-        "max_active": 14,
+        "min_active": 1,
+        "max_active": 12,
         "token_set_size": 1,
         "token_allocator_slab_size": 10000,
         "apply_score_offset": true,
