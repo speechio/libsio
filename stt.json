@@ -28,6 +28,6 @@
         "token_set_size": 1,
         "token_allocator_slab_size": 10000,
         "apply_score_offset": true,
-        "debug_mode": false
+        "debug": false
     }
 }

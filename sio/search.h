@@ -66,10 +66,8 @@ struct BeamSearchConfig {
     f32 token_set_size = 1;
 
     i32 token_allocator_slab_size = 5000;
-
     bool apply_score_offset = true;  // for numerical stability of long audio scores
-
-    bool debug_mode = false;
+    bool debug = false;
 
     Error Register(StructLoader* loader, const std::string module = "") {
         loader->AddEntry(module + ".beam", &beam);
@@ -78,10 +76,8 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".token_set_size", &token_set_size);
 
         loader->AddEntry(module + ".token_allocator_slab_size", &token_allocator_slab_size);
-
         loader->AddEntry(module + ".apply_score_offset", &apply_score_offset);
-
-        loader->AddEntry(module + ".debug_mode", &debug_mode);
+        loader->AddEntry(module + ".debug", &debug);
 
         return Error::OK;
     }
