@@ -20,7 +20,7 @@ constexpr FsmLabel kFsmEpsilon = -2;
 
 
 struct FsmState {
-    FsmArcId arcs_begin = 0;
+    FsmArcId arcs_offset = 0;
 };
 
 
@@ -73,7 +73,7 @@ struct Fsm {
 
     inline bool Empty() const { return this->states.empty(); }
     inline bool ContainEpsilonArc(FsmStateId s) const {
-        const FsmArc& first_arc = this->arcs[this->states[s].arcs_begin];
+        const FsmArc& first_arc = this->arcs[this->states[s].arcs_offset];
         return (first_arc.ilabel == kFsmEpsilon);
     }
 
@@ -82,8 +82,8 @@ struct Fsm {
         SIO_CHECK(!Empty());
         SIO_CHECK_NE(i, this->states.size() - 1); // block external access to sentinel
         return FsmArcIterator(
-            &this->arcs[this->states[i  ].arcs_begin],
-            &this->arcs[this->states[i+1].arcs_begin]
+            &this->arcs[this->states[i  ].arcs_offset],
+            &this->arcs[this->states[i+1].arcs_offset]
         );
     }
 
@@ -238,12 +238,12 @@ struct Fsm {
             // invariant: n = sum{ arcs of this->states[0, s) }
             int n = 0;
             for (FsmStateId s = 0; s != this->num_states; s++) {
-                this->states[s].arcs_begin = n;
+                this->states[s].arcs_offset = n;
                 n += out_degree[s];
             }
 
             // setup last sentinel state
-            this->states.back().arcs_begin = n;
+            this->states.back().arcs_offset = n;
         }
 
         return Error::OK;
@@ -302,10 +302,10 @@ struct Fsm {
             // invariant: n = sum{ arcs of this->states[0, s) }
             int n = 0;
             for (FsmStateId s = 0; s != this->num_states; s++) {
-                this->states[s].arcs_begin = n;
+                this->states[s].arcs_offset = n;
                 n += out_degree[s];
             }
-            this->states.back().arcs_begin = n; // setup last sentinel state
+            this->states.back().arcs_offset = n; // setup last sentinel state
         }
 
         return Error::OK;
