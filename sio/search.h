@@ -600,20 +600,20 @@ private:
 
 
     Error FrontierPrune() {
+        auto token_set_compare = [](const TokenSet& x, const TokenSet& y) -> bool {
+            return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.state < y.state);
+        };
+
         //for (int k = 0; k != frontier_.size(); k++) {
         //    frontier_[k].best_score = frontier_[k].head->total_score;
         //}
-
-        auto compare = [](const TokenSet& x, const TokenSet& y) -> bool {
-            return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.state < y.state);
-        };
 
         if (config_.max_active > 0 && frontier_.size() > config_.max_active) {
             std::nth_element(
                 frontier_.begin(),
                 frontier_.begin() + config_.max_active - 1,
                 frontier_.end(),
-                compare
+                token_set_compare
             );
             frontier_.resize(config_.max_active);
 
@@ -625,17 +625,12 @@ private:
         //        frontier_.begin(),
         //        frontier_.begin() + config_.min_active - 1,
         //        frontier_.end(),
-        //        compare
+        //        token_set_compare
         //    );
         //    score_cutoff_ = std::min(score_cutoff_, frontier_[config_.min_active - 1].best_score);
         //}
 
-        std::nth_element(
-            frontier_.begin(),
-            frontier_.begin(),
-            frontier_.end(),
-            compare
-        );
+        std::nth_element(frontier_.begin(), frontier_.begin(), frontier_.end(), token_set_compare);
         SIO_CHECK_EQ(frontier_[0].best_score, score_max_);
         
         return Error::OK;
