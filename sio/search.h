@@ -243,7 +243,7 @@ public:
     Error PushEos() {
         SIO_CHECK(status_ == SearchStatus::kBusy);
         ExpandFrontierEos();
-        PrepareBestPath();
+        TraceBestPath();
         SIO_CHECK(status_ == SearchStatus::kDone);
 
         OnSessionEnd();
@@ -490,6 +490,7 @@ private:
 
         score_max_ = ts.best_score;
         score_cutoff_ = score_max_ - config_.beam;
+
         FrontierExpandEpsilon();
         PinFrontierToLattice();
 
@@ -519,6 +520,8 @@ private:
 
     Error FrontierExpandEmitting(const float* frame_score) {
         SIO_CHECK(frontier_.empty());
+        score_max_ -= 1000.0;
+        score_cutoff_ -= 1000.0;
 
         cur_time_++;
         for (const TokenSet& src : lattice_.back()) {
@@ -597,6 +600,44 @@ private:
 
 
     Error FrontierPrune() {
+        //for (int k = 0; k != frontier_.size(); k++) {
+        //    frontier_[k].best_score = frontier_[k].head->total_score;
+        //}
+
+        auto compare = [](const TokenSet& x, const TokenSet& y) -> bool {
+            return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.state < y.state);
+        };
+
+        if (config_.max_active > 0 && frontier_.size() > config_.max_active) {
+            std::nth_element(
+                frontier_.begin(),
+                frontier_.begin() + config_.max_active - 1,
+                frontier_.end(),
+                compare
+            );
+            frontier_.resize(config_.max_active);
+
+            score_cutoff_ = frontier_.back().best_score;
+        }
+
+        //if (config_.min_active > 1 && frontier_.size() > config_.min_active) {
+        //    std::nth_element(
+        //        frontier_.begin(),
+        //        frontier_.begin() + config_.min_active - 1,
+        //        frontier_.end(),
+        //        compare
+        //    );
+        //    score_cutoff_ = std::min(score_cutoff_, frontier_[config_.min_active - 1].best_score);
+        //}
+
+        std::nth_element(
+            frontier_.begin(),
+            frontier_.begin(),
+            frontier_.end(),
+            compare
+        );
+        SIO_CHECK_EQ(frontier_[0].best_score, score_max_);
+        
         return Error::OK;
     }
 
@@ -620,12 +661,16 @@ private:
         return Error::OK;
     }
 
-    void PrepareBestPath() {
-        auto it = frontier_map_.find(ComposeStateHandle(0, graph_->final_state));
-        SIO_CHECK(it != frontier_map_.end());
-        int k = it->second;
-
+    void TraceBestPath() {
         SIO_CHECK(best_path_.empty());
+
+        auto it = frontier_map_.find(ComposeStateHandle(0, graph_->final_state));
+        if (it == frontier_map_.end()) {
+            SIO_WARNING << "No surviving hypothesis reaches to the end, key: " << session_key_;
+            return;
+        }
+
+        int k = it->second;
         for(Token* t = frontier_[k].head; t != nullptr; t = t->trace_back.token) {
             if (t->trace_back.arc.olabel != kFsmEpsilon) {
                 best_path_.push_back(t->trace_back.arc.olabel);
@@ -650,6 +695,7 @@ private:
 
     inline void OnFrameEnd() {
         //dbg(cur_time_, score_max_, score_cutoff_, lattice_.back().size());
+        dbg(lattice_.back().size());
     }
 
 }; // class BeamSearch
