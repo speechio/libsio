@@ -35,7 +35,7 @@ Error test_error_func() {
 
 TEST(Check, Error) {
     Error err = test_error_func();
-    SIO_CHECK(!err) << "an error occured.";
+    SIO_CHECK(err == Error::OK) << "an error occured.";
 }
 
 } // namespace sio

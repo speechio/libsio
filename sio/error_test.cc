@@ -13,7 +13,7 @@ TEST(Error, Basic) {
 
 TEST(Error, Panic) {
     //Error err = Error::OutOfMemory;
-    //if (!!err) {
+    //if (err != Error::OK) {
     //  SIO_PANIC(err);
     //}
 }
