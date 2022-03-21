@@ -18,8 +18,4 @@ TEST(Error, Panic) {
     //}
 }
 
-TEST(Error, Unreachable) {
-    //SIO_UNREACHABLE();
-}
-
 } // namespace sio

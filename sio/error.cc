@@ -10,7 +10,6 @@ const char *error_cstr(Error err) {
         case Error::InvalidFileHandle: return "invalid file handle";
         case Error::Unknown: return "(unknown error)";
     }
-    SIO_UNREACHABLE();
     return nullptr; /* avoid warning */
 }
 

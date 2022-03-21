@@ -55,8 +55,6 @@ private:
 
 #define SIO_PANIC(err) ::sio::Panic(SIO_FILE, __LINE__, SIO_FUNC, err)
 
-#define SIO_UNREACHABLE() SIO_PANIC(::sio::Error::Unreachable)
-
 } // namespace sio
 
 #endif
