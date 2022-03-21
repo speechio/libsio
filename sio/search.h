@@ -101,7 +101,7 @@ enum class SearchStatus : int {
 // These LMs are normally represented as *Deterministic Fsa*, 
 // so that shallow-fusion based contextual biasing can be applied 
 // via on-the-fly rescoring.
-#define SIO_MAX_LM 4
+#define SIO_MAX_LM 5
 
 
 // SearchStateHandle: 
