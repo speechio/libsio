@@ -92,32 +92,35 @@ enum class SearchStatus : int {
 };
 
 
-// Typical rescoring language models are:
-// 1. Lookahead-LM or Internal-LM subtractor
-// 2. Big-LM or External-LM
-// 3. Specific Domain-LM
-// 4. Hotfix-LM (sometimes also called hint, hot-word/hot-phrase)
-//
-// These LMs are normally represented as *Deterministic Fsa*, 
-// so that shallow-fusion based contextual biasing can be applied 
-// via on-the-fly rescoring.
+/* 
+ * Typical rescoring language models are:
+ *   1. Lookahead-LM or Internal-LM subtractor
+ *   2. Big-LM or External-LM
+ *   3. Specific Domain-LM
+ *   4. Hotfix-LM (sometimes also called hint, hot-word/hot-phrase)
+ * These LMs are normally represented as *Deterministic Fsa*, 
+ * so that shallow-fusion based contextual biasing can be applied 
+ * via on-the-fly rescoring.
+*/
 #define SIO_MAX_LM 5
 
 
-// SearchStateHandle: 
-//   SearchStateHandle represents a unique state in the decoding graph.
-//
-// For single-graph decoding:
-//   SearchStateHandle = FsmStateId. i.e. the search graph *is* a Fsm:
-//     * T for vanilla CTC
-//     * TLG for CTC with lexicon & external LM
-//     * HCLG for WFST
-//
-// For multi-graph decoding:
-//   Say, SearchStateHandle = 64-bits(32 + 32) integer type:
-//     1st 32 bits represent a Fsm
-//     2nd 32 bits represent a state inside that Fsm
-//   More sophisticated bit-packing can be designed.
+/*
+ * SearchStateHandle: 
+ *   SearchStateHandle represents a unique state in the decoding graph.
+ *
+ * For single-graph decoding:
+ *   SearchStateHandle = FsmStateId. i.e. the search graph *is* a Fsm:
+ *     * T for vanilla CTC
+ *     * TLG for CTC with lexicon & external LM
+ *     * HCLG for WFST
+ *
+ * For multi-graph decoding:
+ *   Say, SearchStateHandle = 64-bits(32 + 32) integer type:
+ *     1st 32 bits represent a Fsm
+ *     2nd 32 bits represent a state inside that Fsm
+ *   More sophisticated bit-packing can be designed.
+*/
 using SearchStateHandle = FsmStateId;
 
 
