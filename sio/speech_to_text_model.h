@@ -48,7 +48,7 @@ struct SpeechToTextModel {
             SIO_INFO << "Loading decoding graph from: " << config.graph;
             std::ifstream is(config.graph, std::ios::binary);
             SIO_CHECK(is.good()) << "Cannot open decoding graph file";
-            graph.Load(is);
+            graph.LoadFromBinary(is);
         } else {
             SIO_INFO << "Building decoding graph from: " << config.tokenizer_vocab;
             graph.BuildTokenTopology(tokenizer);

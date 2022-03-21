@@ -73,6 +73,9 @@ struct Fsm {
 
     inline bool Empty() const { return this->states.empty(); }
     inline bool ContainEpsilonArc(FsmStateId s) const {
+        // Preconditions:
+        //   1. kFsmEpsilon should have smallest input symbol id.
+        //   2. arcs of a FsmState need to be sorted by ilabels.
         const FsmArc& first_arc = this->arcs[this->states[s].arcs_offset];
         return (first_arc.ilabel == kFsmEpsilon);
     }
@@ -88,7 +91,7 @@ struct Fsm {
     }
 
 
-    Error Load(std::istream& is) {
+    Error LoadFromBinary(std::istream& is) {
         SIO_CHECK(Empty()) << "Reloading is not supported.";
         SIO_CHECK(is.good());
 
@@ -130,45 +133,7 @@ struct Fsm {
     }
 
 
-    Error Dump(std::ostream& os) const {
-        SIO_CHECK(!Empty()) << "Dumping empty Fsm ?";
-        SIO_CHECK(os.good());
-
-        using kaldi::WriteToken;
-        using kaldi::WriteBasicType;
-
-        bool binary = true;
-
-        WriteToken(os, binary, "<Fsm>");
-
-        /*
-        TODO: version handling here
-        */
-
-        WriteToken(os, binary, "<NumStates>");
-        WriteBasicType(os, binary, this->num_states);
-
-        WriteToken(os, binary, "<NumArcs>");
-        WriteBasicType(os, binary, this->num_arcs);
-
-        WriteToken(os, binary, "<StartState>");
-        WriteBasicType(os, binary, this->start_state);
-
-        WriteToken(os, binary, "<FinalState>");
-        WriteBasicType(os, binary, this->final_state);
-
-        WriteToken(os, binary, "<States>");
-        auto num_states_plus_sentinel = this->num_states + 1;
-        os.write(reinterpret_cast<const char*>(this->states.data()), num_states_plus_sentinel * sizeof(FsmState));
-
-        WriteToken(os, binary, "<Arcs>");
-        os.write(reinterpret_cast<const char*>(this->arcs.data()), this->num_arcs * sizeof(FsmArc));
-
-        return Error::OK;
-    }
-
-
-    Error LoadFromStream(std::istream& is) {
+    Error LoadFromText(std::istream& is) {
         SIO_CHECK(is.good()) << "Invalid Fsm loading stream.";
         SIO_CHECK(Empty()) << "Reloading is not supported.";
         SIO_INFO << "Loading Fsm from string stream";
@@ -245,6 +210,44 @@ struct Fsm {
             // setup last sentinel state
             this->states.back().arcs_offset = n;
         }
+
+        return Error::OK;
+    }
+
+
+    Error Dump(std::ostream& os) const {
+        SIO_CHECK(!Empty()) << "Dumping empty Fsm ?";
+        SIO_CHECK(os.good());
+
+        using kaldi::WriteToken;
+        using kaldi::WriteBasicType;
+
+        bool binary = true;
+
+        WriteToken(os, binary, "<Fsm>");
+
+        /*
+        TODO: version handling here
+        */
+
+        WriteToken(os, binary, "<NumStates>");
+        WriteBasicType(os, binary, this->num_states);
+
+        WriteToken(os, binary, "<NumArcs>");
+        WriteBasicType(os, binary, this->num_arcs);
+
+        WriteToken(os, binary, "<StartState>");
+        WriteBasicType(os, binary, this->start_state);
+
+        WriteToken(os, binary, "<FinalState>");
+        WriteBasicType(os, binary, this->final_state);
+
+        WriteToken(os, binary, "<States>");
+        auto num_states_plus_sentinel = this->num_states + 1;
+        os.write(reinterpret_cast<const char*>(this->states.data()), num_states_plus_sentinel * sizeof(FsmState));
+
+        WriteToken(os, binary, "<Arcs>");
+        os.write(reinterpret_cast<const char*>(this->arcs.data()), this->num_arcs * sizeof(FsmArc));
 
         return Error::OK;
     }

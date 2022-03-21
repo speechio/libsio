@@ -9,7 +9,8 @@ namespace sio {
 TEST(Fsm, Basic) {
     Fsm fsm;
     std::ifstream is("testdata/token_topo.int");
-    fsm.LoadFromStream(is);
+    fsm.LoadFromText(is);
+
     {
         std::ofstream os("testdata/T.fsm", std::ios::binary);
         fsm.Dump(os);
@@ -18,7 +19,8 @@ TEST(Fsm, Basic) {
 
     Fsm fsm2;
     std::ifstream is2("testdata/T.fsm", std::ios::binary);
-    fsm2.Load(is2);
+    fsm2.LoadFromBinary(is2);
+
     EXPECT_EQ(fsm2.num_states, 4);
     EXPECT_EQ(fsm2.num_arcs, 8);
     EXPECT_EQ(fsm2.start_state, 0);
