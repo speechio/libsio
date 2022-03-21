@@ -649,6 +649,7 @@ private:
 
     void TraceBestPath() {
         SIO_CHECK(best_path_.empty());
+        SIO_CHECK_EQ(frontier_.size(), 1) << "multiple final states? Should be only one.";
 
         auto it = frontier_map_.find(ComposeStateHandle(0, graph_->final_state));
         if (it == frontier_map_.end()) {
