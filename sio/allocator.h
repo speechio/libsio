@@ -14,8 +14,8 @@ struct FreeNode {
 template <typename T>
 class SlabAllocator {
     // A slab is a blob of raw memory with size0_ * size1_ * sizeof(T) bytes.
-    size_t size0_ = 4096; // num of allocations of one slab
-    size_t size1_ = 1;    // num of elems(of type T) of one allocation
+    size_t size0_ = 4096; // num of allocs per slab
+    size_t size1_ = 1;    // num of elems(of type T) per alloc
 
     Vec<Vec<char>> slabs_;
     Nullable<FreeNode*> free_list_ = nullptr;
