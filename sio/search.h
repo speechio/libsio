@@ -216,15 +216,6 @@ public:
 
         SIO_CHECK_EQ(score.dim(), 1) << "Can't push multiple frames.";
         const float* score_data = score.data_ptr<float>();
-        //{ // Check whether LibTorch tensor elements can be accessed via raw data pointer
-        //    dbg(score.size(0));
-        //    for (int i = 0; i != score.size(0); i++) {
-        //        dbg(score[i].item<float>(), score_data[i]);
-        //        if (score_data[i] != score[i].item<float>()) {
-        //            SIO_FATAL << i;
-        //        }
-        //    }
-        //}
         
         OnFrameBegin();
         {
