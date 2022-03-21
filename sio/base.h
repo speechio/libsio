@@ -18,8 +18,9 @@ constexpr const char* Basename(const char* fname, int offset) {
                ? fname + offset
                : Basename(fname, offset - 1);
 }
-#define SIO_FILE  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
-#define SIO_FUNC __func__
+#define SIO_FILE_REPR  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
+#define SIO_LINE_REPR  __LINE__
+#define SIO_FUNC_REPR  __func__
 
 
 /* safe delete */

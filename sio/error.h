@@ -47,7 +47,7 @@ private:
     Error err_;
 };
 
-#define SIO_PANIC(err) ::sio::Panic(SIO_FILE, __LINE__, SIO_FUNC, err)
+#define SIO_PANIC(err) ::sio::Panic(SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, err)
 
 } // namespace sio
 

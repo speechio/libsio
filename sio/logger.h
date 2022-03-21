@@ -89,15 +89,15 @@ private:
 };
 
 #define SIO_DEBUG \
-    ::sio::Logger(std::cerr, SIO_FILE, __LINE__, SIO_FUNC, ::sio::LogSeverity::kDebug)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, ::sio::LogSeverity::kDebug)
 #define SIO_INFO \
-    ::sio::Logger(std::cerr, SIO_FILE, __LINE__, SIO_FUNC, ::sio::LogSeverity::kInfo)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, ::sio::LogSeverity::kInfo)
 #define SIO_WARNING \
-    ::sio::Logger(std::cerr, SIO_FILE, __LINE__, SIO_FUNC, ::sio::LogSeverity::kWarning)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, ::sio::LogSeverity::kWarning)
 #define SIO_ERROR \
-    ::sio::Logger(std::cerr, SIO_FILE, __LINE__, SIO_FUNC, ::sio::LogSeverity::kError)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, ::sio::LogSeverity::kError)
 #define SIO_FATAL \
-    ::sio::Logger(std::cerr, SIO_FILE, __LINE__, SIO_FUNC, ::sio::LogSeverity::kFatal)
+    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, ::sio::LogSeverity::kFatal)
 
 } // namespace sio
 #endif
