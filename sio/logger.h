@@ -30,21 +30,21 @@ constexpr const char* LogSeverityRepr(LogSeverity s) {
 }
 
 inline LogSeverity CurrentLogVerbosity() {
-    static LogSeverity res = LogSeverity::kInfo; // default: kInfo
+    static LogSeverity s = LogSeverity::kInfo; // default: kInfo
     static std::once_flag flag;
     std::call_once(flag, [](){
         const char* verbosity = std::getenv("SIO_VERBOSITY");
         if (verbosity == nullptr) return;
 
         std::string v = verbosity;
-        if      (v == "DEBUG")   res = LogSeverity::kDebug;
-        else if (v == "INFO")    res = LogSeverity::kInfo;
-        else if (v == "WARNING") res = LogSeverity::kWarning;
-        else if (v == "ERROR")   res = LogSeverity::kError;
-        else if (v == "FATAL")   res = LogSeverity::kFatal;
+        if      (v == "DEBUG")   s = LogSeverity::kDebug;
+        else if (v == "INFO")    s = LogSeverity::kInfo;
+        else if (v == "WARNING") s = LogSeverity::kWarning;
+        else if (v == "ERROR")   s = LogSeverity::kError;
+        else if (v == "FATAL")   s = LogSeverity::kFatal;
         else    fprintf(stderr, "Unknown SIO_VERBOSITY: %s", v.c_str());
     });
-    return res;
+    return s;
 }
 
 
