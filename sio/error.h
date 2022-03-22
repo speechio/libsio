@@ -18,9 +18,9 @@ enum class Error : int {
     Unknown,
 }; // enum class Error
 
-const char* error_cstr(Error err);
+const char* ErrorCStr(Error err);
 
-bool error_is_fatal(Error err);
+bool ErrorIsFatal(Error err);
 
 class Logger;
 class Panic {
@@ -30,9 +30,9 @@ public:
     { }
 
     ~Panic() {
-        fprintf(stderr, "\n[panic](%s:%d:%s) %s\n", file_, line_, func_, error_cstr(err_));
+        fprintf(stderr, "\n[panic](%s:%d:%s) %s\n", file_, line_, func_, ErrorCStr(err_));
         fflush(stderr);
-        if (error_is_fatal(err_)) {
+        if (ErrorIsFatal(err_)) {
             abort();
         }
     }

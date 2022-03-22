@@ -1,7 +1,7 @@
 #include "sio/error.h"
 namespace sio {
 
-const char *error_cstr(Error err) {
+const char* ErrorCStr(Error err) {
     switch (err) {
         case Error::OK: return "(OK)";
         case Error::OutOfMemory: return "out of memory";
@@ -13,7 +13,7 @@ const char *error_cstr(Error err) {
     return nullptr; /* avoid warning */
 }
 
-bool error_is_fatal(Error err) {
+bool ErrorIsFatal(Error err) {
     return (static_cast<int>(err) > 0);
 }
 

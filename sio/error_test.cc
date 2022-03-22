@@ -7,8 +7,8 @@ namespace sio {
 
 TEST(Error, Basic) {
     Error err = Error::OK;
-    std::cerr << error_cstr(err) << "\n";
-    EXPECT_EQ(std::string(error_cstr(err)), "(OK)");
+    std::cerr << ErrorCStr(err) << "\n";
+    EXPECT_EQ(std::string(ErrorCStr(err)), "(OK)");
 }
 
 TEST(Error, Panic) {
