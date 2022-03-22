@@ -377,8 +377,7 @@ private:
             // beam pruning
             if (nt.total_score < score_cutoff_) {
                 continue;
-            } else if (nt.total_score > score_max_) {
-                // score is high enough to lift current beam range
+            } else if (nt.total_score > score_max_) {  // high enough to lift current beam range
                 score_cutoff_ += (nt.total_score - score_max_);
                 score_max_ = nt.total_score;
             }
@@ -390,16 +389,13 @@ private:
                 Token** p = &dst->head;
                 for ( ; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
                     if (ContextEqual(**p, nt)) {
-                        if ((*p)->total_score < nt.total_score) {
-                            // existing token is worse, remove it from dst token set
-                            // new token will be inserted later
+                        if ((*p)->total_score < nt.total_score) {  // existing token is worse, remove it
                             Token *next = (*p)->next;
                             DeleteToken(*p);
                             *p = next;
 
                             changed = true;
-                        } else {
-                            // existing token is better, no need to process new token any further
+                        } else {  // existing token is better, kill new token
                             survived = false;
                         }
 
@@ -409,7 +405,6 @@ private:
             }
 
             if (survived) {
-                // find position to insert the new token
                 int k = 0;
                 Token** p = &dst->head;
                 for ( ; *p != NULL && k != config_.token_set_size; p = &(*p)->next, k++) {
@@ -419,8 +414,7 @@ private:
                 }
 
                 if (k != config_.token_set_size) {
-                    // need a heap-based copy of stack-based probing token for actual insertion
-                    Token* q = NewToken(&nt);
+                    Token* q = NewToken(&nt); // actual heap copy to insert
 
                     q->next = *p;
                     *p = q;
