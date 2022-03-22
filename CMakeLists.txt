@@ -137,6 +137,7 @@ add_library(sio SHARED
 add_executable(unittest 
     ${SIO_ROOT}/error_test.cc
     ${SIO_ROOT}/logger_test.cc
+    ${SIO_ROOT}/panic_test.cc
     ${SIO_ROOT}/check_test.cc
     ${SIO_ROOT}/linked_list_test.cc
     ${SIO_ROOT}/allocator_test.cc

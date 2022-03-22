@@ -20,35 +20,6 @@ enum class Error : int {
 
 const char* ErrorCStr(Error err);
 
-bool ErrorIsFatal(Error err);
-
-class Logger;
-class Panic {
-public:
-    Panic(const char* file, size_t line, const char* func, Error err) :
-        file_(file), line_(line), func_(func), err_(err) 
-    { }
-
-    ~Panic() {
-        fprintf(stderr, "\n[panic](%s:%d:%s) %s\n", file_, line_, func_, ErrorCStr(err_));
-        fflush(stderr);
-        if (ErrorIsFatal(err_)) {
-            abort();
-        }
-    }
-
-    // This is used to concat a logger object with more specific messages, see usage in check.h
-    void operator&(const Logger &) { }
-
-private:
-    const char* file_;
-    size_t line_;
-    const char* func_;
-    Error err_;
-};
-
-#define SIO_PANIC(err) ::sio::Panic(SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, err)
-
 } // namespace sio
 
 #endif

@@ -52,15 +52,16 @@ inline LogSeverity CurrentLogVerbosity() {
 class Logger {
 public:
     Logger(std::ostream& ostream, const char *file, size_t line, const char *func, LogSeverity severity) :
-        ostream_(ostream), file_(file), line_(line), func_(func), severity_(severity)
+        ostream_(ostream),  severity_(severity)
     {
         if (severity_ >= CurrentLogVerbosity()) {
-            buf_ << LogSeverityRepr(severity_);
+            std::ostringstream buf;
+            buf << LogSeverityRepr(severity_);
             if (severity_ == LogSeverity::kDebug || severity_ >= LogSeverity::kWarning) {
-                buf_ << "(" << file_ << ":" << line_ << ":" << func_ << ")";
+                buf << "(" << file << ":" << line << ":" << func << ")";
             }
-            buf_ << " ";
-            ostream_ << buf_.str();
+            buf << " ";
+            ostream_ << buf.str();
         }
     }
 
@@ -80,12 +81,7 @@ public:
 
 private:
     std::ostream& ostream_;
-    const char* file_;
-    size_t line_;
-    const char* func_;
     LogSeverity severity_;
-
-    std::ostringstream buf_;
 };
 
 #define SIO_DEBUG \

@@ -13,9 +13,5 @@ const char* ErrorCStr(Error err) {
     return nullptr; /* avoid warning */
 }
 
-bool ErrorIsFatal(Error err) {
-    return (static_cast<int>(err) > 0);
-}
-
 } // namespace sio
 
