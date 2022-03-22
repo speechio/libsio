@@ -101,7 +101,7 @@ struct StructLoader {
 
 
 private:
-    static Nullable<const Json*> FindEntry(const Json& json, const StrView entry) {
+    static Nullable<const Json*> FindEntry(const Json& json, const Str& entry) {
         // longest path match
         Vec<Str> fields = absl::StrSplit(entry, ".", absl::SkipWhitespace());
         const Json* node = &json;

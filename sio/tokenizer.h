@@ -76,12 +76,6 @@ struct Tokenizer {
         return token_to_index.at(token);
     }
 
-
-    bool IsSpecial(TokenId t) const {
-        StrView token = Token(t);
-        return absl::StartsWith(token, "<") && absl::EndsWith(token, ">");
-    }
-
 }; // class Tokenizer
 }  // namespace sio
 #endif
