@@ -666,6 +666,7 @@ private:
 
 
     void OnSessionBegin() {
+
     }
 
     void OnSessionEnd() {
@@ -674,10 +675,11 @@ private:
         }
     }
 
-    inline void OnFrameBegin() {
+    void OnFrameBegin() {
+
     }
 
-    inline void OnFrameEnd() {
+    void OnFrameEnd() {
         if (config_.debug) {
             dbg(lattice_.back().size());
         }
