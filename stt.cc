@@ -7,13 +7,13 @@ int main() {
     sio::SpeechToTextModel model;
     model.Load("stt.json");
 
+    sio::SpeechToText stt;
+    stt.Load(model);
+
     size_t samples_per_chunk = std::numeric_limits<size_t>::max();
     if (model.config.online == true) {
         samples_per_chunk = 1000;
     }
-
-    sio::SpeechToText stt;
-    stt.Load(model);
 
     //std::ifstream wav_scp("testdata/MINI/wav.scp");
     std::ifstream wav_scp("wav.scp");
