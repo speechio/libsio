@@ -1,4 +1,8 @@
-#include <iostream>
+#include <limits>   // numeric_limits
+#include <string>   // getline
+#include <fstream>  // ifstream
+#include <iostream> // cout
+#include <vector>
 
 #include "sio/stt.h"
 
@@ -9,10 +13,10 @@ int main() {
     sio::SpeechToText stt;
     stt.Load(model);
 
-    size_t samples_per_chunk = model.config.online ? 1000 : std::numeric_limits<size_t>::max();
-
     std::ifstream audio_list("wav.list");
     std::string audio;
+
+    size_t samples_per_chunk = model.config.online ? 1000 : std::numeric_limits<size_t>::max();
     int num_utts = 0;
     while (std::getline(audio_list, audio)) {
         std::vector<float> samples;
