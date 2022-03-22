@@ -29,14 +29,14 @@ int main() {
         std::string& audio_path = cols[1];
         SIO_DEBUG << audio_id << " " << audio_path;
 
-        std::vector<float> audio;
+        std::vector<float> samples;
         float sample_rate;
-        sio::ReadAudio(audio_path, &audio, &sample_rate);
+        sio::ReadAudio(audio_path, &samples, &sample_rate);
 
         size_t offset = 0;
-        while (offset < audio.size()) {
-            size_t n = std::min(samples_per_chunk, audio.size() - offset);
-            stt.Speech(audio.data() + offset, n, sample_rate);
+        while (offset < samples.size()) {
+            size_t n = std::min(samples_per_chunk, samples.size() - offset);
+            stt.Speech(samples.data() + offset, n, sample_rate);
             offset += n;
         }
 
