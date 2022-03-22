@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "sio/stt.h"
-//#include "sio/dbg.h"
 
 int main() {
     sio::SpeechToTextModel model;
