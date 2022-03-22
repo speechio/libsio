@@ -65,18 +65,18 @@ public:
         }
     }
 
+    ~Logger() {
+        if (severity_ >= CurrentLogVerbosity()) {
+            ostream_ << "\n";
+        }
+    }
+
     template <typename T>
     Logger& operator<<(const T& val) {
         if (severity_ >= CurrentLogVerbosity()) {
             ostream_ << val;
         }
         return *this;
-    }
-
-    ~Logger() {
-        if (severity_ >= CurrentLogVerbosity()) {
-            ostream_ << "\n";
-        }
     }
 
 private:

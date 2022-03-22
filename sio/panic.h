@@ -12,6 +12,7 @@ public:
         fprintf(stderr, "\n[panic](%s:%d:%s) %s\n", file, line, func, ErrorCStr(err));
         fflush(stderr);
     }
+
     ~Panic() { abort(); }
 
     // used to concat a logger for more specific messages, see check.h
