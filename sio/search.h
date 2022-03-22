@@ -176,7 +176,7 @@ class BeamSearch {
     // search frontier
     int cur_time_ = 0;  // frontier location on time axis
     Vec<TokenSet> frontier_;
-    Map<SearchStateHandle, int> frontier_map_;  // beam search state -> token set index in frontier
+    FastMap<SearchStateHandle, int> frontier_map_;  // beam search state -> token set index in frontier
     Vec<int> eps_queue_;
 
     // beam
