@@ -10,28 +10,15 @@ int main() {
     sio::SpeechToText stt;
     stt.Load(model);
 
-    size_t samples_per_chunk = std::numeric_limits<size_t>::max();
-    if (model.config.online == true) {
-        samples_per_chunk = 1000;
-    }
+    size_t samples_per_chunk = model.config.online ? 1000 : std::numeric_limits<size_t>::max();
 
-    //std::ifstream wav_scp("testdata/MINI/wav.scp");
-    std::ifstream wav_scp("wav.scp");
-    std::string line;
+    std::ifstream audio_list("wav.list");
+    std::string audio;
     int num_utts = 0;
-    while (std::getline(wav_scp, line)) {
-        std::vector<std::string> cols = absl::StrSplit(
-            line, absl::ByAnyChar(" \t"), absl::SkipWhitespace()
-        );
-        if (cols.size() != 2) continue;
-
-        std::string& audio_id   = cols[0];
-        std::string& audio_path = cols[1];
-        SIO_DEBUG << audio_id << " " << audio_path;
-
+    while (std::getline(audio_list, audio)) {
         std::vector<float> samples;
         float sample_rate;
-        sio::ReadAudio(audio_path, &samples, &sample_rate);
+        sio::ReadAudio(audio, &samples, &sample_rate);
 
         size_t offset = 0;
         while (offset < samples.size()) {
@@ -45,9 +32,7 @@ int main() {
         std::string text;
         stt.Text(&text);
 
-        SIO_DEBUG << audio_id << " -> " << offset << " samples decoded: " << text;
-        SIO_INFO << num_utts << "\t" << audio_id << "\t" << text;
-        num_utts++;
+        std::cout << ++num_utts << "\t" << audio << "\t" << offset/16000.0 << "\t" << text << "\n";
 
         stt.Reset();
     }
