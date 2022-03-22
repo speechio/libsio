@@ -75,6 +75,8 @@ public:
             *result += tokenizer_->Token(token);
         }
 
+        *result += "\t";
+
         for (const auto& token : beam_best_path) {
             *result += tokenizer_->Token(token);
         }
