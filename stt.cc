@@ -36,7 +36,7 @@ int main() {
         size_t offset = 0;
         while (offset < samples.size()) {
             size_t n = std::min(samples_per_chunk, samples.size() - offset);
-            stt.Speech(samples.data() + offset, n, sample_rate);
+            stt.Speech(&samples[offset], n, sample_rate);
             offset += n;
         }
 
