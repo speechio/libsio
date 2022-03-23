@@ -325,19 +325,12 @@ private:
 
 
     inline bool ContextEqual(const Token& x, const Token& y) {
-        // option A: the first LM state as unique context id.
-        return x.lm_states[0] == y.lm_states[0];
-
-        /*
-        // option B: All LMs states combined as unique context id,
-        // these LMs can be specified via config for even more flexibility.
         for (int i = 0; i != lms_.size(); i++) {
             if (x.lm_states[i] != y.lm_states[i]) {
                 return false;
             }
         }
         return true;
-        */
     }
 
 
