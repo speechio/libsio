@@ -619,7 +619,7 @@ private:
 
     Error FrontierPinDown() {
         // use "copy" instead of "move" in push_back(),
-        // so frontier's capacity() is reserved,
+        // so frontier's capacity() is reserved after clear(),
         // to avoid unnecessary reallocations across frames.
         lattice_.push_back(frontier_);
 
