@@ -67,10 +67,10 @@ public:
         cur_score_frame_ = 0;
 
         subsampling_factor_ = nnet_->run_method("subsampling_rate").toInt();
-        SIO_DEBUG << "subsampling_factor: " << subsampling_factor_;
+        SIO_INFO << "subsampling_factor: " << subsampling_factor_;
 
         right_context_ = nnet_->run_method("right_context").toInt(); 
-        SIO_DEBUG << "right context: " << right_context_;
+        SIO_INFO << "right context: " << right_context_;
 
         return Error::OK;
     }

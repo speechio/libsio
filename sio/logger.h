@@ -13,17 +13,15 @@ namespace sio {
 
 /* Log severity levels */
 enum class LogSeverity : int {
-    kDebug = 0,
-    kInfo = 1,
-    kWarning = 2,
-    kError = 3,
-    kFatal = 4,
+    kInfo = 0,
+    kWarning = 1,
+    kError = 2,
+    kFatal = 3,
 };
 
 
 constexpr const char* LogSeverityRepr(LogSeverity s) {
-    return s == LogSeverity::kDebug   ? "[D]" : 
-           s == LogSeverity::kInfo    ? "[I]" :
+    return s == LogSeverity::kInfo    ? "[I]" :
            s == LogSeverity::kWarning ? "[WARNING]" :
            s == LogSeverity::kError   ? "[ERROR]" :
            s == LogSeverity::kFatal   ? "[FATAL]" :
@@ -39,8 +37,7 @@ inline LogSeverity CurrentLogVerbosity() {
         if (verbosity == nullptr) return;
 
         std::string v = verbosity;
-        if      (v == "DEBUG")   s = LogSeverity::kDebug;
-        else if (v == "INFO")    s = LogSeverity::kInfo;
+        if      (v == "INFO")    s = LogSeverity::kInfo;
         else if (v == "WARNING") s = LogSeverity::kWarning;
         else if (v == "ERROR")   s = LogSeverity::kError;
         else if (v == "FATAL")   s = LogSeverity::kFatal;
@@ -58,7 +55,7 @@ public:
         if (severity_ >= CurrentLogVerbosity()) {
             std::ostringstream buf;
             buf << LogSeverityRepr(severity_);
-            if (severity_ == LogSeverity::kDebug || severity_ >= LogSeverity::kWarning) {
+            if (severity_ >= LogSeverity::kWarning) {
                 buf << "(" << file << ":" << line << ":" << func << ")";
             }
             buf << " ";
@@ -86,8 +83,6 @@ private:
 };
 
 
-#define SIO_DEBUG \
-    ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, ::sio::LogSeverity::kDebug)
 #define SIO_INFO \
     ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, ::sio::LogSeverity::kInfo)
 #define SIO_WARNING \
