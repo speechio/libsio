@@ -627,7 +627,7 @@ private:
         score_max_ -= 1000.0;
         score_cutoff_ -= 1000.0;
 
-        for (auto& ts : lattice_.back()) {
+        for (TokenSet& ts : lattice_.back()) {
             for (Token* t = ts.head; t != nullptr; t = t->next) {
                 t->master = &ts;
             }
