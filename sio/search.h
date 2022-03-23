@@ -210,6 +210,8 @@ public:
 
 
     Error Push(const torch::Tensor score) {
+        SIO_CHECK_EQ(score.dim(), 1) << "Must be single frame for each Push()";
+
         SIO_CHECK(status_ == SearchStatus::kIdle || status_ == SearchStatus::kBusy);
         if (status_ == SearchStatus::kIdle) {
             InitSession();
@@ -217,12 +219,9 @@ public:
         }
         SIO_CHECK(status_ == SearchStatus::kBusy);
 
-        SIO_CHECK_EQ(score.dim(), 1) << "Can't push multiple frames.";
-        const float* score_data = score.data_ptr<float>();
-        
         OnFrameBegin();
         {
-            FrontierExpandEmitting(score_data);
+            FrontierExpandEmitting(score.data_ptr<float>());
             FrontierExpandEpsilon();
             FrontierPrune();
             FrontierPinDown();
