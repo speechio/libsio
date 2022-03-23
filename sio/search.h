@@ -225,8 +225,7 @@ public:
             FrontierExpandEmitting(score_data);
             FrontierExpandEpsilon();
             FrontierPrune();
-
-            PinFrontierToLattice();
+            FrontierPinDown();
         }
         OnFrameEnd();
 
@@ -473,7 +472,7 @@ private:
         score_cutoff_ = score_max_ - config_.beam;
 
         FrontierExpandEpsilon();
-        PinFrontierToLattice();
+        FrontierPinDown();
 
         return Error::OK;
     }
@@ -618,7 +617,7 @@ private:
     }
 
 
-    Error PinFrontierToLattice() {
+    Error FrontierPinDown() {
         // intentially push_back() via "copy" instead of "move"
         lattice_.push_back(frontier_);
 
