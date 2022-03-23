@@ -500,10 +500,8 @@ private:
 
     Error FrontierExpandEmitting(const float* frame_score) {
         SIO_CHECK(frontier_.empty());
-        score_max_ -= 1000.0;
-        score_cutoff_ -= 1000.0;
+        cur_time_++; // consumes a time frame
 
-        cur_time_++;
         for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.state)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
@@ -625,6 +623,9 @@ private:
 
         frontier_.clear();
         frontier_map_.clear();
+
+        score_max_ -= 1000.0;
+        score_cutoff_ -= 1000.0;
 
         Vec<TokenSet>& v = lattice_.back();
         for (int k = 0; k != v.size() ; k++) {
