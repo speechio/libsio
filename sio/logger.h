@@ -20,6 +20,7 @@ enum class LogSeverity : int {
     kFatal = 4,
 };
 
+
 constexpr const char* LogSeverityRepr(LogSeverity s) {
     return s == LogSeverity::kDebug   ? "[D]" : 
            s == LogSeverity::kInfo    ? "[I]" :
@@ -28,6 +29,7 @@ constexpr const char* LogSeverityRepr(LogSeverity s) {
            s == LogSeverity::kFatal   ? "[FATAL]" :
                                         "[UNKNOWN]";
 }
+
 
 inline LogSeverity CurrentLogVerbosity() {
     static LogSeverity s = LogSeverity::kInfo; // default: kInfo
@@ -48,7 +50,6 @@ inline LogSeverity CurrentLogVerbosity() {
 }
 
 
-/* Logging utils */
 class Logger {
 public:
     Logger(std::ostream& ostream, const char *file, size_t line, const char *func, LogSeverity severity) :
@@ -83,6 +84,7 @@ private:
     std::ostream& ostream_;
     LogSeverity severity_;
 };
+
 
 #define SIO_DEBUG \
     ::sio::Logger(std::cerr, SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, ::sio::LogSeverity::kDebug)
