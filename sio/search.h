@@ -627,10 +627,9 @@ private:
         score_max_ -= 1000.0;
         score_cutoff_ -= 1000.0;
 
-        Vec<TokenSet>& v = lattice_.back();
-        for (int k = 0; k != v.size() ; k++) {
-            for (Token* t = v[k].head; t != nullptr; t = t->next) {
-                t->master = &v[k];
+        for (auto& ts : lattice_.back()) {
+            for (Token* t = ts.head; t != nullptr; t = t->next) {
+                t->master = &ts;
             }
         }
 
