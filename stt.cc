@@ -1,7 +1,7 @@
-#include <limits>   // numeric_limits
-#include <string>   // getline
-#include <fstream>  // ifstream
-#include <iostream> // cout
+#include <limits>
+#include <string>
+#include <fstream>
+#include <iostream>
 #include <vector>
 
 #include "sio/stt.h"
