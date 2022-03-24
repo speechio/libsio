@@ -376,9 +376,9 @@ private:
             // context recombination
             bool survived = true;
             {
-                int k = 0;
-                Token** p = &dst->head;
-                for ( ; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
+                int k;
+                Token** p;
+                for (p = &dst->head, k = 0; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
                     if (ContextEqual(**p, nt)) {
                         if ((*p)->total_score < nt.total_score) {  // existing token is worse, remove it
                             Token *next = (*p)->next;
@@ -396,9 +396,9 @@ private:
             }
 
             if (survived) {
-                int k = 0;
-                Token** p = &dst->head;
-                for ( ; *p != NULL && k != config_.token_set_size; p = &(*p)->next, k++) {
+                int k;
+                Token** p;
+                for (p = &dst->head, k = 0; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
                     if ((*p)->total_score <= nt.total_score) {
                         break;
                     }
