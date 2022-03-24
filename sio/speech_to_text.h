@@ -68,17 +68,16 @@ public:
 
 
     Error Text(std::string* result) { 
-        auto greedy_best_path = greedy_search_.BestPath();
-        auto beam_best_path = beam_search_.BestPath();
-
-        for (const auto& token : greedy_best_path) {
+        for (const auto& token : greedy_search_.BestPath()) {
             *result += tokenizer_->Token(token);
         }
 
         *result += "\t";
 
-        for (const auto& token : beam_best_path) {
-            *result += tokenizer_->Token(token);
+        for (const auto& path : beam_search_.NBest()) {
+            for (const auto& token : path) {
+                *result += tokenizer_->Token(token);
+            }
         }
 
         return Error::OK;

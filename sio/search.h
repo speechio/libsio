@@ -52,7 +52,7 @@ public:
     }
 
 
-    Vec<TokenId> BestPath() {
+    const Vec<TokenId>& BestPath() {
         return best_path_;
     }
 
@@ -65,6 +65,8 @@ struct BeamSearchConfig {
     i32 max_active = 12;
     f32 token_set_size = 1;
 
+    i32 nbest = 2;
+
     i32 token_allocator_slab_size = 5000;
     bool apply_score_offset = true;  // for numerical stability of long audio scores
     bool debug = false;
@@ -74,6 +76,8 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".min_active", &min_active);
         loader->AddEntry(module + ".max_active", &max_active);
         loader->AddEntry(module + ".token_set_size", &token_set_size);
+
+        loader->AddEntry(module + ".nbest", &nbest);
 
         loader->AddEntry(module + ".token_allocator_slab_size", &token_allocator_slab_size);
         loader->AddEntry(module + ".apply_score_offset", &apply_score_offset);
@@ -185,7 +189,7 @@ class BeamSearch {
 
     Vec<f32> score_offset_;  // for numerical stability of long audio scores
 
-    Vec<TokenId> best_path_;
+    Vec<Vec<TokenId>> nbest_;
 
 public:
 
@@ -244,8 +248,8 @@ public:
     }
 
 
-    Vec<TokenId> BestPath() {
-        return best_path_;
+    const Vec<Vec<TokenId>>& NBest() {
+        return nbest_;
     }
 
 
@@ -489,7 +493,7 @@ private:
             score_offset_.clear();
         }
 
-        best_path_.clear();
+        nbest_.clear();
 
         status_ = SearchStatus::kIdle;
 
@@ -636,7 +640,7 @@ private:
     }
 
     void TraceBestPath() {
-        SIO_CHECK(best_path_.empty());
+        SIO_CHECK(nbest_.empty());
         SIO_CHECK_EQ(frontier_.size(), 1) << "multiple final states? Should be only one.";
 
         auto it = frontier_map_.find(ComposeStateHandle(0, graph_->final_state));
@@ -645,14 +649,19 @@ private:
             return;
         }
 
-        int k = it->second;
-        for(Token* t = frontier_[k].head; t != nullptr; t = t->trace_back.token) {
-            if (t->trace_back.arc.olabel != kFsmEpsilon) {
-                best_path_.push_back(t->trace_back.arc.olabel);
+        int k;
+        Token* p;
+        for (p = frontier_[it->second].head, k = 0; p != nullptr && k < config_.nbest; p = p->next, k++) {
+            Vec<TokenId> path;
+            for(Token* t = p; t != nullptr; t = t->trace_back.token) {
+                if (t->trace_back.arc.olabel != kFsmEpsilon) {
+                    path.push_back(t->trace_back.arc.olabel);
+                }
             }
-        }
+            std::reverse(path.begin(), path.end());
 
-        std::reverse(best_path_.begin(), best_path_.end());
+            nbest_.push_back(std::move(path));
+        }
     }
 
 
