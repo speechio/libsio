@@ -65,7 +65,7 @@ struct BeamSearchConfig {
     i32 max_active = 12;
     f32 token_set_size = 1;
 
-    i32 nbest = 2;
+    i32 nbest = 1;
 
     i32 token_allocator_slab_size = 5000;
     bool apply_score_offset = true;  // for numerical stability of long audio scores
@@ -639,14 +639,14 @@ private:
     }
 
 
-    void TraceBestPath() {
+    Error TraceBestPath() {
         SIO_CHECK(nbest_.empty());
         SIO_CHECK_EQ(frontier_.size(), 1) << "multiple final states? Should be only one.";
 
         auto it = frontier_map_.find(ComposeStateHandle(0, graph_->final_state));
         if (it == frontier_map_.end()) {
             SIO_WARNING << "No surviving hypothesis reaches to the end, key: " << session_key_;
-            return;
+            return Error::NoRecognitionResult;
         }
 
         int k;
@@ -662,6 +662,8 @@ private:
 
             nbest_.push_back(std::move(path));
         }
+
+        return Error::OK;
     }
 
 

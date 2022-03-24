@@ -7,6 +7,7 @@ const char* ErrorCStr(Error err) {
         case Error::OutOfMemory: return "out of memory";
         case Error::AssertionFailure: return "assertion failure";
         case Error::InvalidFileHandle: return "invalid file handle";
+        case Error::NoRecognitionResult: return "no recognition result";
         case Error::Unknown: return "(unknown error)";
     }
     return nullptr; /* avoid warning */

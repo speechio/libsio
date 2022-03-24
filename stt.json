@@ -25,7 +25,7 @@
         "min_active": 1,
         "max_active": 12,
         "token_set_size": 15,
-        "nbest": 3,
+        "nbest": 2,
         "token_allocator_slab_size": 10000,
         "apply_score_offset": true,
         "debug": false

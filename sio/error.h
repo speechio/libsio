@@ -14,6 +14,7 @@ enum class Error : int {
     OutOfMemory,
     AssertionFailure,
     InvalidFileHandle,
+    NoRecognitionResult,
     Unknown,
 }; // enum class Error
 
