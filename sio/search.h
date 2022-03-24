@@ -638,6 +638,7 @@ private:
         return Error::OK;
     }
 
+
     void TraceBestPath() {
         SIO_CHECK(nbest_.empty());
         SIO_CHECK_EQ(frontier_.size(), 1) << "multiple final states? Should be only one.";
