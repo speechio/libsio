@@ -670,9 +670,7 @@ private:
     }
 
     void OnSessionEnd() {
-        if (config_.debug) {
 
-        }
     }
 
     void OnFrameBegin() {
