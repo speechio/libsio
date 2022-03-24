@@ -585,10 +585,7 @@ private:
             return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.state < y.state);
         };
 
-        //for (int k = 0; k != frontier_.size(); k++) {
-        //    frontier_[k].best_score = frontier_[k].head->total_score;
-        //}
-
+        // adapt beam to max_active
         if (config_.max_active > 0 && frontier_.size() > config_.max_active) {
             std::nth_element(
                 frontier_.begin(),
@@ -601,6 +598,7 @@ private:
             score_cutoff_ = frontier_.back().best_score;
         }
 
+        //// adapt beam to min_active
         //if (config_.min_active > 1 && frontier_.size() > config_.min_active) {
         //    std::nth_element(
         //        frontier_.begin(),
@@ -608,6 +606,7 @@ private:
         //        frontier_.end(),
         //        token_set_compare
         //    );
+        //
         //    score_cutoff_ = std::min(score_cutoff_, frontier_[config_.min_active - 1].best_score);
         //}
 
