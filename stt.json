@@ -26,6 +26,7 @@
         "max_active": 12,
         "token_set_size": 15,
         "nbest": 2,
+        "insertion_penalty": 1e-6,
         "token_allocator_slab_size": 4096,
         "apply_score_offset": true,
         "debug": false

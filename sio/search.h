@@ -66,8 +66,10 @@ struct BeamSearchConfig {
     f32 token_set_size = 1;
 
     i32 nbest = 1;
+    f32 insertion_penalty = 0.0;
 
     i32 token_allocator_slab_size = 4096;
+
     bool apply_score_offset = true;  // for numerical stability of long audio scores
     bool debug = false;
 
@@ -78,6 +80,7 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".token_set_size", &token_set_size);
 
         loader->AddEntry(module + ".nbest", &nbest);
+        loader->AddEntry(module + ".insertion_penalty", &insertion_penalty);
 
         loader->AddEntry(module + ".token_allocator_slab_size", &token_allocator_slab_size);
         loader->AddEntry(module + ".apply_score_offset", &apply_score_offset);
@@ -361,6 +364,7 @@ private:
 
                     nt.total_score += lm_score;
                 }
+                nt.total_score -= config_.insertion_penalty;
             }
 
             // 3. trace back 
@@ -547,7 +551,7 @@ private:
                     int dst_k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst));
                     TokenSet& dst = frontier_[dst_k];
 
-                    bool changed = TokenPassing(src, arc, -1e-6, &dst);
+                    bool changed = TokenPassing(src, arc, 0.0, &dst);
 
                     if (changed && graph_->ContainEpsilonArc(arc.dst)) {
                         eps_queue_.push_back(dst_k);
