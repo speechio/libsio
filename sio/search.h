@@ -60,31 +60,35 @@ public:
 
 
 struct BeamSearchConfig {
+    bool debug = false;
+
     f32 beam = 16.0;
     i32 min_active = 1;
     i32 max_active = 12;
     f32 token_set_size = 1;
 
     i32 nbest = 1;
+
     f32 insertion_penalty = 0.0;
+    bool apply_score_offset = true;  // for numerical stability of long audio scores
 
     i32 token_allocator_slab_size = 4096;
 
-    bool apply_score_offset = true;  // for numerical stability of long audio scores
-    bool debug = false;
 
     Error Register(StructLoader* loader, const std::string module = "") {
+        loader->AddEntry(module + ".debug", &debug);
+
         loader->AddEntry(module + ".beam", &beam);
         loader->AddEntry(module + ".min_active", &min_active);
         loader->AddEntry(module + ".max_active", &max_active);
         loader->AddEntry(module + ".token_set_size", &token_set_size);
 
         loader->AddEntry(module + ".nbest", &nbest);
+
         loader->AddEntry(module + ".insertion_penalty", &insertion_penalty);
+        loader->AddEntry(module + ".apply_score_offset", &apply_score_offset);
 
         loader->AddEntry(module + ".token_allocator_slab_size", &token_allocator_slab_size);
-        loader->AddEntry(module + ".apply_score_offset", &apply_score_offset);
-        loader->AddEntry(module + ".debug", &debug);
 
         return Error::OK;
     }
