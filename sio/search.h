@@ -382,7 +382,7 @@ private:
             {
                 int k;
                 Token** p;
-                for (p = &dst->head, k = 0; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
+                for (k = 0, p = &dst->head; k < config_.token_set_size && *p != nullptr; k++, p = &(*p)->next) {
                     if (ContextEqual(**p, nt)) {
                         if ((*p)->total_score < nt.total_score) {  // existing token is worse, remove it
                             Token *next = (*p)->next;
@@ -402,7 +402,7 @@ private:
             if (survived) {
                 int k;
                 Token** p;
-                for (p = &dst->head, k = 0; *p != nullptr && k != config_.token_set_size; p = &(*p)->next, k++) {
+                for (k = 0, p = &dst->head; k < config_.token_set_size && *p != nullptr; k++, p = &(*p)->next) {
                     if ((*p)->total_score <= nt.total_score) {
                         break;
                     }
@@ -651,7 +651,7 @@ private:
 
         int k;
         Token* p;
-        for (p = frontier_[it->second].head, k = 0; p != nullptr && k < config_.nbest; p = p->next, k++) {
+        for (k = 0, p = frontier_[it->second].head; k < config_.nbest && p != nullptr; k++, p = p->next) {
             Vec<TokenId> path;
             for(Token* t = p; t != nullptr; t = t->trace_back.token) {
                 if (t->trace_back.arc.olabel != kFsmEpsilon) {
