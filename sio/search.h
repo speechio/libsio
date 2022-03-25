@@ -117,22 +117,36 @@ enum class SearchStatus : int {
 
 
 /*
- * StateHandle: 
- *   StateHandle represents a unique state in the entire decoding graph.
+ * SearchHandle: 
+ *   SearchHandle represents a unique position in the entire decoding graph.
  *
  * For single-graph decoding:
- *   StateHandle = FsmStateId. i.e. the search graph *is* a Fsm:
+ *   SearchHandle = FsmStateId. i.e. the search graph *is* a Fsm:
  *     * T for vanilla CTC
  *     * TLG for CTC with lexicon & external LM
  *     * HCLG for WFST
  *
  * For multi-graph decoding:
- *   Say, StateHandle = 64-bits(32 + 32) integer type:
+ *   Say, SearchHandle = 64-bits(32 + 32) integer type:
  *     1st 32 bits represent a Fsm
  *     2nd 32 bits represent a state inside that Fsm
  *   More sophisticated bit-packing can be designed.
 */
-using StateHandle = FsmStateId;
+using SearchHandle = FsmStateId;
+//using SearchHandle = u64;
+
+static inline SearchHandle ComposeSearchHandle(int graph, FsmStateId state) {
+    return state;
+    //return (static_cast<SearchHandle>(graph) << 32) + static_cast<SearchHandle>(state);
+}
+static inline int HandleToGraph(SearchHandle h) {
+    return 0;
+    //return static_cast<int>(static_cast<u32>(h >> 32));
+}
+static inline FsmStateId HandleToState(SearchHandle h) {
+    return h;
+    //return static_cast<FsmStateId>(static_cast<u32>(h))
+}
 
 
 struct Token;
@@ -163,7 +177,7 @@ struct TokenSet {
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 
     int time = 0;
-    StateHandle state = 0;
+    SearchHandle handle = 0;
 };
 
 
@@ -187,7 +201,7 @@ class BeamSearch {
     // search frontier
     int cur_time_ = 0;  // frontier location on time axis
     Vec<TokenSet> frontier_;
-    FastMap<StateHandle, int> frontier_map_;  // beam search state -> token set index in frontier
+    FastMap<SearchHandle, int> frontier_map_;  // beam search handle -> token set index in frontier
     Vec<int> eps_queue_;
 
     // beam
@@ -270,20 +284,6 @@ public:
 
 private:
 
-    static inline StateHandle ComposeStateHandle(int graph, FsmStateId state) {
-        //return (static_cast<StateHandle>(graph) << 32) + static_cast<StateHandle>(state);
-        return state;
-    }
-    static inline int HandleToGraph(StateHandle h) {
-        //return static_cast<int>(static_cast<u32>(h >> 32));
-        return 0;
-    }
-    static inline FsmStateId HandleToState(StateHandle h) {
-        //return static_cast<FsmStateId>(static_cast<u32>(h))
-        return h;
-    }
-
-
     inline Token* NewToken(const Token* copy_from = nullptr) {
         Token* p = token_allocator_.Alloc();
         if (copy_from == nullptr) {
@@ -312,19 +312,19 @@ private:
     }
 
 
-    inline int FindOrAddTokenSet(int t, StateHandle s) {
+    inline int FindOrAddTokenSet(int t, SearchHandle h) {
         SIO_CHECK_EQ(cur_time_, t) << "Cannot find or add non-frontier TokenSet.";
 
         int k;
-        auto it = frontier_map_.find(s);
+        auto it = frontier_map_.find(h);
         if (it == frontier_map_.end()) {
             TokenSet ts;
             ts.time = t;
-            ts.state = s;
+            ts.handle = h;
 
             k = frontier_.size();
             frontier_.push_back(ts);
-            frontier_map_.insert({s, k});
+            frontier_map_.insert({h, k});
         } else {
             k = it->second;
         }
@@ -471,7 +471,7 @@ private:
         }
 
         SIO_CHECK_EQ(cur_time_, 0);
-        int k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, graph_->start_state));
+        int k = FindOrAddTokenSet(cur_time_, ComposeSearchHandle(0, graph_->start_state));
         SIO_CHECK_EQ(k, 0);
         TokenSet& ts = frontier_[0];
 
@@ -514,14 +514,14 @@ private:
         cur_time_++; // consumes a time frame
 
         for (const TokenSet& src : lattice_.back()) {
-            for (auto aiter = graph_->GetArcIterator(HandleToState(src.state)); !aiter.Done(); aiter.Next()) {
+            for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
                 if (arc.ilabel != kFsmEpsilon && arc.ilabel != kFsmInputEnd) {
                     f32 score = frame_score[arc.ilabel];
                     if (src.best_score + arc.score + score < score_cutoff_) continue;
 
                     TokenSet& dst = frontier_[
-                        FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
+                        FindOrAddTokenSet(cur_time_, ComposeSearchHandle(0, arc.dst))
                     ];
 
                     TokenPassing(src, arc, score, &dst);
@@ -536,7 +536,7 @@ private:
         SIO_CHECK(eps_queue_.empty());
 
         for (int k = 0; k != frontier_.size(); k++) {
-            if (graph_->ContainEpsilonArc(HandleToState(frontier_[k].state))) {
+            if (graph_->ContainEpsilonArc(HandleToState(frontier_[k].handle))) {
                 eps_queue_.push_back(k);
             }
         }
@@ -547,12 +547,12 @@ private:
 
             if (src.best_score < score_cutoff_) continue;
 
-            for (auto aiter = graph_->GetArcIterator(HandleToState(src.state)); !aiter.Done(); aiter.Next()) {
+            for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
                 if (arc.ilabel == kFsmEpsilon) {
                     if (src.best_score + arc.score < score_cutoff_) continue;
 
-                    int dst_k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst));
+                    int dst_k = FindOrAddTokenSet(cur_time_, ComposeSearchHandle(0, arc.dst));
                     TokenSet& dst = frontier_[dst_k];
 
                     bool changed = TokenPassing(src, arc, 0.0, &dst);
@@ -572,11 +572,11 @@ private:
         SIO_CHECK(frontier_.empty());
 
         for (const TokenSet& src : lattice_.back()) {
-            for (auto aiter = graph_->GetArcIterator(HandleToState(src.state)); !aiter.Done(); aiter.Next()) {
+            for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
                 if (arc.ilabel == kFsmInputEnd) {
                     TokenSet& dst = frontier_[
-                        FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
+                        FindOrAddTokenSet(cur_time_, ComposeSearchHandle(0, arc.dst))
                     ];
                     TokenPassing(src, arc, 0.0, &dst);
                 }
@@ -590,7 +590,7 @@ private:
 
     Error FrontierPrune() {
         auto token_set_compare = [](const TokenSet& x, const TokenSet& y) -> bool {
-            return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.state < y.state);
+            return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.handle < y.handle);
         };
 
         // adapt beam to max_active
@@ -651,7 +651,7 @@ private:
         SIO_CHECK(nbest_.empty());
         SIO_CHECK_EQ(frontier_.size(), 1) << "multiple final states? Should be only one.";
 
-        auto it = frontier_map_.find(ComposeStateHandle(0, graph_->final_state));
+        auto it = frontier_map_.find(ComposeSearchHandle(0, graph_->final_state));
         if (it == frontier_map_.end()) {
             SIO_WARNING << "No surviving hypothesis reaches to the end, key: " << session_key_;
             return Error::NoRecognitionResult;
