@@ -471,7 +471,7 @@ private:
         }
 
         SIO_CHECK_EQ(cur_time_, 0);
-        int k = FindOrAddTokenSet(cur_time_, graph_->start_state);
+        int k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, graph_->start_state));
         SIO_CHECK_EQ(k, 0);
         TokenSet& ts = frontier_[0];
 
