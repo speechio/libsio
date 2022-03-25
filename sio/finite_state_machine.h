@@ -1,7 +1,9 @@
 #ifndef SIO_FINITE_STATE_MACHINE_H
 #define SIO_FINITE_STATE_MACHINE_H
 
+#include <limits>
 #include <algorithm>
+
 #include "base/io-funcs.h"
 
 #include "sio/common.h"
@@ -16,7 +18,7 @@ using FsmLabel   = i32;
 using FsmScore   = f32;
 
 constexpr FsmLabel kFsmInputEnd = -1; // This follows K2Fsa convention
-constexpr FsmLabel kFsmEpsilon = -2;
+constexpr FsmLabel kFsmEpsilon = std::numeric_limits<FsmLabel>::lowest();
 
 
 struct FsmState {
