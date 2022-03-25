@@ -117,22 +117,22 @@ enum class SearchStatus : int {
 
 
 /*
- * SearchStateHandle: 
- *   SearchStateHandle represents a unique state in the decoding graph.
+ * StateHandle: 
+ *   StateHandle represents a unique state in the entire decoding graph.
  *
  * For single-graph decoding:
- *   SearchStateHandle = FsmStateId. i.e. the search graph *is* a Fsm:
+ *   StateHandle = FsmStateId. i.e. the search graph *is* a Fsm:
  *     * T for vanilla CTC
  *     * TLG for CTC with lexicon & external LM
  *     * HCLG for WFST
  *
  * For multi-graph decoding:
- *   Say, SearchStateHandle = 64-bits(32 + 32) integer type:
+ *   Say, StateHandle = 64-bits(32 + 32) integer type:
  *     1st 32 bits represent a Fsm
  *     2nd 32 bits represent a state inside that Fsm
  *   More sophisticated bit-packing can be designed.
 */
-using SearchStateHandle = FsmStateId;
+using StateHandle = FsmStateId;
 
 
 struct Token;
@@ -163,7 +163,7 @@ struct TokenSet {
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 
     int time = 0;
-    SearchStateHandle state = 0;
+    StateHandle state = 0;
 };
 
 
@@ -187,7 +187,7 @@ class BeamSearch {
     // search frontier
     int cur_time_ = 0;  // frontier location on time axis
     Vec<TokenSet> frontier_;
-    FastMap<SearchStateHandle, int> frontier_map_;  // beam search state -> token set index in frontier
+    FastMap<StateHandle, int> frontier_map_;  // beam search state -> token set index in frontier
     Vec<int> eps_queue_;
 
     // beam
@@ -270,15 +270,15 @@ public:
 
 private:
 
-    static inline SearchStateHandle ComposeStateHandle(int graph, FsmStateId state) {
-        //return (static_cast<SearchStateHandle>(graph) << 32) + static_cast<SearchStateHandle>(state);
+    static inline StateHandle ComposeStateHandle(int graph, FsmStateId state) {
+        //return (static_cast<StateHandle>(graph) << 32) + static_cast<StateHandle>(state);
         return state;
     }
-    static inline int HandleToGraph(SearchStateHandle h) {
+    static inline int HandleToGraph(StateHandle h) {
         //return static_cast<int>(static_cast<u32>(h >> 32));
         return 0;
     }
-    static inline FsmStateId HandleToState(SearchStateHandle h) {
+    static inline FsmStateId HandleToState(StateHandle h) {
         //return static_cast<FsmStateId>(static_cast<u32>(h))
         return h;
     }
@@ -312,7 +312,7 @@ private:
     }
 
 
-    inline int FindOrAddTokenSet(int t, SearchStateHandle s) {
+    inline int FindOrAddTokenSet(int t, StateHandle s) {
         SIO_CHECK_EQ(cur_time_, t) << "Cannot find or add non-frontier TokenSet.";
 
         int k;
