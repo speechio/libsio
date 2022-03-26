@@ -158,7 +158,7 @@ struct TraceBack {
 
 struct Token {
     Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
-    const TokenSet* master = nullptr;
+    TokenSet* master = nullptr;
 
     f32 total_score = 0.0;
     LmStateId lm_states[SIO_MAX_LM] = {}; // zero initialized to 0 
@@ -633,7 +633,7 @@ private:
         score_max_ -= 1000.0;
         score_cutoff_ -= 1000.0;
 
-        for (const TokenSet& ts : lattice_.back()) {
+        for (TokenSet& ts : lattice_.back()) {
             for (Token* t = ts.head; t != nullptr; t = t->next) {
                 t->master = &ts;
             }
