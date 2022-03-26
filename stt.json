@@ -28,7 +28,7 @@
         "token_set_size": 15,
         "nbest": 2,
         "insertion_penalty": 1e-6,
-        "apply_score_offset": true,
+        "apply_score_offsets": true,
         "token_allocator_slab_size": 4096
     }
 }

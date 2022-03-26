@@ -70,7 +70,7 @@ struct BeamSearchConfig {
     i32 nbest = 1;
 
     f32 insertion_penalty = 0.0;
-    bool apply_score_offset = true;  // for numerical stability of long audio scores
+    bool apply_score_offsets = true;  // for numerical stability of long audio scores
 
     i32 token_allocator_slab_size = 4096;
 
@@ -86,7 +86,7 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".nbest", &nbest);
 
         loader->AddEntry(module + ".insertion_penalty", &insertion_penalty);
-        loader->AddEntry(module + ".apply_score_offset", &apply_score_offset);
+        loader->AddEntry(module + ".apply_score_offsets", &apply_score_offsets);
 
         loader->AddEntry(module + ".token_allocator_slab_size", &token_allocator_slab_size);
 
@@ -208,7 +208,7 @@ class BeamSearch {
     f32 score_max_ = 0.0;
     f32 score_cutoff_ = 0.0;
 
-    Vec<f32> score_offset_;  // for numerical stability of long audio scores
+    Vec<f32> score_offsets_;  // keep hypotheses scores in a good dynamic range
 
     Vec<Vec<TokenId>> nbest_;
 
@@ -449,8 +449,9 @@ private:
         SIO_CHECK(frontier_map_.empty());
         frontier_map_.reserve(frontier_.capacity() * 2); // presumably 50% load factoer
 
-        if (config_.apply_score_offset) {
-            SIO_CHECK(score_offset_.empty());
+        if (config_.apply_score_offsets) {
+            SIO_CHECK(score_offsets_.empty());
+            score_offsets_.push_back(0.0);
         }
 
         // Initialize search session
@@ -497,8 +498,8 @@ private:
         lattice_.clear();
         token_allocator_.Reset();
 
-        if (config_.apply_score_offset) {
-            score_offset_.clear();
+        if (config_.apply_score_offsets) {
+            score_offsets_.clear();
         }
 
         nbest_.clear();
@@ -513,11 +514,16 @@ private:
         SIO_CHECK(frontier_.empty());
         cur_time_++; // consumes a time frame
 
+        f32 score_offset = 0.0;
+        if (config_.apply_score_offsets) {
+            score_offset = score_offsets_.back();
+        }
+
         for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
                 if (arc.ilabel != kFsmEpsilon && arc.ilabel != kFsmInputEnd) {
-                    f32 score = frame_score[arc.ilabel];
+                    f32 score = frame_score[arc.ilabel] + score_offset;
                     if (src.best_score + arc.score + score < score_cutoff_) continue;
 
                     TokenSet& dst = frontier_[
@@ -589,6 +595,8 @@ private:
 
 
     Error FrontierPrune() {
+        score_cutoff_ = score_max_ - config_.beam;
+
         // adapt beam to max_active
         if (config_.max_active > 0 && frontier_.size() > config_.max_active) {
             std::nth_element(
@@ -599,7 +607,10 @@ private:
             );
             frontier_.resize(config_.max_active);
 
-            score_cutoff_ = frontier_.back().best_score;
+            score_cutoff_ = std::max(
+                score_cutoff_,
+                frontier_.back().best_score
+            );
         }
 
         //// adapt beam to min_active
@@ -631,6 +642,9 @@ private:
         frontier_.clear();
         frontier_map_.clear();
 
+        if (config_.apply_score_offsets) {
+            score_offsets_.push_back(-score_max_);
+        }
         score_max_ -= 1000.0;
         score_cutoff_ -= 1000.0;
 
