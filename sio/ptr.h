@@ -22,7 +22,7 @@ namespace sio {
  *     - Nullable<T*>        denotes pointers without ownership & can    be null
  *     - Nullable<Owner<T*>> denotes pointers with    ownership & can    be null
  * With consistent use of this convention, raw pointers (T*) are just as safe as reference.
-*/
+ */
 
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Owner = T;
@@ -34,7 +34,7 @@ using Nullable = T;
 /*
  * Other than above helpers to annotate C pointers, 
  * Use C++11 smart pointers as an alternative if they simplify codes
-*/
+ */
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Unique = std::unique_ptr<typename std::remove_pointer<T>::type>;
 
