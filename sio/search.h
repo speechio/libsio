@@ -166,17 +166,17 @@ struct Token {
 };
 
 
-// TokenSet represents a location(time, state) in beam search space (sometimes called trellis space),
+// TokenSet represents a location(time, state handle) in beam search space (sometimes called trellis space),
 // Each TokenSet holds a list of tokens representing search hypotheses
 struct TokenSet {
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 
-    f32 best_score = -std::numeric_limits<f32>::infinity();
+    f32 best_score = std::numeric_limits<f32>::lowest();
     int time = 0;
     StateHandle handle = 0;
 };
 
-static bool TokenSetBetterThan(const TokenSet& x, const TokenSet& y) {
+static inline bool TokenSetBetterThan(const TokenSet& x, const TokenSet& y) {
     return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.handle < y.handle);
 }
 
@@ -614,7 +614,7 @@ private:
         //    score_cutoff_ = std::min(score_cutoff_, frontier_[config_.min_active - 1].best_score);
         //}
 
-        // best TokenSet in front, for more rapid beam estimation for next frame
+        // put best TokenSet first, so beam will be established quickly for next frame.
         std::nth_element(frontier_.begin(), frontier_.begin(), frontier_.end(), TokenSetBetterThan);
         SIO_CHECK_EQ(frontier_[0].best_score, score_max_);
         
