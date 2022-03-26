@@ -158,7 +158,7 @@ struct TraceBack {
 
 struct Token {
     Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
-    TokenSet* master = nullptr;
+    //TokenSet* master = nullptr;
 
     f32 total_score = 0.0;
     LmStateId lm_states[SIO_MAX_LM] = {}; // zero initialized to 0 
@@ -169,9 +169,9 @@ struct Token {
 // TokenSet represents a location(time, state) in beam search space (sometimes called trellis space),
 // Each TokenSet holds a list of tokens representing search hypotheses
 struct TokenSet {
-    f32 best_score = -std::numeric_limits<f32>::infinity();
     Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
 
+    f32 best_score = -std::numeric_limits<f32>::infinity();
     int time = 0;
     StateHandle handle = 0;
 };
@@ -633,11 +633,11 @@ private:
         score_max_ -= 1000.0;
         score_cutoff_ -= 1000.0;
 
-        for (TokenSet& ts : lattice_.back()) {
-            for (Token* t = ts.head; t != nullptr; t = t->next) {
-                t->master = &ts;
-            }
-        }
+        //for (TokenSet& ts : lattice_.back()) {
+        //    for (Token* t = ts.head; t != nullptr; t = t->next) {
+        //        t->master = &ts;
+        //    }
+        //}
 
         return Error::OK;
     }
