@@ -32,7 +32,7 @@ struct SpeechToTextModel {
 
         if (config.mean_var_norm != "") {
             SIO_CHECK(!mean_var_norm) << "mean_var_norm initialized already.";
-            mean_var_norm = make_unique<MeanVarNorm>();
+            mean_var_norm = std::make_unique<MeanVarNorm>();
             mean_var_norm->Load(config.mean_var_norm);
         } else {
             mean_var_norm.reset();

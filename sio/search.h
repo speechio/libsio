@@ -222,7 +222,7 @@ public:
         tokenizer_ = &tokenizer;
 
         SIO_CHECK(lms_.empty());
-        lms_.push_back(make_unique<PrefixTreeLM>());
+        lms_.push_back(std::make_unique<PrefixTreeLM>());
 
         status_ = SearchStatus::kIdle;
 

@@ -44,7 +44,7 @@ public:
         config_ = &config;
 
         SIO_CHECK(!extractor_) << "Feature extractor initialized already.";
-        extractor_ = make_unique<kaldi::OnlineFbank>(config.fbank);
+        extractor_ = std::make_unique<kaldi::OnlineFbank>(config.fbank);
 
         mean_var_norm_ = mvn;
 
@@ -86,7 +86,7 @@ public:
     Error Reset() {
         SIO_CHECK_EQ(config_->type, "fbank");
         extractor_.reset();
-        extractor_ = make_unique<kaldi::OnlineFbank>(config_->fbank);
+        extractor_ = std::make_unique<kaldi::OnlineFbank>(config_->fbank);
         cur_frame_ = 0;
 
         return Error::OK;

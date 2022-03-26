@@ -41,9 +41,6 @@ using Unique = std::unique_ptr<typename std::remove_pointer<T>::type>;
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Shared = std::shared_ptr<typename std::remove_pointer<T>::type>;
 
-using absl::make_unique;
-using std::make_shared;
-
 }
 
 #endif
