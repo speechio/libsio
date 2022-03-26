@@ -9,7 +9,7 @@ namespace sio {
 class Panic {
 public:
     Panic(const char* file, size_t line, const char* func, Error err) {
-        fprintf(stderr, "\n[panic](%s:%d:%s) %s\n", file, line, func, ErrorCStr(err));
+        fprintf(stderr, "\n[panic](%s:%d:%s) %s\n", file, line, func, ErrorMsg(err));
         fflush(stderr);
     }
 
@@ -24,3 +24,4 @@ public:
 } // namespace sio
 
 #endif
+
