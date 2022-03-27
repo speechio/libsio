@@ -512,7 +512,10 @@ private:
 
     Error FrontierExpandEmitting(const float* frame_score) {
         SIO_CHECK(frontier_.empty());
+
         cur_time_++; // consumes a time frame
+        score_max_ -= 1000.0;
+        score_cutoff_ -= 1000.0;
 
         f32 score_offset = 0.0;
         if (config_.apply_score_offsets) {
@@ -645,8 +648,6 @@ private:
         if (config_.apply_score_offsets) {
             score_offsets_.push_back(-score_max_);
         }
-        score_max_ -= 1000.0;
-        score_cutoff_ -= 1000.0;
 
         //for (TokenSet& ts : lattice_.back()) {
         //    for (Token* t = ts.head; t != nullptr; t = t->next) {
@@ -700,7 +701,12 @@ private:
 
     void OnFrameEnd() {
         if (config_.debug) {
-            dbg(lattice_.back().size());
+            printf("%d\t%f\t%f\t%d\n",
+                cur_time_,
+                score_max_,
+                score_max_ - score_cutoff_,
+                lattice_.back().size()
+            );
         }
     }
 

@@ -21,10 +21,10 @@
         "num_threads": 1
     },
     "beam_search": {
-        "debug": false,
-        "beam": 12.0,
+        "debug": true,
+        "beam": 16.0,
         "min_active": 1,
-        "max_active": 12,
+        "max_active": 13,
         "token_set_size": 15,
         "nbest": 2,
         "insertion_penalty": 1e-6,
