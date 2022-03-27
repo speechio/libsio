@@ -611,7 +611,7 @@ private:
             score_cutoff_ = std::max(score_cutoff_, frontier_.back().best_score);
         }
 
-        // put best TokenSet first, so beam will be established quickly for next frame.
+        // put best TokenSet first so that beam of next frame will be established quickly.
         std::nth_element(frontier_.begin(), frontier_.begin(), frontier_.end(), TokenSetBetterThan);
         SIO_CHECK_EQ(frontier_[0].best_score, score_max_);
         
