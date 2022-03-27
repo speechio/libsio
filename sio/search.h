@@ -63,7 +63,6 @@ struct BeamSearchConfig {
     bool debug = false;
 
     f32 beam = 16.0;
-    i32 min_active = 1;
     i32 max_active = 12;
     f32 token_set_size = 1;
 
@@ -79,7 +78,6 @@ struct BeamSearchConfig {
         loader->AddEntry(module + ".debug", &debug);
 
         loader->AddEntry(module + ".beam", &beam);
-        loader->AddEntry(module + ".min_active", &min_active);
         loader->AddEntry(module + ".max_active", &max_active);
         loader->AddEntry(module + ".token_set_size", &token_set_size);
 
@@ -600,7 +598,7 @@ private:
     Error FrontierPrune() {
         score_cutoff_ = score_max_ - config_.beam;
 
-        // adapt beam to max_active
+        // adapt beam regarding to max_active constraint
         if (config_.max_active > 0 && frontier_.size() > config_.max_active) {
             std::nth_element(
                 frontier_.begin(),
@@ -610,23 +608,8 @@ private:
             );
             frontier_.resize(config_.max_active);
 
-            score_cutoff_ = std::max(
-                score_cutoff_,
-                frontier_.back().best_score
-            );
+            score_cutoff_ = std::max(score_cutoff_, frontier_.back().best_score);
         }
-
-        //// adapt beam to min_active
-        //if (config_.min_active > 1 && frontier_.size() > config_.min_active) {
-        //    std::nth_element(
-        //        frontier_.begin(),
-        //        frontier_.begin() + config_.min_active - 1,
-        //        frontier_.end(),
-        //        TokenSetBetterThan
-        //    );
-        //
-        //    score_cutoff_ = std::min(score_cutoff_, frontier_[config_.min_active - 1].best_score);
-        //}
 
         // put best TokenSet first, so beam will be established quickly for next frame.
         std::nth_element(frontier_.begin(), frontier_.begin(), frontier_.end(), TokenSetBetterThan);
