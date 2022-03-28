@@ -7,7 +7,7 @@ namespace sio {
 
 TEST(Error, Basic) {
     Error err = Error::OK;
-    EXPECT_EQ(strcmp((ErrorMsg(err)), "(OK)"), 0);
+    EXPECT_EQ(strcmp((ErrMsg(err)), "(OK)"), 0);
 }
 
 } // namespace sio
