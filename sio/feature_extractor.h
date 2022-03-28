@@ -43,7 +43,7 @@ public:
         SIO_CHECK_EQ(config.type, "fbank");
         config_ = &config;
 
-        SIO_CHECK(!extractor_) << "Feature extractor initialized already.";
+        SIO_CHECK(!extractor_);
         extractor_ = std::make_unique<kaldi::OnlineFbank>(config.fbank);
 
         mean_var_norm_ = mvn;

@@ -26,10 +26,9 @@ class SlabAllocator {
 public:
 
     void SetSlabSize(size_t size0, size_t size1 = 1) {
-        SIO_CHECK(slabs_.empty()) << "Allocator already in use, cannot reset slab size.";
+        SIO_CHECK(slabs_.empty());
         SIO_CHECK_GE(size0, 1);
-        SIO_CHECK_GE(size1 * sizeof(T), sizeof(FreeNode*)) \
-            << "Cannot support allocations smaller than a pointer.";
+        SIO_CHECK_GE(size1 * sizeof(T), sizeof(FreeNode*)); // each allocation should be at least as large as a pointer.
 
         size0_ = size0;
         size1_ = size1;

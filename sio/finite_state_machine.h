@@ -94,7 +94,7 @@ struct Fsm {
 
 
     Error LoadFromBinary(std::istream& is) {
-        SIO_CHECK(Empty()) << "Reloading is not supported.";
+        SIO_CHECK(Empty()); // Can't reload
         SIO_CHECK(is.good());
 
         using kaldi::ExpectToken;
@@ -136,8 +136,8 @@ struct Fsm {
 
 
     Error LoadFromText(std::istream& is) {
-        SIO_CHECK(is.good()) << "Invalid Fsm loading stream.";
-        SIO_CHECK(Empty()) << "Reloading is not supported.";
+        SIO_CHECK(is.good());
+        SIO_CHECK(Empty());
         SIO_INFO << "Loading Fsm from string stream";
 
         Str line;
@@ -183,7 +183,7 @@ struct Fsm {
                 );
                 n++;
             }
-            SIO_CHECK_EQ(this->num_arcs, n) << "Num of arcs loaded is inconsistent with header.";
+            SIO_CHECK_EQ(this->num_arcs, n) // Num of arcs loaded is inconsistent with header?
 
             /* Sort all arcs, first by source state, then by ilabel */
             std::sort(this->arcs.begin(), this->arcs.end(), 
@@ -218,7 +218,7 @@ struct Fsm {
 
 
     Error Dump(std::ostream& os) const {
-        SIO_CHECK(!Empty()) << "Dumping empty Fsm ?";
+        SIO_CHECK(!Empty());
         SIO_CHECK(os.good());
 
         using kaldi::WriteToken;

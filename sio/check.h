@@ -8,10 +8,12 @@
 
 namespace sio {
 
-#define SIO_CHECK(cond) \
-    SIO_LIKELY(cond) ? (void)0 : \
-        SIO_PANIC(::sio::Error::AssertionFailure) & SIO_FATAL \
-            << "Check {" #cond "} failed. "
+#define SIO_CHECK(cond) do {                          \
+    if (SIO_UNLIKELY(!(cond))) {                      \
+        fprintf(stderr, "Check {" #cond "} failed."); \
+        SIO_PANIC(::sio::Error::AssertionFailure);    \
+    }                                                 \
+} while(0) 
 
 
 // CAUTION: operands evaluate more than once.

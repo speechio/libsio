@@ -31,7 +31,7 @@ struct SpeechToTextModel {
         config.Load(config_file);
 
         if (config.mean_var_norm != "") {
-            SIO_CHECK(!mean_var_norm) << "mean_var_norm initialized already.";
+            SIO_CHECK(!mean_var_norm);
             mean_var_norm = std::make_unique<MeanVarNorm>();
             mean_var_norm->Load(config.mean_var_norm);
         } else {
@@ -40,14 +40,14 @@ struct SpeechToTextModel {
 
         tokenizer.Load(config.tokenizer_vocab);
 
-        SIO_CHECK(config.nnet != "") << "stt nnet is required";
+        SIO_CHECK(config.nnet != "");
         SIO_INFO << "Loading torchscript nnet from: " << config.nnet; 
         nnet = torch::jit::load(config.nnet);
 
         if (config.graph != "") {
             SIO_INFO << "Loading decoding graph from: " << config.graph;
             std::ifstream is(config.graph, std::ios::binary);
-            SIO_CHECK(is.good()) << "Cannot open decoding graph file";
+            SIO_CHECK(is.good());
             graph.LoadFromBinary(is);
         } else {
             SIO_INFO << "Building decoding graph from: " << config.tokenizer_vocab;

@@ -67,7 +67,7 @@ struct StructLoader {
         Json j;
 
         std::ifstream json_stream(json_file);
-        SIO_CHECK(json_stream.good()) << "Cannot open file: " << json_file;
+        SIO_CHECK(json_stream.good());
 
         json_stream >> j;
         Load(j);

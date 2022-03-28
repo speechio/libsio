@@ -233,7 +233,7 @@ public:
 
 
     Error Push(const torch::Tensor score) {
-        SIO_CHECK_EQ(score.dim(), 1) << "Must be single frame for each Push()";
+        SIO_CHECK_EQ(score.dim(), 1) // should be one frame per each Push() call site
 
         SIO_CHECK(status_ == SearchStatus::kIdle || status_ == SearchStatus::kBusy);
         if (status_ == SearchStatus::kIdle) {
@@ -311,7 +311,7 @@ private:
 
 
     inline int FindOrAddTokenSet(int t, StateHandle h) {
-        SIO_CHECK_EQ(cur_time_, t) << "Cannot find or add non-frontier TokenSet.";
+        SIO_CHECK_EQ(cur_time_, t);
 
         int k;
         auto it = frontier_map_.find(h);
@@ -644,7 +644,7 @@ private:
 
     Error TraceBestPath() {
         SIO_CHECK(nbest_.empty());
-        SIO_CHECK_EQ(frontier_.size(), 1) << "multiple final states? Should be only one.";
+        SIO_CHECK_EQ(frontier_.size(), 1) // multiple final states? Should be only one.
 
         auto it = frontier_map_.find(ComposeStateHandle(0, graph_->final_state));
         if (it == frontier_map_.end()) {

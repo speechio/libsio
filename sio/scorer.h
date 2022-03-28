@@ -51,7 +51,7 @@ class Scorer {
 public:
 
     Error Load(const ScorerConfig& config, torch::jit::script::Module& nnet, int nnet_idim, int nnet_odim) { 
-        SIO_CHECK(nnet_ == nullptr) << "NNet already initialized";
+        SIO_CHECK(nnet_ == nullptr); // Can't reload
         config_ = config;
         nnet_ = &nnet;
         nnet_idim_ = nnet_idim;

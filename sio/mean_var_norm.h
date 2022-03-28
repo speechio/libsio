@@ -42,7 +42,7 @@ struct MeanVarNorm {
         // parse shift vector
         std::getline(is, line);
         cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
-        SIO_CHECK_EQ(cols.size(), this->dim) << "mean norm dim should be consistent with header line";
+        SIO_CHECK_EQ(cols.size(), this->dim); // mean norm dim inconsistent with header
         this->shift.clear();
         this->shift.resize(this->dim, 0.0);
         for (int i = 0; i != this->dim; i++) {
@@ -52,7 +52,7 @@ struct MeanVarNorm {
         // parse scale vector
         std::getline(is, line);
         cols = absl::StrSplit(line, absl::ByAnyChar(" \t,"), absl::SkipWhitespace());
-        SIO_CHECK_EQ(cols.size(), this->dim) << "var norm dim should be consistent with header line";
+        SIO_CHECK_EQ(cols.size(), this->dim); // variance norm dim inconsistent with header
         this->scale.clear();
         this->scale.resize(this->dim, 0.0);
         for (int i = 0; i != this->dim; i++) {
@@ -64,8 +64,9 @@ struct MeanVarNorm {
 
 
     void Normalize(kaldi::VectorBase<f32> *frame) const {
-        SIO_CHECK(frame != nullptr) << "null input to mvn ?";
-        SIO_CHECK_EQ(frame->Dim(), this->dim) << "feature dim inconsistent with mvn dim";
+        SIO_CHECK(frame != nullptr);
+        SIO_CHECK_EQ(frame->Dim(), this->dim); // feature dim inconsistent with MVN
+
         for (int i = 0; i < this->dim; i++) {
             // use quote for elem referencing, see:
             // https://github.com/kaldi-asr/kaldi/blob/master/src/matrix/kaldi-vector.h#L82
