@@ -21,7 +21,7 @@ namespace sio {
     if (SIO_UNLIKELY(!( (x) op (y) ))) {                \
         SIO_FATAL                                       \
             << "Check {" #x " " #op " " #y "} failed: " \
-            << #x "=" << (x) << ", " << #y "=" << (y);  \
+            << #x "=" << (x) << ", " #y "=" << (y);     \
         SIO_PANIC(::sio::Error::AssertionFailure);      \
     }                                                   \
 } while(0)
