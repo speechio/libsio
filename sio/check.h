@@ -8,21 +8,23 @@
 
 namespace sio {
 
-#define SIO_CHECK(cond) do {                          \
-    if (SIO_UNLIKELY(!(cond))) {                      \
-        fprintf(stderr, "Check {" #cond "} failed."); \
-        SIO_PANIC(::sio::Error::AssertionFailure);    \
-    }                                                 \
+#define SIO_CHECK(cond) do {                       \
+    if (SIO_UNLIKELY(!(cond))) {                   \
+        SIO_FATAL << "Check {" #cond "} failed.";  \
+        SIO_PANIC(::sio::Error::AssertionFailure); \
+    }                                              \
 } while(0) 
 
 
 // CAUTION: operands evaluate more than once.
-#define SIO_CHECK_PRED2(op, x, y) \
-    SIO_LIKELY( (x) op (y) ) ? (void)0 : \
-        SIO_PANIC(::sio::Error::AssertionFailure) & SIO_FATAL \
+#define SIO_CHECK_PRED2(op, x, y) do {                  \
+    if (SIO_UNLIKELY(!( (x) op (y) ))) {                \
+        SIO_FATAL                                       \
             << "Check {" #x " " #op " " #y "} failed: " \
-            << #x " ~> (" << (x) << "), " \
-            << #y " ~> (" << (y) << "). "
+            << #x "=" << (x) << ", " << #y "=" << (y);  \
+        SIO_PANIC(::sio::Error::AssertionFailure);      \
+    }                                                   \
+} while(0)
 
 
 #define SIO_CHECK_EQ(x, y)  SIO_CHECK_PRED2(==, x, y)

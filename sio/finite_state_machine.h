@@ -183,7 +183,7 @@ struct Fsm {
                 );
                 n++;
             }
-            SIO_CHECK_EQ(this->num_arcs, n) // Num of arcs loaded is inconsistent with header?
+            SIO_CHECK_EQ(this->num_arcs, n); // Num of arcs loaded is inconsistent with header?
 
             /* Sort all arcs, first by source state, then by ilabel */
             std::sort(this->arcs.begin(), this->arcs.end(), 

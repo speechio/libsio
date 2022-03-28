@@ -55,9 +55,11 @@ public:
         if (severity_ >= CurrentLogVerbosity()) {
             std::ostringstream buf;
             buf << LogSeverityRepr(severity_);
+
             if (severity_ >= LogSeverity::kWarning) {
                 buf << "(" << file << ":" << line << ":" << func << ")";
             }
+
             buf << " ";
             ostream_ << buf.str();
         }

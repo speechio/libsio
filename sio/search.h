@@ -233,7 +233,7 @@ public:
 
 
     Error Push(const torch::Tensor score) {
-        SIO_CHECK_EQ(score.dim(), 1) // should be one frame per each Push() call site
+        SIO_CHECK_EQ(score.dim(), 1); // should be one frame per each Push() call site
 
         SIO_CHECK(status_ == SearchStatus::kIdle || status_ == SearchStatus::kBusy);
         if (status_ == SearchStatus::kIdle) {
@@ -644,7 +644,7 @@ private:
 
     Error TraceBestPath() {
         SIO_CHECK(nbest_.empty());
-        SIO_CHECK_EQ(frontier_.size(), 1) // multiple final states? Should be only one.
+        SIO_CHECK_EQ(frontier_.size(), 1); // There shoudl be only one final state(K2 convention)
 
         auto it = frontier_map_.find(ComposeStateHandle(0, graph_->final_state));
         if (it == frontier_map_.end()) {
