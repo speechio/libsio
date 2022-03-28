@@ -18,7 +18,7 @@ enum class Error : int {
     Unknown,
 }; // enum class Error
 
-const char* ErrMsg(Error err);
+const char* ErrorMsg(Error err);
 
 } // namespace sio
 

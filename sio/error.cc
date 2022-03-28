@@ -1,7 +1,7 @@
 #include "sio/error.h"
 namespace sio {
 
-const char* ErrMsg(Error err) {
+const char* ErrorMsg(Error err) {
     switch (err) {
         case Error::OK: return "(OK)";
         case Error::OutOfMemory: return "out of memory";
