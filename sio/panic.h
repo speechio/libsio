@@ -6,15 +6,11 @@
 
 namespace sio {
 
-class Panic {
-public:
-    Panic(const char* file, size_t line, const char* func, Error err) {
-        fprintf(stderr, "[panic](%s:%d:%s) %s\n", file, line, func, ErrorMsg(err));
-        fflush(stderr);
-    }
-
-    ~Panic() { abort(); }
-};
+inline void Panic(const char* file, size_t line, const char* func, Error err) {
+    fprintf(stderr, "[panic](%s:%d:%s) %s\n", file, line, func, ErrorMsg(err));
+    fflush(stderr);
+    abort();
+}
 
 #define SIO_PANIC(err) ::sio::Panic(SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, err)
 
