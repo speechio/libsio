@@ -38,7 +38,7 @@ private:
     // Decoder needs to keep coherence between these two systems during decoding.
     //
     // Adapting models to each other via offline processing would be best for runtime performance,
-    // however these asset-level processing is notorious for later maintenance.
+    // however asset-level processing is notorious for later maintenance.
     // So here we choose to leverage a runtime mapping from token id -> word id.
     Vec<WordId> token_to_word_;
 
