@@ -32,8 +32,8 @@ using Nullable = T;
 
 
 /*
- * Other than above helpers to annotate C pointers, 
- * Use C++11 smart pointers as an alternative if they simplify codes
+ * Other than above annotates to raw pointers, 
+ * following aliases are used for C++11 smart pointers
  */
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Unique = std::unique_ptr<typename std::remove_pointer<T>::type>;
