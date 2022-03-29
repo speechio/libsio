@@ -10,4 +10,11 @@ TEST(Error, Basic) {
     EXPECT_EQ(strcmp((ErrorMsg(err)), "(OK)"), 0);
 }
 
+TEST(Panic, Basic) {
+    //Error err = Error::OutOfMemory;
+    //if (err != Error::OK) {
+    //  SIO_PANIC(err);
+    //}
+}
+
 } // namespace sio

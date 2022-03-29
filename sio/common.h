@@ -5,7 +5,6 @@
 #include "sio/type.h"
 #include "sio/error.h"
 #include "sio/logger.h"
-#include "sio/panic.h"
 #include "sio/check.h"
 #include "sio/ptr.h"
 #include "sio/str.h"

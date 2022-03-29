@@ -4,7 +4,6 @@
 #include "sio/base.h"
 #include "sio/error.h"
 #include "sio/logger.h"
-#include "sio/panic.h"
 
 namespace sio {
 

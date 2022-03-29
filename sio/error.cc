@@ -1,4 +1,8 @@
 #include "sio/error.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
 namespace sio {
 
 const char* ErrorMsg(Error err) {
@@ -11,6 +15,13 @@ const char* ErrorMsg(Error err) {
         case Error::Unknown: return "(unknown error)";
     }
     return nullptr; /* avoid warning */
+}
+
+
+void Panic(const char* file, size_t line, const char* func, Error err) {
+    fprintf(stderr, "[panic](%s:%d:%s) %s\n", file, line, func, ErrorMsg(err));
+    fflush(stderr);
+    abort();
 }
 
 } // namespace sio

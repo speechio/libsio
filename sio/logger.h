@@ -7,7 +7,6 @@
 #include <mutex>
 
 #include "sio/base.h"
-#include "sio/error.h"
 
 namespace sio {
 
