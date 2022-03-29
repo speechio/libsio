@@ -1,12 +1,10 @@
-#ifndef SIO_BASE_H
-#define SIO_BASE_H
+#ifndef SIO_MACRO_H
+#define SIO_MACRO_H
 
 #include <string.h>
 
 #include <absl/base/optimization.h>
 #include <absl/base/attributes.h>
-
-namespace sio {
 
 /* branching prediction */
 #define SIO_LIKELY   ABSL_PREDICT_TRUE
@@ -22,20 +20,5 @@ constexpr const char* Basename(const char* fname, int offset) {
 #define SIO_LINE_REPR  __LINE__
 #define SIO_FUNC_REPR  __func__
 
-
-/* safe delete */
-template<typename T>
-inline void Delete(T& p) {
-    delete p;
-    p = nullptr;
-}
-
-template <typename T>
-inline void DeleteArray(T& p) {
-    delete [] p;
-    p = nullptr;
-}
-
-} // namespace sio
 #endif
 
