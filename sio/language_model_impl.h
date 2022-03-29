@@ -25,7 +25,7 @@ public:
         return true;
     }
 
-}; // class PrefixLm
+}; // class PrefixLM
 
 }  // namespace sio
 #endif

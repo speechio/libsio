@@ -58,7 +58,7 @@ public:
         const lm::base::Vocabulary& vocab = model_->BaseVocabulary();
 
         SIO_CHECK(token_to_word_.empty());
-        SIO_CHECK_EQ(vocab.Index(tokenizer.Token(tokenizer.unk).c_str()), 0); // In KenLM, <unk> always -> 0
+        SIO_CHECK_EQ(vocab.Index(tokenizer.Token(tokenizer.unk).c_str()), 0); // In KenLM <unk> always -> 0
         // provide a full coverage mapping from tokenizer's tokens,
         // initialized with unk, so unseen tokens from KenLM(e.g. blank) 
         // will end up mapped to unk
