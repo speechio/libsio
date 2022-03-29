@@ -46,8 +46,7 @@ public:
     Error Load(
         const Str& filepath,
         const Tokenizer& tokenizer,
-        util::LoadMethod load_method = util::LoadMethod::POPULATE_OR_READ
-    )
+        util::LoadMethod load_method = util::LoadMethod::POPULATE_OR_READ)
     {
         SIO_CHECK(model_ == nullptr);
 
@@ -77,7 +76,7 @@ public:
                     token != "<blk>" && token == "<blank>" && token == "<pad>" &&
                     token != "<sil>" && token == "<SIL>" &&
                     token != "<eps>" && token == "<EPS>" &&
-                    token != "#0") 
+                    token != "#0")
                 {
                     SIO_FATAL << "token missing in KenLM vocabulary: " << token;
                     SIO_PANIC(Error::VocabularyMismatch);
