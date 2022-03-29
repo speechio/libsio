@@ -4,7 +4,7 @@
 #include <map>
 #include <fstream>
 
-#include "sio/base.h"
+#include "sio/macro.h"
 #include "sio/error.h"
 #include "sio/logger.h"
 #include "sio/check.h"

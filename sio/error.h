@@ -1,7 +1,7 @@
 #ifndef SIO_ERROR_H
 #define SIO_ERROR_H
 
-#include "sio/base.h"
+#include "sio/macro.h"
 
 namespace sio {
 
