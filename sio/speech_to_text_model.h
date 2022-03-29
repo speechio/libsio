@@ -6,6 +6,7 @@
 #include <torch/script.h>
 
 #include "sio/common.h"
+#include "sio/mean_var_norm.h"
 #include "sio/tokenizer.h"
 #include "sio/finite_state_machine.h"
 #include "sio/speech_to_text_config.h"
