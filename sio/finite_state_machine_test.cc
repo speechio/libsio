@@ -3,8 +3,6 @@
 #include <gtest/gtest.h>
 #include <fstream>
 
-//#include "sio/dbg.h"
-
 namespace sio {
 TEST(Fsm, Basic) {
     Fsm fsm;

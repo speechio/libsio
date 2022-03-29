@@ -1,4 +1,3 @@
-//#define DBG_MACRO_DISABLE
 #include "sio/dbg.h"
 
 #include "gtest/gtest.h"

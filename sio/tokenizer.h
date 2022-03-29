@@ -4,7 +4,6 @@
 #include <fstream>
 
 #include "sio/base.h"
-//#include "sio/dbg.h"
 
 namespace sio {
 

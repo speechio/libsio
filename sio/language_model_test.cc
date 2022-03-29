@@ -2,8 +2,6 @@
 
 #include "gtest/gtest.h"
 
-//#include "sio/dbg.h"
-
 namespace sio {
 
 TEST(LanguageModel, PrefixLm) {

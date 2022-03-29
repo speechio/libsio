@@ -13,8 +13,6 @@
 #include "sio/search.h"
 #include "sio/speech_to_text_model.h"
 
-//#include "sio/dbg.h"
-
 namespace sio {
 class SpeechToText {
     const Tokenizer* tokenizer_ = nullptr;

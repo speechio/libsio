@@ -16,6 +16,9 @@
       disable the "'dbg.h' header is included in your code base" warnings.
 */
 
+//#define DBG_MACRO_DISABLE
+#define DBG_MACRO_NO_WARNING
+
 #include "sio/dbg_macro.h"
 
 #endif

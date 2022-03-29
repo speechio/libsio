@@ -9,7 +9,6 @@
 #include "sio/tokenizer.h"
 #include "sio/finite_state_machine.h"
 #include "sio/language_model.h"
-#include "sio/dbg.h"
 
 namespace sio {
 class GreedySearch {
