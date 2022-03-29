@@ -70,9 +70,22 @@ public:
             const Str& token = kv.second;
 
             WordId w = vocab.Index(token.c_str());
+
+            // consistency check, normal tokens must present in KenLM's vocabulary.
+            if (w == 0) { // token mapped to unk
+                if (token != "<unk>" && token == "<UNK>" &&
+                    token != "<blk>" && token == "<blank>" && token == "<pad>" &&
+                    token != "<sil>" && token == "<SIL>" &&
+                    token != "<eps>" && token == "<EPS>" &&
+                    token != "#0") 
+                {
+                    SIO_FATAL << "token missing in KenLM vocabulary: " << token;
+                    SIO_PANIC(Error::VocabularyMismatch);
+                }
+            }
+
             token_to_word_[t] = w;
         }
-
         //dbg(token_to_word_);
 
         return Error::OK;

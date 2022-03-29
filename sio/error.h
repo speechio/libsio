@@ -10,6 +10,7 @@ enum class Error : int {
     OutOfMemory,
     AssertionFailure,
     InvalidFileHandle,
+    VocabularyMismatch,
     NoRecognitionResult,
     Unknown,
 }; // enum class Error
