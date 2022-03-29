@@ -6,6 +6,8 @@
 #include <absl/base/optimization.h>
 #include <absl/base/attributes.h>
 
+namespace sio {
+
 /* branching prediction */
 #define SIO_LIKELY   ABSL_PREDICT_TRUE
 #define SIO_UNLIKELY ABSL_PREDICT_FALSE
@@ -19,6 +21,8 @@ constexpr const char* Basename(const char* fname, int offset) {
 #define SIO_FILE_REPR  ::sio::Basename(__FILE__, sizeof(__FILE__) - 1)
 #define SIO_LINE_REPR  __LINE__
 #define SIO_FUNC_REPR  __func__
+
+} // namespace sio
 
 #endif
 

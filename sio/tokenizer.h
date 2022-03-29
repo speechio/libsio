@@ -3,7 +3,7 @@
 
 #include <fstream>
 
-#include "sio/common.h"
+#include "sio/base.h"
 //#include "sio/dbg.h"
 
 namespace sio {

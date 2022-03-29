@@ -4,7 +4,7 @@
 #include <string.h>
 #include <limits>
 
-#include "sio/common.h"
+#include "sio/base.h"
 #include "sio/allocator.h"
 #include "sio/tokenizer.h"
 #include "sio/finite_state_machine.h"

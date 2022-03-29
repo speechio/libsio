@@ -7,7 +7,7 @@
 
 #include "matrix/kaldi-vector.h"
 
-#include "sio/common.h"
+#include "sio/base.h"
 
 namespace sio {
 

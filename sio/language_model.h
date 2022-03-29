@@ -1,7 +1,7 @@
 #ifndef SIO_LANGUAGE_MODEL_H
 #define SIO_LANGUAGE_MODEL_H
 
-#include "sio/common.h"
+#include "sio/base.h"
 
 namespace sio {
 

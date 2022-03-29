@@ -3,7 +3,7 @@
 
 #include "gtest/gtest.h"
 
-#include "sio/common.h"
+#include "sio/base.h"
 
 TEST(dbg_macro, Basic) {
     using namespace sio;

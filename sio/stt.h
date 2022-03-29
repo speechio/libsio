@@ -1,7 +1,7 @@
 #ifndef SIO_STT_H
 #define SIO_STT_H
 
-#include "sio/common.h"
+#include "sio/base.h"
 #include "sio/linked_list.h"
 #include "sio/allocator.h"
 #include "sio/json.h"

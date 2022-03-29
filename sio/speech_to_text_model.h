@@ -5,7 +5,7 @@
 
 #include <torch/script.h>
 
-#include "sio/common.h"
+#include "sio/base.h"
 #include "sio/mean_var_norm.h"
 #include "sio/tokenizer.h"
 #include "sio/finite_state_machine.h"
