@@ -22,8 +22,7 @@ public:
     using State = lm::ngram::State;
     using WordId = lm::WordIndex;
 
-    // this provides a fast hash function to upper level fst wrapper class,
-    // to maintain the mapping between underlying lm states and fst state indexes
+    // This provides a fast hash function for upper-level stateful LM caches
     struct StateHasher {
         inline size_t operator()(const State &s) const noexcept {
             return util::MurmurHashNative(s.words, sizeof(WordId) * s.Length());
@@ -38,8 +37,8 @@ private:
     // 2. KenLM's word indexes, determined by word string hashing.
     // Decoder needs to keep coherence between these two systems during decoding.
     //
-    // Offline resource modifications would be best for runtime performance,
-    // but complexity is added to offline processing pipeline and maintenence.
+    // Adapting models to each other via offline processing would be best for runtime performance,
+    // however these asset-level processing is notorious for later maintenance.
     // So here we choose to leverage a runtime mapping from token id -> word id.
     Vec<WordId> token_to_word_;
 
