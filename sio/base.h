@@ -1,5 +1,5 @@
-#ifndef SIO_COMMON_H
-#define SIO_COMMON_H
+#ifndef SIO_BASE_H
+#define SIO_BASE_H
 
 #include "sio/macro.h"
 #include "sio/type.h"
