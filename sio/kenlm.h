@@ -11,7 +11,7 @@
 namespace sio {
 
 /*
- * Wrapper class for KenLm model, the underlying model structure can be either "trie" or "probing".
+ * Wrapper class for KenLM model, the underlying model structure can be either "trie" or "probing".
  * Main purposes:
  *  1. loads & holds kenlm model resources (with ownership)
  *  2. handles the index mapping between tokenizer & kenlm vocab
@@ -33,8 +33,14 @@ public:
 private:
     Unique<lm::base::Model*> model_;
 
-    // KenLM has internal word indexing system,
-    // need an index mapping from external tokens to kenlm word indexes
+    // There are actually two indexing systems:
+    // 1. tokenizer's token indexes, determined by tokenizer training pipeline.
+    // 2. KenLM's word indexes, determined by word string hashing.
+    // Decoder needs to keep coherence between these two systems during decoding.
+    //
+    // Offline resource modifications would be best for runtime performance,
+    // but complexity is added to offline processing pipeline and maintenence.
+    // So here we choose to leverage a runtime mapping from token id -> word id.
     Vec<WordId> token_to_word_;
 
 public:
