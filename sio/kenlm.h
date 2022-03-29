@@ -59,12 +59,11 @@ public:
         const lm::base::Vocabulary& vocab = model_->BaseVocabulary();
 
         SIO_CHECK(token_to_word_.empty());
-        WordId unk = vocab.Index(tokenizer.Token(tokenizer.unk).c_str());
-        SIO_CHECK_EQ(unk, 0); // <unk> is always indexed as 0 in KenLM
-        token_to_word_.resize(
-            tokenizer.Size(),
-            unk
-        );  // mapping all tokens to unk as initialization
+        SIO_CHECK_EQ(vocab.Index(tokenizer.Token(tokenizer.unk).c_str()), 0); // In KenLM, <unk> always -> 0
+        // provide a full coverage mapping from tokenizer's tokens,
+        // initialized with unk, so unseen tokens from KenLM(e.g. blank) 
+        // will end up mapped to unk
+        token_to_word_.resize(tokenizer.Size(), 0);
 
         for (const auto& kv : tokenizer.index_to_token) {
             TokenId t = kv.first;
