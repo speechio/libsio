@@ -7,10 +7,10 @@ namespace sio {
 
 TEST(KenLM, Basic) {
     Tokenizer tokenizer;
-    tokenizer.Load("../exp/stt_zh/tokenizer.vocab");
+    tokenizer.Load("testdata/model/tokenizer.vocab");
 
     KenLM lm;
-    lm.Load("../exp/lm/lm.trie", tokenizer);
+    lm.Load("testdata/model/lm.trie", tokenizer);
 
     std::ifstream is("testdata/sentences.txt");
 
