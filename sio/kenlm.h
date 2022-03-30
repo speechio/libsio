@@ -15,7 +15,8 @@ namespace sio {
  * Main purposes:
  *  1. loads & holds kenlm model resources (with ownership)
  *  2. handles the index mapping between tokenizer & kenlm vocab
- *  3. provides a stateless ngram query engine, can be shared by multiple threads
+ *  3. KenLM yields log10 score, whereas ASR decoder normally uses natural log, a conversion is need.
+ *  4. provides a stateless ngram query engine, can be shared by multiple threads
  */
 class KenLM {
 public:
@@ -104,7 +105,8 @@ public:
 
 
     inline f32 Score(const State* istate, WordId word, State* ostate) const {
-        return model_->BaseScore(istate, word, ostate);
+        // convert score from log10 -> ln base
+        return SIO_LN10 * model_->BaseScore(istate, word, ostate);
     }
 
 }; // class KenLM

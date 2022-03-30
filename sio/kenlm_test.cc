@@ -25,8 +25,8 @@ TEST(KenLM, Basic) {
 
         lm.SetStateToNull(istate);
         for (const auto& w : words) {
-            f32 log10_score = lm.Score(istate, lm.GetWordIndex(w), ostate);
-            log += " " + w + "[" + std::to_string(lm.GetWordIndex(w)) + "]=" + std::to_string(log10_score * SIO_LN10);
+            f32 score = lm.Score(istate, lm.GetWordIndex(w), ostate);
+            log += " " + w + "[" + std::to_string(lm.GetWordIndex(w)) + "]=" + std::to_string(score);
             std::swap(istate, ostate);
         }
         SIO_INFO << log;
