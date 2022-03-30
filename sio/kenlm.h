@@ -31,8 +31,6 @@ public:
     };
 
 private:
-    Unique<lm::base::Model*> model_;
-
     // There are actually two indexing systems:
     // 1. tokenizer's token indexes, determined by tokenizer training pipeline.
     // 2. KenLM's word indexes, determined by word string hashing.
@@ -42,6 +40,7 @@ private:
     // however asset-level processing is notorious for later maintenance.
     // So here we choose to leverage a runtime mapping from token id -> word id.
     Vec<WordId> token_to_word_;
+    Unique<lm::base::Model*> model_;
 
 public:
     Error Load(
