@@ -103,7 +103,7 @@ public:
     void SetStateToNull(State *s) const { model_->NullContextWrite(s); }
 
 
-    inline f32 Score(const State* istate, WordId word, State* ostate) const {
+    inline f32 GetScore(const State* istate, WordId word, State* ostate) const {
         // log10 -> ln conversion
         return SIO_LN10 * model_->BaseScore(istate, word, ostate);
     }
