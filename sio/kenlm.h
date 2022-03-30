@@ -105,7 +105,7 @@ public:
 
 
     inline f32 Score(const State* istate, WordId word, State* ostate) const {
-        // convert score from log10 -> ln base
+        // log10 -> ln conversion
         return SIO_LN10 * model_->BaseScore(istate, word, ostate);
     }
 
