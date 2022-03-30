@@ -22,6 +22,11 @@ constexpr const char* Basename(const char* fname, int offset) {
 #define SIO_LINE_REPR  __LINE__
 #define SIO_FUNC_REPR  __func__
 
+
+// https://github.com/kaldi-asr/kaldi/blob/dd107fd594ac58af962031c1689abfdc10f84452/src/base/kaldi-math.h#L67
+// M_LN10
+#define SIO_LN10 2.302585092994045684017991454684
+
 } // namespace sio
 
 #endif
