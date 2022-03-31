@@ -2,10 +2,11 @@
 #define SIO_LANGUAGE_MODEL_IMPL_H
 
 #include "sio/tokenizer.h"
+#include "sio/kenlm.h"
 
 namespace sio {
 
-class PrefixTreeLM : public LanguageModel {
+class PrefixTreeLm : public LanguageModel {
 public:
     LmStateId NullState() const override {
         return 0;
@@ -26,6 +27,17 @@ public:
     }
 
 }; // class PrefixLM
+
+
+class NgramLm : public LanguageModel {
+    using State = KenLm::State;
+
+    const KenLm *lm_ = nullptr;
+    //Map<State, LmStateId
+
+public:
+
+}; // class LanguageModel
 
 }  // namespace sio
 #endif

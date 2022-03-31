@@ -5,11 +5,11 @@
 
 namespace sio {
 
-TEST(KenLM, Basic) {
+TEST(KenLm, Basic) {
     Tokenizer tokenizer;
     tokenizer.Load("testdata/model/tokenizer.vocab");
 
-    KenLM lm;
+    KenLm lm;
     lm.Load("testdata/model/lm.trie", tokenizer);
 
     std::ifstream test_cases("testdata/sentences.txt");
@@ -17,11 +17,11 @@ TEST(KenLM, Basic) {
     Str sentence;
     while(std::getline(test_cases, sentence)) {
         Vec<Str> words = absl::StrSplit(sentence, " ");
-        Str log = "[KenLM]";
+        Str log = "[KenLm]";
         
-        KenLM::State state[2];
-        KenLM::State* is = &state[0];
-        KenLM::State* os = &state[1];
+        KenLm::State state[2];
+        KenLm::State* is = &state[0];
+        KenLm::State* os = &state[1];
 
         lm.SetStateToNull(is);
         for (const auto& w : words) {

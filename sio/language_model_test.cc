@@ -4,12 +4,12 @@
 
 namespace sio {
 
-TEST(LanguageModel, PrefixLM) {
+TEST(LanguageModel, PrefixTreeLm) {
     Tokenizer tokenizer;
     tokenizer.Load("testdata/tokenizer.vocab");
     //dbg(tokenizer.index_to_token);
 
-    PrefixTreeLM prefix_lm;
+    PrefixTreeLm prefix_lm;
     LanguageModel* lm = &prefix_lm;
 
     LmStateId null_state = lm->NullState();
