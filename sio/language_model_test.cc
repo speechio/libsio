@@ -15,22 +15,81 @@ TEST(LanguageModel, PrefixTreeLm) {
     LmStateId null_state = lm->NullState();
     EXPECT_EQ(null_state, 0); // null state is index as 0
 
-    LmScore s;
-
     LmStateId bos_state;
-    lm->GetScore(null_state, tokenizer.Index("<s>"), &s, &bos_state);
+    lm->GetScore(null_state, tokenizer.Index("<s>"), &bos_state);
 
     LmStateId a;
-    lm->GetScore(bos_state, tokenizer.Index("a"), &s, &a);
+    lm->GetScore(bos_state, tokenizer.Index("a"), &a);
 
     LmStateId aa;
-    lm->GetScore(a, tokenizer.Index("a"), &s, &aa);
+    lm->GetScore(a, tokenizer.Index("a"), &aa);
 
     LmStateId ab;
-    lm->GetScore(a, tokenizer.Index("b"), &s, &ab);
+    lm->GetScore(a, tokenizer.Index("b"), &ab);
 
     LmStateId ab_eos;
-    lm->GetScore(ab, tokenizer.Index("</s>"), &s, &ab_eos);
+    lm->GetScore(ab, tokenizer.Index("</s>"), &ab_eos);
+}
+
+
+TEST(KenLm, Basic) {
+    Tokenizer tokenizer;
+    tokenizer.Load("testdata/model/tokenizer.vocab");
+
+    KenLm lm;
+    lm.Load("testdata/model/lm.trie", tokenizer);
+
+    std::ifstream test_cases("testdata/sentences.txt");
+
+    Str sentence;
+    while(std::getline(test_cases, sentence)) {
+        Vec<Str> words = absl::StrSplit(sentence, " ");
+        Str log = "[KenLm]";
+        
+        KenLm::State state[2];
+        KenLm::State* is = &state[0];
+        KenLm::State* os = &state[1];
+
+        lm.SetStateToNull(is);
+        for (const auto& w : words) {
+            f32 score = lm.Score(is, lm.GetWordIndex(w), os);
+            log += " " + w + "[" + std::to_string(lm.GetWordIndex(w)) + "]=" + std::to_string(score);
+            std::swap(is, os);
+        }
+        SIO_INFO << log;
+    }
+}
+
+
+TEST(NgramLm, Basic) {
+    Tokenizer tokenizer;
+    tokenizer.Load("testdata/model/tokenizer.vocab");
+
+    KenLm kenlm;
+    kenlm.Load("testdata/model/lm.trie", tokenizer);
+
+    NgramLm lm;
+    lm.Load(kenlm);
+
+    std::ifstream test_cases("testdata/sentences.txt");
+
+    Str sentence;
+    while(std::getline(test_cases, sentence)) {
+        Vec<Str> words = absl::StrSplit(sentence, " ");
+        Str log = "[NgramLm]";
+        
+        LmStateId state[2];
+        LmStateId* is = &state[0];
+        LmStateId* os = &state[1];
+
+        *is = lm.NullState();
+        for (const auto& w : words) {
+            f32 score = lm.GetScore(*is, tokenizer.Index(w), os);
+            log += " " + w + "[" + std::to_string(tokenizer.Index(w)) + "]=" + std::to_string(score);
+            std::swap(is, os);
+        }
+        SIO_INFO << log;
+    }
 }
 
 } // namespace sio

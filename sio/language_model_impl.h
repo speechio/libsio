@@ -12,30 +12,78 @@ public:
         return 0;
     }
 
-    bool GetScore(LmStateId src_state, LmWordId word, LmScore* score, LmStateId* dst_state) override {
+    LmScore GetScore(LmStateId src, LmWordId word, LmStateId* dst) override {
         // prime are picked from Kaldi's VectorHasher:
         //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
         // choose unsigned, because uint has well-defined warp-around behavior by C standard
         constexpr u32 prime = 7853;
-        u32 src = (u32)src_state;
-        u32 dst = src * prime + (u32)word; // incremental sequence hashing
+        *dst = static_cast<LmStateId>((u32)src * prime + (u32)word);
 
-        *score = 0.0;
-        *dst_state = (LmStateId)dst;
-
-        return true;
+        return 0.0;
     }
 
 }; // class PrefixLM
 
 
+/*
+ * NgramLm severs as state manager for KenLM model,
+ * underlying KenLm model can be shared across multiple NgramLm instances or threads.
+ */
 class NgramLm : public LanguageModel {
-    using State = KenLm::State;
+    // KenLm states are stored inside following hashmap.
+    // Note that the hashmap implementation must not reallocate,
+    // because that will invalidate all pointers in index vector.
+    // std::unordered_map use linked list, which is OK.
+    Map<KenLm::State, LmStateId, KenLm::StateHasher> state_to_index_;
+    Vec<const KenLm::State*> index_to_state_;
 
     const KenLm *lm_ = nullptr;
-    //Map<State, LmStateId
 
 public:
+
+    Error Load(const KenLm& kenlm) {
+        SIO_CHECK(lm_ == nullptr);
+        lm_ = &kenlm;
+
+        KenLm::State state;
+        lm_->SetStateToNull(&state);
+
+        SIO_CHECK(state_to_index_.empty());
+        // insert returns: std::pair<std::pair<KenLm::State, LmStateId>::iterator, bool>
+        auto res = state_to_index_.insert({state, 0});
+        SIO_CHECK(res.second == true);
+
+        SIO_CHECK(index_to_state_.empty());
+        index_to_state_.push_back(&(res.first->first));
+
+        return Error::OK;
+    }
+
+
+    LmStateId NullState() const override {
+        return 0;
+    }
+
+
+    LmScore GetScore(LmStateId src, LmWordId word, LmStateId* dst) override {
+        //SIO_CHECK_LT(src, static_cast<LmStateId>(index_to_state_.size()));
+
+        KenLm::State dst_state;
+        LmScore score = lm_->Score(
+            index_to_state_[src], 
+            lm_->GetWordIndex(word),
+            &dst_state
+        );
+
+        // insert returns: std::pair<std::pair<KenLm::State, LmStateId>::iterator, bool>
+        auto res = state_to_index_.insert({dst_state, index_to_state_.size()});
+        if (res.second == true) {
+            index_to_state_.push_back(&(res.first->first));
+        }
+        *dst = res.first->second;
+
+        return score;
+    }
 
 }; // class LanguageModel
 

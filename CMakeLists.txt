@@ -146,7 +146,6 @@ add_executable(unittest
     ${SIO_ROOT}/struct_loader_test.cc
     ${SIO_ROOT}/finite_state_machine_test.cc
     ${SIO_ROOT}/language_model_test.cc
-    ${SIO_ROOT}/kenlm_test.cc
 )
 target_link_libraries(unittest
     gtest_main

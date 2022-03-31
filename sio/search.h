@@ -358,11 +358,9 @@ private:
             } else {  /* word-end arc */
                 for (int i = 0; i != lms_.size(); i++) {
                     LanguageModel* lm = lms_[i].get();
+
                     LmScore& lm_score = nt.trace_back.lm_scores[i];
-
-                    bool found = lm->GetScore(t->lm_states[i], arc.olabel, &lm_score, &nt.lm_states[i]);
-                    SIO_CHECK(found == true);
-
+                    lm_score = lm->GetScore(t->lm_states[i], arc.olabel, &nt.lm_states[i]);
                     nt.total_score += lm_score;
                 }
                 nt.total_score -= config_.insertion_penalty;
@@ -461,10 +459,7 @@ private:
         for (int i = 0; i != lms_.size(); i++) {
             LanguageModel* lm = lms_[i].get();
 
-            LmScore bos_score = 0.0;
-            bool found = lm->GetScore(lm->NullState(), tokenizer_->bos, &bos_score, &t->lm_states[i]);
-            SIO_CHECK(found == true);
-
+            LmScore bos_score = lm->GetScore(lm->NullState(), tokenizer_->bos, &t->lm_states[i]);
             t->total_score += bos_score;
         }
 
