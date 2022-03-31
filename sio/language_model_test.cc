@@ -32,7 +32,7 @@ TEST(LanguageModel, PrefixTreeLm) {
 }
 
 
-TEST(KenLm, Basic) {
+TEST(LanguageModel, KenLm) {
     Tokenizer tokenizer;
     tokenizer.Load("testdata/model/tokenizer.vocab");
 
@@ -61,7 +61,7 @@ TEST(KenLm, Basic) {
 }
 
 
-TEST(NgramLm, Basic) {
+TEST(LanguageModel, NgramLm) {
     Tokenizer tokenizer;
     tokenizer.Load("testdata/model/tokenizer.vocab");
 

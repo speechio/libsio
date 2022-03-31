@@ -26,18 +26,19 @@ public:
 
 
 /*
- * NgramLm severs as state manager for KenLM model,
- * underlying KenLm model can be shared across multiple NgramLm instances or threads.
+ * NgramLm severs as a state manager for KenLm model.
+ *   1. KenLm model is stateless so it can be shared by multiple NgramLm instances.
+ *   2. NgramLm instance is stateful so it cannot be shared by multiple threads.
  */
 class NgramLm : public LanguageModel {
     // KenLm states are stored inside following hashmap.
     // Note that the hashmap implementation must not reallocate,
-    // because that will invalidate all pointers in index vector.
-    // std::unordered_map use linked list, which is OK.
+    // because that will invalidate all pointers in following indexing vector.
+    // std::unordered_map uses linked list, which is OK, Google's swiss table is not.
     Map<KenLm::State, LmStateId, KenLm::StateHasher> state_to_index_;
     Vec<const KenLm::State*> index_to_state_;
 
-    const KenLm *lm_ = nullptr;
+    const KenLm* lm_ = nullptr;
 
 public:
 
