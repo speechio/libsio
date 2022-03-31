@@ -78,7 +78,7 @@ public:
 
         // insert returns: std::pair<std::pair<KenLm::State, LmStateId>::iterator, bool>
         auto res = state_to_index_.insert({dst_state, index_to_state_.size()});
-        if (res.second == true) {
+        if (res.second) { // new elem inserted to the map
             index_to_state_.push_back(&(res.first->first));
         }
         *dst = res.first->second;
