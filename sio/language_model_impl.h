@@ -22,7 +22,7 @@ public:
         return 0.0;
     }
 
-}; // class PrefixLM
+}; // class PrefixTreeLm
 
 
 /*
@@ -86,7 +86,66 @@ public:
         return score;
     }
 
-}; // class LanguageModel
+}; // class NgramLm
+
+
+class ScaleCacheLm : public LanguageModel {
+    struct CacheK {
+        LmStateId src = 0;
+        LmWordId word;
+    }; 
+
+    struct CacheV {
+        LmScore score;
+        LmStateId dst;
+    };
+
+    using CacheItem = std::pair<CacheK, CacheV>;
+
+    LanguageModel* lm_ = nullptr;
+    f32 scale_ = 1.0;
+    Vec<CacheItem> cache_items_;
+
+public:
+
+    Error Load(LanguageModel& lm, f32 scale = 1.0, size_t cache_size = 100000) {
+        lm_ = &lm;
+        scale_ = scale;
+        cache_items_.resize(cache_size);
+
+        return Error::OK;
+    }
+
+
+    LmStateId NullState() const override {
+        return 0;
+    }
+
+
+    LmScore GetScore(LmStateId src, LmWordId word, LmStateId* dst) override {
+        CacheItem& item = cache_items_[GetIndex(src, word)];
+        CacheK& k = item.first;
+        CacheV& v = item.second;
+
+        if (k.src != src || k.word != word) { // cache miss
+            k.src = src;
+            k.word = word;
+
+            v.score = scale_ * lm_->GetScore(src, word, &v.dst);
+        }
+
+        *dst = v.dst;
+        return v.score;
+    }
+
+private:
+
+    inline size_t GetIndex(LmStateId src, LmWordId word) {
+        constexpr LmStateId p1 = 26597, p2 = 50329;
+        return static_cast<size_t>(src * p1 + word * p2) % static_cast<size_t>(cache_items_.size());
+    }
+
+}; // class ScaleCacheLm
 
 }  // namespace sio
 #endif

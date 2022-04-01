@@ -39,10 +39,10 @@ TEST(LanguageModel, KenLm) {
     KenLm lm;
     lm.Load("testdata/model/lm.trie", tokenizer);
 
-    std::ifstream test_cases("testdata/sentences.txt");
+    std::ifstream sentences("testdata/sentences.txt");
 
     Str sentence;
-    while(std::getline(test_cases, sentence)) {
+    while(std::getline(sentences, sentence)) {
         Vec<Str> words = absl::StrSplit(sentence, " ");
         Str log = "[KenLm]";
         
@@ -68,13 +68,16 @@ TEST(LanguageModel, NgramLm) {
     KenLm kenlm;
     kenlm.Load("testdata/model/lm.trie", tokenizer);
 
-    NgramLm lm;
-    lm.Load(kenlm);
+    NgramLm ngram;
+    ngram.Load(kenlm);
 
-    std::ifstream test_cases("testdata/sentences.txt");
+    ScaleCacheLm lm;
+    lm.Load(ngram, 1.0);
+
+    std::ifstream sentences("testdata/sentences.txt");
 
     Str sentence;
-    while(std::getline(test_cases, sentence)) {
+    while(std::getline(sentences, sentence)) {
         Vec<Str> words = absl::StrSplit(sentence, " ");
         Str log = "[NgramLm]";
         
