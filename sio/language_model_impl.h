@@ -100,11 +100,11 @@ class ScaleCacheLm : public LanguageModel {
         LmStateId dst;
     };
 
-    using CacheItem = std::pair<CacheK, CacheV>;
+    using Cache = std::pair<CacheK, CacheV>;
 
     LanguageModel* lm_ = nullptr;
     f32 scale_ = 1.0;
-    Vec<CacheItem> cache_items_;
+    Vec<Cache> caches_;
 
 public:
 
@@ -116,8 +116,8 @@ public:
 
         scale_ = scale;
 
-        SIO_CHECK(cache_items_.empty());
-        cache_items_.resize(cache_size);
+        SIO_CHECK(caches_.empty());
+        caches_.resize(cache_size);
 
         return Error::OK;
     }
@@ -129,9 +129,9 @@ public:
 
 
     LmScore GetScore(LmStateId src, LmWordId word, LmStateId* dst) override {
-        CacheItem& item = cache_items_[GetCacheIndex(src, word)];
-        CacheK& k = item.first;
-        CacheV& v = item.second;
+        Cache& cache = caches_[GetCacheIndex(src, word)];
+        CacheK& k = cache.first;
+        CacheV& v = cache.second;
 
         if (k.src != src || k.word != word) { // cache miss
             k.src = src;
@@ -148,7 +148,7 @@ private:
 
     inline size_t GetCacheIndex(LmStateId src, LmWordId word) {
         constexpr LmStateId p1 = 26597, p2 = 50329;
-        return static_cast<size_t>(src * p1 + word * p2) % cache_items_.size();
+        return static_cast<size_t>(src * p1 + word * p2) % caches_.size();
     }
 
 }; // class ScaleCacheLm
