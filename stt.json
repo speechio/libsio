@@ -11,7 +11,7 @@
         "vocab": "model/tokenizer.vocab",
         "model": "model/tokenizer.model"
     },
-    "nnet": "model/final.ts",
+    "nnet": "model/final.pts",
     "graph": "",
     "context": "model/context.json",
     "end_pointing": false,
