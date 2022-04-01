@@ -109,8 +109,14 @@ class ScaleCacheLm : public LanguageModel {
 public:
 
     Error Load(LanguageModel& lm, f32 scale = 1.0, size_t cache_size = 100000) {
+        SIO_CHECK_GT(cache_size, 0);
+
+        SIO_CHECK(lm_ == nullptr);
         lm_ = &lm;
+
         scale_ = scale;
+
+        SIO_CHECK(cache_items_.empty());
         cache_items_.resize(cache_size);
 
         return Error::OK;
@@ -142,8 +148,7 @@ private:
 
     inline size_t GetCacheIndex(LmStateId src, LmWordId word) {
         constexpr LmStateId p1 = 26597, p2 = 50329;
-        return static_cast<size_t>(src * p1 + word * p2) %
-               static_cast<size_t>(cache_items_.size());
+        return static_cast<size_t>(src * p1 + word * p2) % cache_items_.size();
     }
 
 }; // class ScaleCacheLm
