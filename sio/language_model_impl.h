@@ -123,7 +123,7 @@ public:
 
 
     LmScore GetScore(LmStateId src, LmWordId word, LmStateId* dst) override {
-        CacheItem& item = cache_items_[GetIndex(src, word)];
+        CacheItem& item = cache_items_[GetCacheIndex(src, word)];
         CacheK& k = item.first;
         CacheV& v = item.second;
 
@@ -140,7 +140,7 @@ public:
 
 private:
 
-    inline size_t GetIndex(LmStateId src, LmWordId word) {
+    inline size_t GetCacheIndex(LmStateId src, LmWordId word) {
         constexpr LmStateId p1 = 26597, p2 = 50329;
         return static_cast<size_t>(src * p1 + word * p2) %
                static_cast<size_t>(cache_items_.size());
