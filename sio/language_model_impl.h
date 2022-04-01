@@ -91,7 +91,7 @@ public:
 
 class ScaleCacheLm : public LanguageModel {
     struct CacheK {
-        LmStateId src = 0;
+        LmStateId src = -1; // -1 won't collide with any valid LmStateId
         LmWordId word;
     }; 
 
@@ -142,7 +142,8 @@ private:
 
     inline size_t GetIndex(LmStateId src, LmWordId word) {
         constexpr LmStateId p1 = 26597, p2 = 50329;
-        return static_cast<size_t>(src * p1 + word * p2) % static_cast<size_t>(cache_items_.size());
+        return static_cast<size_t>(src * p1 + word * p2) %
+               static_cast<size_t>(cache_items_.size());
     }
 
 }; // class ScaleCacheLm
