@@ -12,12 +12,12 @@ public:
         return 0;
     }
 
-    LmScore GetScore(LmStateId src, LmWordId word, LmStateId* dst) override {
+    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate) override {
         // prime are picked from Kaldi's VectorHasher:
-        //   https://github.com/kaldi-asr/kaldi/blob/master/src/util/stl-utils.h#L230
+        //   https://github.com/kaldi-asr/kaldi/blob/master/istate/util/stl-utils.h#L230
         // choose unsigned, because uint has well-defined warp-around behavior by C standard
         constexpr u32 prime = 7853;
-        *dst = static_cast<LmStateId>((u32)src * prime + (u32)word);
+        *ostate = static_cast<LmStateId>((u32)istate * prime + (u32)word);
 
         return 0.0;
     }
@@ -38,16 +38,16 @@ class NgramLm : public LanguageModel {
     Map<KenLm::State, LmStateId, KenLm::StateHasher> state_to_index_;
     Vec<const KenLm::State*> index_to_state_;
 
-    const KenLm* lm_ = nullptr;
+    const KenLm* kenlm_ = nullptr;
 
 public:
 
     Error Load(const KenLm& kenlm) {
-        SIO_CHECK(lm_ == nullptr);
-        lm_ = &kenlm;
+        SIO_CHECK(kenlm_ == nullptr);
+        kenlm_ = &kenlm;
 
         KenLm::State state;
-        lm_->SetStateToNull(&state);
+        kenlm_->SetStateToNull(&state);
 
         SIO_CHECK(state_to_index_.empty());
         // insert returns: std::pair<std::pair<KenLm::State, LmStateId>::iterator, bool>
@@ -66,22 +66,23 @@ public:
     }
 
 
-    LmScore GetScore(LmStateId src, LmWordId word, LmStateId* dst) override {
-        //SIO_CHECK_LT(src, static_cast<LmStateId>(index_to_state_.size()));
+    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate) override {
+        //SIO_CHECK(ostate != nullptr);
 
-        KenLm::State dst_state;
-        LmScore score = lm_->Score(
-            index_to_state_[src], 
-            lm_->GetWordIndex(word),
-            &dst_state
+        const KenLm::State* kenlm_istate = index_to_state_[istate];
+        KenLm::State kenlm_ostate;
+        LmScore score = kenlm_->Score(
+            kenlm_istate,
+            kenlm_->GetWordIndex(word),
+            &kenlm_ostate
         );
 
         // insert returns: std::pair<std::pair<KenLm::State, LmStateId>::iterator, bool>
-        auto res = state_to_index_.insert({dst_state, index_to_state_.size()});
+        auto res = state_to_index_.insert({kenlm_ostate, index_to_state_.size()});
         if (res.second) { // new elem inserted to the map
             index_to_state_.push_back(&(res.first->first));
         }
-        *dst = res.first->second;
+        *ostate = res.first->second;
 
         return score;
     }
@@ -91,13 +92,13 @@ public:
 
 class ScaleCacheLm : public LanguageModel {
     struct CacheK {
-        LmStateId src = -1; // -1 won't collide with any valid LmStateId
+        LmStateId istate = -1; // -1 won't collide with any valid LmStateId
         LmWordId word;
-    }; 
+    };
 
     struct CacheV {
         LmScore score;
-        LmStateId dst;
+        LmStateId ostate;
     };
 
     using Cache = std::pair<CacheK, CacheV>;
@@ -128,27 +129,27 @@ public:
     }
 
 
-    LmScore GetScore(LmStateId src, LmWordId word, LmStateId* dst) override {
-        Cache& cache = caches_[GetCacheIndex(src, word)];
+    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate) override {
+        Cache& cache = caches_[GetCacheIndex(istate, word)];
         CacheK& k = cache.first;
         CacheV& v = cache.second;
 
-        if (k.src != src || k.word != word) { // cache miss
-            k.src = src;
+        if (k.istate != istate || k.word != word) { // cache miss
+            k.istate = istate;
             k.word = word;
 
-            v.score = scale_ * lm_->GetScore(src, word, &v.dst);
+            v.score = scale_ * lm_->GetScore(istate, word, &v.ostate);
         }
 
-        *dst = v.dst;
+        *ostate = v.ostate;
         return v.score;
     }
 
 private:
 
-    inline size_t GetCacheIndex(LmStateId src, LmWordId word) {
+    inline size_t GetCacheIndex(LmStateId istate, LmWordId word) {
         constexpr LmStateId p1 = 26597, p2 = 50329;
-        return static_cast<size_t>(src * p1 + word * p2) % caches_.size();
+        return static_cast<size_t>(istate * p1 + word * p2) % caches_.size();
     }
 
 }; // class ScaleCacheLm
