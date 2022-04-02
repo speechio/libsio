@@ -8,19 +8,17 @@
 namespace sio {
 
 using TokenId = i32;
-
 constexpr TokenId kNoTokenId = -1;
 
+class Tokenizer {
+    Map<TokenId, Str> index_to_token_; // TODO: consider vector implementation
+    Map<Str, TokenId> token_to_index_;
 
-struct Tokenizer {
-    Map<TokenId, Str> index_to_token;
-    Map<Str, TokenId> token_to_index;
-
+public:
     TokenId blk = kNoTokenId;
     TokenId unk = kNoTokenId;
     TokenId bos = kNoTokenId;
     TokenId eos = kNoTokenId;
-
 
     Error Load(const Str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
@@ -30,8 +28,8 @@ struct Tokenizer {
             Vec<Str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
             SIO_CHECK_EQ(cols.size(), 2); // token prob
             Str token = cols[0];
-            index_to_token[index] = token;
-            token_to_index[token] = index;
+            index_to_token_[index] = token;
+            token_to_index_[token] = index;
 
             if (token == "<blk>" || token == "<blank>" || token == "<pad>") {
                 blk = index;
@@ -48,8 +46,8 @@ struct Tokenizer {
         if (blk == kNoTokenId && unk != kNoTokenId) { blk = unk; }
         if (unk == kNoTokenId && blk != kNoTokenId) { unk = blk; }
 
-        //dbg(index_to_token);
-        //dbg(token_to_index);
+        //dbg(index_to_token_);
+        //dbg(token_to_index_);
 
         // Post-condition checks
         SIO_CHECK(blk != kNoTokenId);
@@ -62,17 +60,17 @@ struct Tokenizer {
 
 
     size_t Size() const {
-        return index_to_token.size();
+        return index_to_token_.size();
     }
 
 
     const Str& Token(TokenId t) const {
-        return index_to_token.at(t);
+        return index_to_token_.at(t);
     }
 
 
     TokenId Index(const Str& token) const {
-        return token_to_index.at(token);
+        return token_to_index_.at(token);
     }
 
 }; // class Tokenizer

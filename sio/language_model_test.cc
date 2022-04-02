@@ -7,7 +7,6 @@ namespace sio {
 TEST(LanguageModel, PrefixTreeLm) {
     Tokenizer tokenizer;
     tokenizer.Load("testdata/tokenizer.vocab");
-    //dbg(tokenizer.index_to_token);
 
     PrefixTreeLm prefix_lm;
     LanguageModel* lm = &prefix_lm;

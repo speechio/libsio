@@ -64,13 +64,11 @@ public:
         // will end up mapped to unk
         token_to_word_.resize(tokenizer.Size(), 0);
 
-        for (const auto& kv : tokenizer.index_to_token) {
-            TokenId t = kv.first;
-            const Str& token = kv.second;
-
+        for (TokenId t = 0; t != tokenizer.Size(); t++) {
+            const Str& token = tokenizer.Token(t);
             WordId w = vocab.Index(token.c_str());
 
-            // consistency check, normal tokens must present in KenLm's vocabulary.
+            // all normal tokens should be included in KenLm's vocabulary
             if (w == 0) { // token mapped to unk
                 if (token != "<unk>" && token == "<UNK>" &&
                     token != "<blk>" && token == "<blank>" && token == "<pad>" &&
