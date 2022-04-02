@@ -20,7 +20,7 @@ namespace sio {
 struct SpeechToTextModel {
     SpeechToTextConfig config;
 
-    Unique<MeanVarNorm*> mean_var_norm;
+    Unique<MeanVarNorm*> mean_var_norm; // need pointer here because MVN is optional
 
     Tokenizer tokenizer;
 
