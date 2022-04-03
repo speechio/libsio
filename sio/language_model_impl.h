@@ -46,12 +46,12 @@ public:
         SIO_CHECK(kenlm_ == nullptr);
         kenlm_ = &kenlm;
 
-        KenLm::State state;
-        kenlm_->SetStateToNull(&state);
+        KenLm::State null_state;
+        kenlm_->SetStateToNull(&null_state);
 
         SIO_CHECK(state_to_index_.empty());
         // insert returns: std::pair<std::pair<KenLm::State, LmStateId>::iterator, bool>
-        auto res = state_to_index_.insert({state, 0});
+        auto res = state_to_index_.insert({null_state, 0});
         SIO_CHECK(res.second == true);
 
         SIO_CHECK(index_to_state_.empty());
@@ -125,7 +125,7 @@ public:
 
 
     LmStateId NullState() const override {
-        return 0;
+        return lm_->NullState();
     }
 
 
