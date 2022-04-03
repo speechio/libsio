@@ -13,7 +13,7 @@ class LanguageModel {
 public:
     virtual LmStateId NullState() const = 0;
 
-    virtual LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate) = 0;
+    virtual LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) = 0;
 
     virtual ~LanguageModel() { }
 };

@@ -12,12 +12,12 @@ public:
         return 0;
     }
 
-    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate) override {
+    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
         // prime are picked from Kaldi's VectorHasher:
         //   https://github.com/kaldi-asr/kaldi/blob/master/istate/util/stl-utils.h#L230
         // choose unsigned, because uint has well-defined warp-around behavior by C standard
         constexpr u32 prime = 7853;
-        *ostate = static_cast<LmStateId>((u32)istate * prime + (u32)word);
+        *ostate_ptr = static_cast<LmStateId>((u32)istate * prime + (u32)word);
 
         return 0.0;
     }
@@ -66,8 +66,8 @@ public:
     }
 
 
-    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate) override {
-        //SIO_CHECK(ostate != nullptr);
+    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
+        //SIO_CHECK(ostate_ptr != nullptr);
 
         const KenLm::State* kenlm_istate = index_to_state_[istate];
         KenLm::State kenlm_ostate;
@@ -82,7 +82,7 @@ public:
         if (res.second) { // new elem inserted to the map
             index_to_state_.push_back(&(res.first->first));
         }
-        *ostate = res.first->second;
+        *ostate_ptr = res.first->second;
 
         return score;
     }
@@ -129,7 +129,7 @@ public:
     }
 
 
-    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate) override {
+    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
         Cache& cache = caches_[GetCacheIndex(istate, word)];
         CacheK& k = cache.first;
         CacheV& v = cache.second;
@@ -141,7 +141,7 @@ public:
             v.score = scale_ * lm_->GetScore(istate, word, &v.ostate);
         }
 
-        *ostate = v.ostate;
+        *ostate_ptr = v.ostate;
         return v.score;
     }
 
