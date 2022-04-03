@@ -1,12 +1,9 @@
 rm -f build/unittest
 rm -f build/stt
-rm -f build/torchscript
-#python torchscript.py
 
 cmake -S . -B build
 cmake --build build -j 40
+
 SIO_VERBOSITY=INFO build/unittest
 SIO_VERBOSITY=INFO build/stt
-
-#build/torchscript
 
