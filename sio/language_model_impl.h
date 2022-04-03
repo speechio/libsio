@@ -90,7 +90,7 @@ public:
 }; // class NgramLm
 
 
-class ScaleCacheLm : public LanguageModel {
+class CacheLm : public LanguageModel {
     struct CacheK {
         LmStateId istate = -1; // -1 won't collide with any valid LmStateId
         LmWordId word;
@@ -152,7 +152,7 @@ private:
         return static_cast<size_t>(istate * p1 + word * p2) % caches_.size();
     }
 
-}; // class ScaleCacheLm
+}; // class CacheLm
 
 }  // namespace sio
 #endif

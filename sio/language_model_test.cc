@@ -60,7 +60,7 @@ TEST(LanguageModel, KenLm) {
 }
 
 
-TEST(LanguageModel, NgramLm) {
+TEST(LanguageModel, CacheNgramLm) {
     Tokenizer tokenizer;
     tokenizer.Load("testdata/model/tokenizer.vocab");
 
@@ -70,7 +70,7 @@ TEST(LanguageModel, NgramLm) {
     NgramLm ngram;
     ngram.Load(kenlm);
 
-    ScaleCacheLm lm;
+    CacheLm lm;
     lm.Load(ngram, 1.0);
 
     std::ifstream sentences("testdata/sentences.txt");
