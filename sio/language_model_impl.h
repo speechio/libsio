@@ -28,7 +28,7 @@ public:
 /*
  * NgramLm severs as a state manager for KenLm model.
  *   1. KenLm model is stateless so it can be shared by multiple NgramLm instances.
- *   2. NgramLm instance is stateful so it cannot be shared by multiple threads.
+ *   2. NgramLm instance is stateful so it should not be shared by multiple decoding threads.
  */
 class NgramLm : public LanguageModel {
     // KenLm states are stored inside following hashmap.
