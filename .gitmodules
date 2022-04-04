@@ -1,0 +1,6 @@
+[submodule "deps/abseil-cpp"]
+	path = deps/abseil-cpp
+	url = https://github.com/abseil/abseil-cpp
+[submodule "deps/kenlm"]
+	path = deps/kenlm
+	url = https://github.com/kpu/kenlm
