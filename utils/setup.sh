@@ -4,8 +4,6 @@
 utils/setup_abseil.sh
 
 ## setup kaldi
-export KALDI_ROOT=/home/speechio/work/kaldi
-export MKL_ROOT=/opt/intel/mkl
 utils/setup_kaldi.sh
 
 ## setup libtorch

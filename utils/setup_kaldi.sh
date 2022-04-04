@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+export KALDI_ROOT=/home/speechio/work/kaldi
+export MKL_ROOT=/opt/intel/mkl
+
 if [ -z $KALDI_ROOT ]; then
     echo "KALDI_ROOT env variable is empty, please set it to your local kaldi repository."
     exit 1
