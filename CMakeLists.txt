@@ -164,7 +164,7 @@ add_executable(stt stt.cc)
 target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES} ${KENLM_LIBRARIES})
 
 
-# libtorch playground
-add_executable(torchscript torchscript.cc)
-target_link_libraries(torchscript ${TORCH_LIBRARIES})
+## libtorch playground
+#add_executable(torchscript torchscript.cc)
+#target_link_libraries(torchscript ${TORCH_LIBRARIES})
 
