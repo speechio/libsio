@@ -1,4 +1,4 @@
-# SpeechIO Operations
+# A lightweight & simple speech-to-text runtime framework
 
 ## Zen
 * Keep it simple. All softwares are fated to fight against complexity.
