@@ -1,4 +1,4 @@
 rm -f build/torchscript
-python torchscript.py
+python model.py
 build/torchscript
 
