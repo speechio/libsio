@@ -79,7 +79,8 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
 set(KENLM_ROOT "${CMAKE_SOURCE_DIR}/deps/kenlm")
 include_directories(${KENLM_ROOT})
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKENLM_MAX_ORDER=6")
-add_library(kenlm_util SHARED
+add_library(kenlm SHARED
+    # begin kenlm util module
     ${KENLM_ROOT}/util/double-conversion/bignum.cc
     ${KENLM_ROOT}/util/double-conversion/bignum-dtoa.cc
     ${KENLM_ROOT}/util/double-conversion/cached-powers.cc
@@ -104,8 +105,8 @@ add_library(kenlm_util SHARED
     ${KENLM_ROOT}/util/spaces.cc
     ${KENLM_ROOT}/util/string_piece.cc
     ${KENLM_ROOT}/util/usage.cc
-)
-add_library(kenlm_lm SHARED
+
+    # begin kenlm lm module
     ${KENLM_ROOT}/lm/bhiksha.cc
     ${KENLM_ROOT}/lm/binary_format.cc
     ${KENLM_ROOT}/lm/config.cc
@@ -122,10 +123,7 @@ add_library(kenlm_lm SHARED
     ${KENLM_ROOT}/lm/virtual_interface.cc
     ${KENLM_ROOT}/lm/vocab.cc
 )
-set(KENLM_LIBRARIES
-    kenlm_util
-    kenlm_lm
-)
+set(KENLM_LIBRARIES kenlm)
 
 
 # libsio
