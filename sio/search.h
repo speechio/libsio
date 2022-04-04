@@ -12,19 +12,6 @@
 
 namespace sio {
 
-/* 
- * Typical rescoring language models are:
- *   1. Lookahead-LM or Internal-LM subtractor
- *   2. Big-LM or External-LM
- *   3. Specific Domain-LM
- *   4. Hotfix-LM (sometimes also called hint, hot-word/hot-phrase)
- * These LMs are normally represented as *Deterministic Fsa*, 
- * so that shallow-fusion based contextual biasing can be applied 
- * via on-the-fly rescoring.
- */
-#define SIO_MAX_LM 5
-
-
 enum class SearchStatus : int {
     kUnconstructed,
     kIdle,
@@ -65,6 +52,19 @@ struct BeamSearchConfig {
         return Error::OK;
     }
 };
+
+
+/* 
+ * Typical rescoring language models are:
+ *   1. Lookahead-LM or Internal-LM subtractor
+ *   2. Big-LM or External-LM
+ *   3. Specific Domain-LM
+ *   4. Hotfix-LM (sometimes also called hint, hot-word/hot-phrase)
+ * These LMs are normally represented as *Deterministic Fsa*, 
+ * so that shallow-fusion based contextual biasing can be applied 
+ * via on-the-fly rescoring.
+ */
+#define SIO_MAX_LM 5
 
 
 /*
