@@ -16,12 +16,8 @@
 namespace sio {
 class SpeechToText {
     const Tokenizer* tokenizer_ = nullptr;
-
     FeatureExtractor feature_extractor_;
-
     Scorer scorer_;
-
-    GreedySearch greedy_search_;
     BeamSearch beam_search_;
 
 public:
@@ -66,16 +62,11 @@ public:
 
 
     Error Text(std::string* result) { 
-        for (const auto& token : greedy_search_.BestPath()) {
-            *result += tokenizer_->Token(token);
-        }
-
-        *result += "\t";
-
-        for (const auto& path : beam_search_.NBest()) {
-            for (const auto& token : path) {
-                *result += tokenizer_->Token(token);
+        for (const Vec<TokenId>& path : beam_search_.NBest()) {
+            for (const auto& t : path) {
+                *result += tokenizer_->Token(t);
             }
+            *result += "\t";
         }
 
         return Error::OK;
@@ -85,8 +76,6 @@ public:
     Error Reset() { 
         feature_extractor_.Reset();
         scorer_.Reset();
-
-        greedy_search_.Reset();
         beam_search_.Reset();
 
         return Error::OK; 
@@ -110,12 +99,9 @@ private:
         }
 
         while (scorer_.Size() > 0) {
-            auto score_frame = scorer_.Pop();
-            greedy_search_.Push(score_frame);
-            beam_search_.Push(score_frame);
+            beam_search_.Push(scorer_.Pop());
         }
         if (eos) {
-            greedy_search_.PushEos();
             beam_search_.PushEos();
         }
 

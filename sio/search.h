@@ -11,51 +11,26 @@
 #include "sio/language_model.h"
 
 namespace sio {
-class GreedySearch {
-    Vec<TokenId> best_tokens_;
-    Vec<f32> best_scores_;
-    Vec<TokenId> best_path_;
 
-public:
-    void Push(const torch::Tensor score) {
-        std::tuple<torch::Tensor, torch::Tensor> best = score.topk(1);
-
-        best_scores_.push_back(std::get<0>(best).item<f32>());
-        best_tokens_.push_back(std::get<1>(best).item<TokenId>());
-    }
-
-
-    void PushEos() {
-        // deduplication
-        Vec<TokenId> res1;
-        for (index_t i = 0; i < best_tokens_.size(); i++) {
-            if (res1.size() == 0 || best_tokens_[i] != res1.back()) {
-                res1.push_back( best_tokens_[i] );
-            }
-        }
-        // blank removal
-        Vec<TokenId> res2;
-        for (index_t i = 0; i < res1.size(); i++) {
-            if (res1[i] != 0) { // CAUTION: blank index is assumed to be 0 here(this may not be true)
-                res2.push_back(res1[i]);
-            }
-        }
-        best_path_ = std::move(res2);
-    }
+/* 
+ * Typical rescoring language models are:
+ *   1. Lookahead-LM or Internal-LM subtractor
+ *   2. Big-LM or External-LM
+ *   3. Specific Domain-LM
+ *   4. Hotfix-LM (sometimes also called hint, hot-word/hot-phrase)
+ * These LMs are normally represented as *Deterministic Fsa*, 
+ * so that shallow-fusion based contextual biasing can be applied 
+ * via on-the-fly rescoring.
+ */
+#define SIO_MAX_LM 5
 
 
-    void Reset() {
-        best_tokens_.clear();
-        best_scores_.clear();
-        best_path_.clear();
-    }
-
-
-    const Vec<TokenId>& BestPath() {
-        return best_path_;
-    }
-
-}; // class GreedySearch
+enum class SearchStatus : int {
+    kUnconstructed,
+    kIdle,
+    kBusy,
+    kDone,
+};
 
 
 struct BeamSearchConfig {
@@ -90,27 +65,6 @@ struct BeamSearchConfig {
         return Error::OK;
     }
 };
-
-
-enum class SearchStatus : int {
-    kUnconstructed,
-    kIdle,
-    kBusy,
-    kDone,
-};
-
-
-/* 
- * Typical rescoring language models are:
- *   1. Lookahead-LM or Internal-LM subtractor
- *   2. Big-LM or External-LM
- *   3. Specific Domain-LM
- *   4. Hotfix-LM (sometimes also called hint, hot-word/hot-phrase)
- * These LMs are normally represented as *Deterministic Fsa*, 
- * so that shallow-fusion based contextual biasing can be applied 
- * via on-the-fly rescoring.
- */
-#define SIO_MAX_LM 5
 
 
 /*
