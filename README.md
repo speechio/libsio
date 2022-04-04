@@ -1,4 +1,4 @@
-# A lightweight & simple speech-to-text runtime framework
+# libsio: A runtime framework for Speech Input/Output (stt & tts)
 
 ## Zen
 * Keep it simple. All softwares are fated to fight against complexity.
