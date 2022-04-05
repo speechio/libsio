@@ -49,7 +49,7 @@ struct SpeechToTextModel {
             SIO_INFO << "Loading decoding graph from: " << config.graph;
             std::ifstream is(config.graph, std::ios::binary);
             SIO_CHECK(is.good());
-            graph.LoadFromBinary(is);
+            graph.Load(is);
         } else {
             SIO_INFO << "Building decoding graph from: " << config.tokenizer_vocab;
             graph.BuildTokenTopology(tokenizer);

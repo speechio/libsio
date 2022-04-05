@@ -85,7 +85,7 @@ struct Fsm {
     }
 
 
-    Error LoadFromBinary(std::istream& is) {
+    Error Load(std::istream& is) {
         SIO_CHECK(Empty()); // Can't reload
         SIO_CHECK(is.good());
 
@@ -122,6 +122,44 @@ struct Fsm {
         ExpectToken(is, binary, "<Arcs>");
         this->arcs.resize(this->num_arcs);
         is.read(reinterpret_cast<char*>(this->arcs.data()), this->num_arcs * sizeof(FsmArc));
+
+        return Error::OK;
+    }
+
+
+    Error Dump(std::ostream& os) const {
+        SIO_CHECK(!Empty());
+        SIO_CHECK(os.good());
+
+        using kaldi::WriteToken;
+        using kaldi::WriteBasicType;
+
+        bool binary = true;
+
+        WriteToken(os, binary, "<Fsm>");
+
+        /*
+        TODO: version handling here
+        */
+
+        WriteToken(os, binary, "<NumStates>");
+        WriteBasicType(os, binary, this->num_states);
+
+        WriteToken(os, binary, "<NumArcs>");
+        WriteBasicType(os, binary, this->num_arcs);
+
+        WriteToken(os, binary, "<StartState>");
+        WriteBasicType(os, binary, this->start_state);
+
+        WriteToken(os, binary, "<FinalState>");
+        WriteBasicType(os, binary, this->final_state);
+
+        WriteToken(os, binary, "<States>");
+        auto num_states_plus_sentinel = this->num_states + 1;
+        os.write(reinterpret_cast<const char*>(this->states.data()), num_states_plus_sentinel * sizeof(FsmState));
+
+        WriteToken(os, binary, "<Arcs>");
+        os.write(reinterpret_cast<const char*>(this->arcs.data()), this->num_arcs * sizeof(FsmArc));
 
         return Error::OK;
     }
@@ -209,41 +247,20 @@ struct Fsm {
     }
 
 
-    Error Dump(std::ostream& os) const {
-        SIO_CHECK(!Empty());
-        SIO_CHECK(os.good());
+    void DumpToText(std::ostream& os) const {
+        os << this->num_states  << ","
+           << this->num_arcs    << "," 
+           << this->start_state << "," 
+           << this->final_state << "\n";
 
-        using kaldi::WriteToken;
-        using kaldi::WriteBasicType;
-
-        bool binary = true;
-
-        WriteToken(os, binary, "<Fsm>");
-
-        /*
-        TODO: version handling here
-        */
-
-        WriteToken(os, binary, "<NumStates>");
-        WriteBasicType(os, binary, this->num_states);
-
-        WriteToken(os, binary, "<NumArcs>");
-        WriteBasicType(os, binary, this->num_arcs);
-
-        WriteToken(os, binary, "<StartState>");
-        WriteBasicType(os, binary, this->start_state);
-
-        WriteToken(os, binary, "<FinalState>");
-        WriteBasicType(os, binary, this->final_state);
-
-        WriteToken(os, binary, "<States>");
-        auto num_states_plus_sentinel = this->num_states + 1;
-        os.write(reinterpret_cast<const char*>(this->states.data()), num_states_plus_sentinel * sizeof(FsmState));
-
-        WriteToken(os, binary, "<Arcs>");
-        os.write(reinterpret_cast<const char*>(this->arcs.data()), this->num_arcs * sizeof(FsmArc));
-
-        return Error::OK;
+        for (FsmStateId s = 0; s < this->num_states; s++) {
+            for (auto aiter = GetArcIterator(s); !aiter.Done(); aiter.Next()) {
+                const FsmArc& arc = aiter.Value();
+                os << arc.src << "\t"
+                   << arc.dst << "\t"
+                   << arc.ilabel << ":" << arc.olabel << "/" << arc.score << "\n";
+            }
+        }
     }
 
 
@@ -306,17 +323,6 @@ struct Fsm {
         }
 
         return Error::OK;
-    }
-
-
-    void Print() const {
-        printf("%d,%d,%d,%d\n", this->num_states, this->num_arcs, this->start_state, this->final_state);
-        for (FsmStateId s = 0; s < this->num_states; s++) {
-            for (auto aiter = GetArcIterator(s); !aiter.Done(); aiter.Next()) {
-                const FsmArc& arc = aiter.Value();
-                printf("%d\t%d\t%d:%d/%f\n", arc.src, arc.dst, arc.ilabel, arc.olabel, arc.score);
-            }
-        }
     }
 
 private:
