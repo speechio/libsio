@@ -1,5 +1,5 @@
-#ifndef SIO_DBG_H
-#define SIO_DBG_H
+#ifndef SIO_DBG_MACRO_H
+#define SIO_DBG_MACRO_H
 
 /*
   2021.12 Jiayu notes:
