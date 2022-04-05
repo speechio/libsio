@@ -1,8 +1,6 @@
-#include "sio/dbg.h"
+#include "sio/base.h"
 
 #include "gtest/gtest.h"
-
-#include "sio/base.h"
 
 TEST(dbg_macro, Basic) {
     using namespace sio;
