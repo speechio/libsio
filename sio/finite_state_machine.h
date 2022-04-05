@@ -16,6 +16,7 @@ using FsmArcId   = i32;
 using FsmLabel   = i32;
 using FsmScore   = f32;
 
+
 constexpr FsmLabel kFsmInputEnd = -1; // This follows K2Fsa convention
 constexpr FsmLabel kFsmEpsilon = std::numeric_limits<FsmLabel>::lowest();
 
@@ -31,14 +32,6 @@ struct FsmArc {
     FsmLabel ilabel = 0;
     FsmLabel olabel = 0;
     FsmScore score = 0.0f;
-
-    void Set(FsmStateId src, FsmStateId dst, FsmLabel ilabel, FsmLabel olabel, FsmScore score) {
-        this->src = src;
-        this->dst = dst;
-        this->ilabel = ilabel;
-        this->olabel = olabel;
-        this->score = score;
-    }
 };
 
 
@@ -328,9 +321,7 @@ struct Fsm {
 
 private:
     void AddArc(FsmStateId src, FsmStateId dst, FsmLabel ilabel, FsmLabel olabel, FsmScore score = 0.0) {
-        FsmArc arc;
-        arc.Set(src, dst, ilabel, olabel, score);
-        this->arcs.push_back(arc);
+        this->arcs.push_back({src, dst, ilabel, olabel, score});
     }
 
 }; // struct Fsm
