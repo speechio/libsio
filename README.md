@@ -1,10 +1,6 @@
 # libsio
 A runtime library for Speech Input (stt) & Output (tts)
 
-Status: 
-* Under heavy development, I won't suggest watching this repo because the commit notices might be annoying.
-* I haven't provide a good enough pretrained model yet for users to play with. Before releasing any working model, I would rather focus on core runtime functionalities first. You may read the code and compile it though.
-
 ### Speech To Text
 * unified CTC and WFST decoding via beam search
 * online(streaming) decoding
@@ -22,9 +18,6 @@ Status:
 ### Text To Speech
 Long term plan, won't happen soon.
 
-### Non Goal
-* GPU support
-
 ## Zen
 * Keep it simple. All softwares are fated to fight against complexity.
 * Keep it small. Codes are debts, less code means less interests to pay.
@@ -34,3 +27,8 @@ Long term plan, won't happen soon.
 
 ## License
 TBD
+
+### Status: 
+* Under heavy development, I won't suggest watching this repo because the commit notices might be annoying.
+* I haven't provide a good enough pretrained model yet for users to play with. Before releasing any working model, I would rather focus on core runtime functionalities first. You may read the code and compile it though.
+
