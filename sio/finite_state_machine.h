@@ -325,7 +325,7 @@ struct Fsm {
         return Error::OK;
     }
 
-private:
+
     void AddArc(FsmStateId src, FsmStateId dst, FsmLabel ilabel, FsmLabel olabel, FsmScore score = 0.0) {
         this->arcs.push_back({src, dst, ilabel, olabel, score});
     }
