@@ -1,7 +1,7 @@
 # libsio
 A runtime library for Speech Input (stt) & Output (tts)
 
-### Speech To Text
+## Speech To Text
 * unified CTC and WFST decoding via beam search
 * online(streaming) decoding
 * lattice-free on the fly rescoring with arbitrary language models, e.g.:
@@ -15,7 +15,7 @@ A runtime library for Speech Input (stt) & Output (tts)
 * streaming + lattice free -> low latency
 * modular design with potentials to deploy models from various speech toolkits such as Kaldi, K2, Espnet, SpeechBrain, WeNet.
 
-### Text To Speech
+## Text To Speech
 Long term plan, won't happen soon.
 
 ## Zen
@@ -28,7 +28,7 @@ Long term plan, won't happen soon.
 ## License
 TBD
 
-### Status: 
+## Status: 
 * Under heavy development, I won't suggest watching this repo because the commit notices might be annoying.
 * I haven't provide a good enough pretrained model yet for users to play with. Before releasing any working model, I would rather focus on core runtime functionalities first. You may read the code and compile it though.
 
