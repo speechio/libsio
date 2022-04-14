@@ -11,13 +11,13 @@
 namespace sio {
 
 /*
- * Wrapper class for KenLm model, the underlying model structure can be either "trie" or "probing".
- * Main purposes:
- *  1. loads & holds kenlm model resources (with ownership)
- *  2. handles the index mapping between tokenizer & kenlm vocab
- *  3. KenLm yields log10 score, whereas ASR decoder normally uses natural log, a conversion is need.
- *  4. provides a stateless ngram query engine, can be shared by multiple threads
- */
+** Wrapper class for KenLm model, the underlying model structure can be either "trie" or "probing".
+** Main purposes:
+**  1. loads & holds kenlm model resources (with ownership)
+**  2. handles the index mapping between tokenizer & kenlm vocab
+**  3. KenLm yields log10 score, whereas ASR decoder normally uses natural log, a conversion is need.
+**  4. provides a stateless ngram query engine, can be shared by multiple threads
+*/
 class KenLm {
 public:
     using State = lm::ngram::State;
@@ -34,12 +34,19 @@ private:
     // There are actually two indexing systems:
     // 1. tokenizer's token indexes, determined by tokenizer training pipeline.
     // 2. KenLm's word indexes, determined by word string hashing.
-    // Decoder needs to keep coherence between these two systems during decoding.
+    // Decoder needs to handle them coherently.
     //
-    // Adapting models to each other via offline processing would be best for runtime performance,
-    // however asset-level processing is notorious for later maintenance.
-    // So here we choose to leverage a runtime mapping from token id -> word id.
+    // Possible solutions:
+    // A: Adapt one index to the other via offline resource processing:
+    //   Pros: zero-cost for runtime performance
+    //   Cons: increased complexity of offline pipeline & resource maintenance
+    // B: Convert indexes between token id <-> word id on-the-fly during decoding
+    //   Pros: avoid extra offline processings and resources generation
+    //   Cons: index mapping has runtime overhead
+    //
+    // Decision: for sake of simplicity, choose solution B
     Vec<WordId> token_to_word_;
+
     Unique<lm::base::Model*> model_;
 
 public:
