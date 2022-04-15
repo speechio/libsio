@@ -161,8 +161,3 @@ gtest_discover_tests(unittest)
 add_executable(stt stt.cc)
 target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES} ${KENLM_LIBRARIES})
 
-
-# torchscript playground
-add_executable(torchscript torchscript_playground/main.cc)
-target_link_libraries(torchscript ${TORCH_LIBRARIES})
-
