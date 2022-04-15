@@ -9,7 +9,7 @@
 
 int main() {
     sio::SpeechToTextModel model;
-    model.Load("stt.json");
+    model.Load("model/stt.json");
 
     sio::SpeechToText stt;
     stt.Load(model);
