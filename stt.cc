@@ -27,21 +27,18 @@ int main() {
         sio::ReadAudio(audio, &samples, &sample_rate);
         assert(samples.size() != 0 && sample_rate == 16000.0);
 
+        std::string text;
         size_t offset = 0;
-        while (offset < samples.size()) {
+        while (offset < samples.size()) { // streaming via multiple Speech() calls
             size_t k = std::min(samples_per_chunk, samples.size() - offset);
             stt.Speech(&samples[offset], k, sample_rate);
             offset += k;
         }
-
         stt.To();
-
-        std::string text;
         stt.Text(&text);
+        stt.Reset();
 
         std::cout << ++ndone << "\t" << audio << "\t" << offset/sample_rate << "\t" << text << "\n";
-
-        stt.Reset();
     }
 
     return 0;

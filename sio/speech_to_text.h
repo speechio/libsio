@@ -61,12 +61,12 @@ public:
     }
 
 
-    Error Text(std::string* result) { 
+    Error Text(std::string* text) { 
         for (const Vec<TokenId>& path : beam_search_.NBest()) {
             for (const auto& t : path) {
-                *result += tokenizer_->Token(t);
+                *text += tokenizer_->Token(t);
             }
-            *result += "\t";
+            *text += "\t";
         }
 
         return Error::OK;
