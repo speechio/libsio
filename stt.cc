@@ -29,7 +29,7 @@ int main() {
 
         std::string text;
         size_t offset = 0;
-        while (offset < samples.size()) { // streaming via multiple Speech() calls
+        while (offset < samples.size()) { // streaming via successive Speech() calls
             size_t k = std::min(samples_per_chunk, samples.size() - offset);
             stt.Speech(&samples[offset], k, sample_rate);
             offset += k;
