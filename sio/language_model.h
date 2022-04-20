@@ -2,23 +2,53 @@
 #define SIO_LANGUAGE_MODEL_H
 
 #include "sio/base.h"
+#include "sio/language_model_itf.h"
+#include "sio/language_model_impl.h"
 
 namespace sio {
 
-using LmStateId = i32;
-using LmWordId = i32;
-using LmScore = f32;
-
+/*
+** main purposes of this class:
+**   expose polymorphism LM through value semantics rather than reference semantics
+*/
 class LanguageModel {
+    Unique<LanguageModelItf*> pimpl_;
+
 public:
-    virtual LmStateId NullState() const = 0;
 
-    virtual LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) = 0;
+    Error LoadPrefixTreeLm() {
+        SIO_CHECK(pimpl_ == nullptr);
 
-    virtual ~LanguageModel() { }
-};
+        pimpl_ = std::make_unique<PrefixTreeLm>();
+        return Error::OK;
+    }
+
+
+    Error LoadCachedNgramLm(const KenLm& kenlm, float scale = 1.0, size_t cache_size = 100000) {
+        SIO_CHECK(pimpl_ == nullptr);
+
+        Unique<NgramLm*> ngram_lm = std::make_unique<NgramLm>();
+        ngram_lm->Load(kenlm);
+
+        Unique<CachedLm*> cached_lm = std::make_unique<CachedLm>();
+        cached_lm->Load(std::move(ngram_lm), scale, cache_size); // ngram_lm sinks into cached_lm
+
+        pimpl_ = std::move(cached_lm);
+        return Error::OK;
+    }
+
+
+    LmStateId NullState() const {
+        SIO_CHECK(pimpl_ != nullptr);
+        return pimpl_->NullState();
+    }
+
+
+    inline LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) {
+        return pimpl_->GetScore(istate, word, ostate_ptr);
+    }
+
+}; // class LanguageModel
+
 } // namespace sio
-
-#include "sio/language_model_impl.h"
-
 #endif

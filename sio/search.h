@@ -136,7 +136,7 @@ class BeamSearch {
     BeamSearchConfig config_;
     const Fsm* graph_ = nullptr;
     const Tokenizer* tokenizer_ = nullptr;
-    Vec<Unique<LanguageModel*>> lms_;
+    Vec<LanguageModel> lms_;
 
     Str session_key_ = "default_session";
     SearchStatus status_ = SearchStatus::kUnconstructed;
@@ -177,7 +177,8 @@ public:
         tokenizer_ = &tokenizer;
 
         SIO_CHECK(lms_.empty());
-        lms_.push_back(std::make_unique<PrefixTreeLm>());
+        lms_.resize(1);
+        lms_[0].LoadPrefixTreeLm();
 
         status_ = SearchStatus::kIdle;
 
@@ -311,10 +312,10 @@ private:
                 memcpy(nt.lm_states, t->lm_states, sizeof(LmStateId) * lms_.size());
             } else {  /* word-end arc */
                 for (int i = 0; i != lms_.size(); i++) {
-                    LanguageModel* lm = lms_[i].get();
+                    LanguageModel& lm = lms_[i];
 
                     LmScore& lm_score = nt.trace_back.lm_scores[i];
-                    lm_score = lm->GetScore(t->lm_states[i], arc.olabel, &nt.lm_states[i]);
+                    lm_score = lm.GetScore(t->lm_states[i], arc.olabel, &nt.lm_states[i]);
                     nt.total_score += lm_score;
                 }
                 nt.total_score -= config_.insertion_penalty;
@@ -411,9 +412,9 @@ private:
         t->trace_back.arc.olabel = tokenizer_->bos;
 
         for (int i = 0; i != lms_.size(); i++) {
-            LanguageModel* lm = lms_[i].get();
+            LanguageModel& lm = lms_[i];
 
-            LmScore bos_score = lm->GetScore(lm->NullState(), tokenizer_->bos, &t->lm_states[i]);
+            LmScore bos_score = lm.GetScore(lm.NullState(), tokenizer_->bos, &t->lm_states[i]);
             t->total_score += bos_score;
         }
 

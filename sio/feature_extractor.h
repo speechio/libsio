@@ -28,10 +28,9 @@ struct FeatureExtractorConfig {
 class FeatureExtractor {
     const FeatureExtractorConfig* config_ = nullptr;
 
-    // need pointer here to support fbank, mfcc etc
-    Unique<kaldi::OnlineBaseFeature*> extractor_;
+    Unique<kaldi::OnlineBaseFeature*> pimpl_; // polymorphic base pointer for fbank, mfcc etc
 
-    Nullable<const MeanVarNorm*> mean_var_norm_ = nullptr;
+    Nullable<const MeanVarNorm*> mean_var_norm_ = nullptr; // MVN is optional
 
     // [0, cur_frame_) ~ popped frames
     // [cur_frame_, NumFramesReady()) ~ remainder frames.
@@ -43,8 +42,8 @@ public:
         SIO_CHECK_EQ(config.type, "fbank");
         config_ = &config;
 
-        SIO_CHECK(!extractor_);
-        extractor_ = std::make_unique<kaldi::OnlineFbank>(config.fbank);
+        SIO_CHECK(pimpl_ == nullptr);
+        pimpl_ = std::make_unique<kaldi::OnlineFbank>(config.fbank);
 
         mean_var_norm_ = mvn;
 
@@ -55,7 +54,7 @@ public:
 
 
     void Push(const f32* samples, size_t num_samples, f32 sample_rate) {
-        extractor_->AcceptWaveform(
+        pimpl_->AcceptWaveform(
             sample_rate, 
             kaldi::SubVector<f32>(samples, num_samples)
         );
@@ -63,7 +62,7 @@ public:
 
 
     void PushEos() {
-        extractor_->InputFinished();
+        pimpl_->InputFinished();
     }
 
 
@@ -73,7 +72,7 @@ public:
 
         // kaldi_frame is a helper frame view, no underlying data ownership
         kaldi::SubVector<f32> kaldi_frame(feat_frame.data(), feat_frame.size());
-        extractor_->GetFrame(cur_frame_, &kaldi_frame);
+        pimpl_->GetFrame(cur_frame_, &kaldi_frame);
         if (mean_var_norm_) {
             mean_var_norm_->Normalize(&kaldi_frame);
         }
@@ -85,8 +84,8 @@ public:
 
     Error Reset() {
         SIO_CHECK_EQ(config_->type, "fbank");
-        extractor_.reset();
-        extractor_ = std::make_unique<kaldi::OnlineFbank>(config_->fbank);
+        pimpl_.reset();
+        pimpl_ = std::make_unique<kaldi::OnlineFbank>(config_->fbank);
         cur_frame_ = 0;
 
         return Error::OK;
@@ -94,12 +93,12 @@ public:
 
 
     size_t Dim() const {
-        return extractor_->Dim();
+        return pimpl_->Dim();
     }
 
 
     size_t Size() const {
-        return extractor_->NumFramesReady() - cur_frame_;
+        return pimpl_->NumFramesReady() - cur_frame_;
     }
 
 

@@ -12,6 +12,8 @@
 #include "sio/tokenizer.h"
 #include "sio/scorer.h"
 #include "sio/finite_state_machine.h"
+#include "sio/language_model_itf.h"
+#include "sio/language_model_impl.h"
 #include "sio/language_model.h"
 #include "sio/kenlm.h"
 #include "sio/search.h"

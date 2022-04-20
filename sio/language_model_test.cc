@@ -8,26 +8,26 @@ TEST(LanguageModel, PrefixTreeLm) {
     Tokenizer tokenizer;
     tokenizer.Load("testdata/tokenizer.vocab");
 
-    PrefixTreeLm prefix_lm;
-    LanguageModel* lm = &prefix_lm;
+    LanguageModel lm;
+    lm.LoadPrefixTreeLm();
 
-    LmStateId null_state = lm->NullState();
+    LmStateId null_state = lm.NullState();
     EXPECT_EQ(null_state, 0); // null state is index as 0
 
     LmStateId bos_state;
-    lm->GetScore(null_state, tokenizer.Index("<s>"), &bos_state);
+    lm.GetScore(null_state, tokenizer.Index("<s>"), &bos_state);
 
     LmStateId a;
-    lm->GetScore(bos_state, tokenizer.Index("a"), &a);
+    lm.GetScore(bos_state, tokenizer.Index("a"), &a);
 
     LmStateId aa;
-    lm->GetScore(a, tokenizer.Index("a"), &aa);
+    lm.GetScore(a, tokenizer.Index("a"), &aa);
 
     LmStateId ab;
-    lm->GetScore(a, tokenizer.Index("b"), &ab);
+    lm.GetScore(a, tokenizer.Index("b"), &ab);
 
     LmStateId ab_eos;
-    lm->GetScore(ab, tokenizer.Index("</s>"), &ab_eos);
+    lm.GetScore(ab, tokenizer.Index("</s>"), &ab_eos);
 }
 
 
@@ -67,18 +67,15 @@ TEST(LanguageModel, CachedNgramLm) {
     KenLm kenlm;
     kenlm.Load("testdata/model/lm.trie", tokenizer);
 
-    NgramLm ngram;
-    ngram.Load(kenlm);
-
-    CachedLm lm;
-    lm.Load(ngram, 1.0);
+    LanguageModel lm;
+    lm.LoadCachedNgramLm(kenlm, 1.0, 10000);
 
     std::ifstream sentences("testdata/sentences.txt");
 
     Str sentence;
     while(std::getline(sentences, sentence)) {
         Vec<Str> words = absl::StrSplit(sentence, " ");
-        Str log = "[NgramLm]";
+        Str log = "[CachedNgramLm]";
         
         LmStateId state[2];
         LmStateId* is = &state[0];
@@ -92,6 +89,7 @@ TEST(LanguageModel, CachedNgramLm) {
         }
         SIO_INFO << log;
     }
+
 }
 
 } // namespace sio

@@ -3,10 +3,11 @@
 
 #include "sio/tokenizer.h"
 #include "sio/kenlm.h"
+#include "sio/language_model_itf.h"
 
 namespace sio {
 
-class PrefixTreeLm : public LanguageModel {
+class PrefixTreeLm : public LanguageModelItf {
 public:
     LmStateId NullState() const override {
         return 0;
@@ -30,7 +31,7 @@ public:
  *   1. KenLm model is stateless so it can be shared by multiple NgramLm instances.
  *   2. NgramLm instance is stateful so it should not be shared by multiple decoding threads.
  */
-class NgramLm : public LanguageModel {
+class NgramLm : public LanguageModelItf {
     // KenLm states are stored inside following hashmap.
     // Note that the hashmap implementation must not reallocate,
     // because that will invalidate all pointers in following indexing vector.
@@ -90,7 +91,7 @@ public:
 }; // class NgramLm
 
 
-class CachedLm : public LanguageModel {
+class CachedLm : public LanguageModelItf {
     struct CacheK {
         LmStateId istate = -1; // -1 won't collide with any valid LmStateId
         LmWordId word;
@@ -103,17 +104,19 @@ class CachedLm : public LanguageModel {
 
     using Cache = std::pair<CacheK, CacheV>;
 
-    LanguageModel* lm_ = nullptr;
+    Unique<LanguageModelItf*> lm_ = nullptr;
     f32 scale_ = 1.0;
     Vec<Cache> caches_;
 
 public:
 
-    Error Load(LanguageModel& lm, f32 scale = 1.0, size_t cache_size = 100000) {
+    // NOTE sink argument: lm, ownership transfered to CachedLm
+    Error Load(Unique<LanguageModelItf*> lm, f32 scale, size_t cache_size) {
+        SIO_CHECK(lm != nullptr);
         SIO_CHECK_GT(cache_size, 0);
 
         SIO_CHECK(lm_ == nullptr);
-        lm_ = &lm;
+        lm_ = std::move(lm);
 
         scale_ = scale;
 
