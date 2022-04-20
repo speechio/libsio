@@ -2,6 +2,7 @@
 #define SIO_LANGUAGE_MODEL_H
 
 #include "sio/base.h"
+#include "sio/kenlm.h"
 #include "sio/language_model_itf.h"
 #include "sio/language_model_impl.h"
 
