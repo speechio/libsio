@@ -5,13 +5,11 @@ A runtime library for Speech Input (stt) & Output (tts)
 * unified CTC and WFST decoding via beam search
 * online(streaming) decoding
 * lattice-free on the fly rescoring with arbitrary language models, e.g.:
-	```
-	CTC + external LM
-	WFST - (lookahead LM) + (big LM)
-	E2E - (estimated internal LM) + (external LM)
-    one or more domain-specific LMs on top of base-LM
-	flexible contextual biasing
-	```
+	- CTC + external LM
+	- WFST - (lookahead LM) + (big LM)
+	- E2E - (estimated internal LM) + (external LM)
+	- one or more domain-specific LMs on top of base-LM
+	- flexible contextual biasing
 * streaming + lattice free -> low latency
 * modular design with potentials to deploy models from various speech toolkits such as Kaldi, K2, Espnet, SpeechBrain, WeNet.
 
