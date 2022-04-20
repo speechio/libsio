@@ -110,7 +110,7 @@ class CachedLm : public LanguageModelItf {
 
 public:
 
-    // NOTE sink argument: lm, ownership transfered to CachedLm
+    // NOTE sink argument: lm ownership transfered to loaded instance
     Error Load(Unique<LanguageModelItf*> lm, f32 scale, size_t cache_size) {
         SIO_CHECK(lm != nullptr);
         SIO_CHECK_GT(cache_size, 0);

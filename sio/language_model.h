@@ -33,7 +33,7 @@ public:
         ngram_lm->Load(kenlm);
 
         Unique<CachedLm*> cached_lm = std::make_unique<CachedLm>();
-        cached_lm->Load(std::move(ngram_lm), scale, cache_size); // ngram_lm sinks into cached_lm
+        cached_lm->Load(std::move(ngram_lm)/* sink */, scale, cache_size);
 
         pimpl_ = std::move(cached_lm);
         return Error::OK;
