@@ -8,8 +8,10 @@
 namespace sio {
 
 /*
-** main purposes of this class:
-**   expose polymorphism LM through value semantics rather than reference semantics
+** main purposes of this wrapper class:
+** 1. expose polymorphic LM through value semantics rather than reference semantics
+** 2. centralized LoadXXXLm() uses for typical LM types
+** 3. possible resource holders in addition to pimpl_
 */
 class LanguageModel {
     Unique<LanguageModelItf*> pimpl_;
