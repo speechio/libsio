@@ -29,7 +29,7 @@ set(ABSL_LIBRARIES
 
 
 # Kaldi (libkaldi)
-set(KALDI_CMAKE_DIST "${CMAKE_SOURCE_DIR}/deps/kaldi_dist")
+set(KALDI_CMAKE_DIST "${CMAKE_SOURCE_DIR}/deps/kaldi/dist")
 include_directories(${KALDI_CMAKE_DIST}/include)       # OpenFst
 include_directories(${KALDI_CMAKE_DIST}/include/kaldi) # Kaldi
 set(KALDI_LIBRARIES
@@ -42,7 +42,6 @@ set(KALDI_LIBRARIES
     kaldi-gmm
     kaldi-hmm
     kaldi-transform
-    kaldi-sgmm2
     kaldi-ivector
     kaldi-feat
     kaldi-fstext

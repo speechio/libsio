@@ -4,3 +4,6 @@
 [submodule "deps/kenlm"]
 	path = deps/kenlm
 	url = https://github.com/kpu/kenlm
+[submodule "deps/kaldi"]
+	path = deps/kaldi
+	url = https://github.com/kaldi-asr/kaldi
