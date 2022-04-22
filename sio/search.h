@@ -633,7 +633,7 @@ private:
 
     void OnFrameEnd() {
         if (config_.debug) {
-            printf("%d\t%f\t%f\t%d\n",
+            printf("%d\t%f\t%f\t%lu\n",
                 cur_time_,
                 score_max_,
                 score_max_ - score_cutoff_,

@@ -17,7 +17,7 @@ enum class Error : int {
 
 const char* ErrorMsg(Error err);
 
-void Panic(const char* file, size_t line, const char* func, Error err);
+void Panic(const char* file, int line, const char* func, Error err);
 
 #define SIO_PANIC(err) ::sio::Panic(SIO_FILE_REPR, SIO_LINE_REPR, SIO_FUNC_REPR, err)
 

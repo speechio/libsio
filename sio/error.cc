@@ -19,7 +19,7 @@ const char* ErrorMsg(Error err) {
 }
 
 
-void Panic(const char* file, size_t line, const char* func, Error err) {
+void Panic(const char* file, int line, const char* func, Error err) {
     fprintf(stderr, "[panic](%s:%d:%s) %s\n", file, line, func, ErrorMsg(err));
     fflush(stderr);
     abort();
