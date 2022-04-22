@@ -34,7 +34,7 @@ class FeatureExtractor {
 
     // [0, cur_frame_) ~ popped frames
     // [cur_frame_, NumFramesReady()) ~ remainder frames.
-    index_t cur_frame_ = 0;
+    int cur_frame_ = 0;
 
 public:
 

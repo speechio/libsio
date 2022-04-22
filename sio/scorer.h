@@ -34,7 +34,7 @@ class Scorer {
 
     // nnet input cache
     std::deque<Vec<f32>> feat_cache_;
-    index_t cur_feat_frame_ = 0; // feats[0, cur_feat_frame_) pushed
+    int cur_feat_frame_ = 0; // feats[0, cur_feat_frame_) pushed
 
     // nnet internal cache
     torch::jit::IValue subsampling_cache_;
@@ -44,7 +44,7 @@ class Scorer {
 
     // nnet output cache
     std::deque<torch::Tensor> scores_cache_;
-    index_t cur_score_frame_ = 0; // scores[0, cur_score_frame_) ready, notice: output frame counts is subsampled
+    int cur_score_frame_ = 0; // scores[0, cur_score_frame_) ready, notice: output frame counts is subsampled
 
 public:
 
@@ -141,7 +141,7 @@ private:
             {1, static_cast<long>(feat_cache_.size()), nnet_idim_}, 
             torch::kFloat
         );
-        for (index_t f = 0; f != feat_cache_.size(); f++) {
+        for (int f = 0; f != feat_cache_.size(); f++) {
             torch::Tensor frame_tensor = torch::from_blob(
                 feat_cache_[f].data(),
                 { nnet_idim_ },
@@ -181,7 +181,7 @@ private:
         torch::Tensor scores = nnet_->run_method("ctc_activation", acoustic_encoding).toTensor()[0];
 
         // Add chunk score to caches
-        for (index_t s = 0; s != scores.size(0); s++) {
+        for (int s = 0; s != scores.size(0); s++) {
             scores_cache_.push_back(scores[s]);
             ++cur_score_frame_;
         }
