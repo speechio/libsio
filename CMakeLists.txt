@@ -30,8 +30,10 @@ set(ABSL_LIBRARIES
 
 # Kaldi (libkaldi)
 set(KALDI_CMAKE_DIST "${CMAKE_SOURCE_DIR}/deps/kaldi/dist")
+
 include_directories(${KALDI_CMAKE_DIST}/include)       # OpenFst
 include_directories(${KALDI_CMAKE_DIST}/include/kaldi) # Kaldi
+
 set(KALDI_LIBRARIES
     fst
     kaldi-base
@@ -48,8 +50,8 @@ set(KALDI_LIBRARIES
     kaldi-lm
     kaldi-lat
     kaldi-decoder
-    kaldi-cudadecoder
-    kaldi-cudafeat
+    #kaldi-cudadecoder
+    #kaldi-cudafeat
     kaldi-chain
     kaldi-kws
     kaldi-nnet
@@ -59,9 +61,18 @@ set(KALDI_LIBRARIES
     kaldi-online
     kaldi-online2
 )
+
 foreach(x ${KALDI_LIBRARIES})
     add_library(${x} SHARED IMPORTED GLOBAL)
-    set_target_properties(${x} PROPERTIES IMPORTED_LOCATION ${KALDI_CMAKE_DIST}/lib64/lib${x}.so)
+
+    if (CMAKE_SYSTEM_NAME STREQUAL Linux)
+        set_target_properties(${x} PROPERTIES IMPORTED_LOCATION ${KALDI_CMAKE_DIST}/lib64/lib${x}.so)
+    elseif(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+        set_target_properties(${x} PROPERTIES IMPORTED_LOCATION ${KALDI_CMAKE_DIST}/lib/lib${x}.dylib)
+    else()
+        message(FATAL_ERROR "Unsupported platform, need to be Linux/Darwin.")
+    endif()
+
 endforeach()
 
 
@@ -131,7 +142,7 @@ set(SIO_ROOT "${CMAKE_SOURCE_DIR}/sio")
 add_library(sio SHARED
     ${SIO_ROOT}/error.cc
 )
-add_executable(unittest 
+add_executable(unittest
     ${SIO_ROOT}/error_test.cc
     ${SIO_ROOT}/logger_test.cc
     ${SIO_ROOT}/check_test.cc
@@ -152,8 +163,6 @@ target_link_libraries(unittest
     ${KALDI_LIBRARIES}
     ${ABSL_LIBRARIES}
 )
-include(GoogleTest)
-gtest_discover_tests(unittest)
 
 
 # stt bin
