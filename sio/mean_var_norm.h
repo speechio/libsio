@@ -1,11 +1,7 @@
 #ifndef SIO_MEAN_VAR_NORM_H
 #define SIO_MEAN_VAR_NORM_H
 
-#include <string>
 #include <iostream>
-#include <vector>
-
-#include "matrix/kaldi-vector.h"
 
 #include "sio/base.h"
 
@@ -16,7 +12,7 @@ struct MeanVarNorm {
     Vec<f64> shift;
     Vec<f64> scale;
 
-    Error Load(std::string mean_var_norm_file) {
+    Error Load(Str mean_var_norm_file) {
         /*
         Format of mean_var_norm file, three lines:
         line1: norm_vector_dimension
@@ -32,7 +28,7 @@ struct MeanVarNorm {
         std::ifstream is(mean_var_norm_file);
         SIO_CHECK(is.good());
 
-        std::string line;
+        Str line;
         Vec<Str> cols;
 
         // parse header line
@@ -63,15 +59,13 @@ struct MeanVarNorm {
     }
 
 
-    void Normalize(kaldi::VectorBase<f32> *frame) const {
+    void Normalize(Vec<f32> *frame) const {
         SIO_CHECK(frame != nullptr);
-        SIO_CHECK_EQ(frame->Dim(), this->dim); // feature dim inconsistent with MVN
+        SIO_CHECK_EQ(frame->size(), this->dim); // feature dim inconsistent with MVN
 
         for (int i = 0; i < this->dim; i++) {
-            // use quote for elem referencing, see:
-            // https://github.com/kaldi-asr/kaldi/blob/master/src/matrix/kaldi-vector.h#L82
-            (*frame)(i) += this->shift[i];
-            (*frame)(i) *= this->scale[i];
+            (*frame)[i] += this->shift[i];
+            (*frame)[i] *= this->scale[i];
         }
     }
 

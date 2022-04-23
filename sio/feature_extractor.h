@@ -74,11 +74,11 @@ public:
         SIO_CHECK_GT(Size(), 0);
 
         Vec<f32> frame(Dim(), 0.0f);
-        kaldi::SubVector<f32> kaldi_frame(frame.data(), frame.size()); // reference, no ownership
+        kaldi::SubVector<f32> kaldi_frame(frame.data(), frame.size()); // no ownership
         pimpl_->GetFrame(cur_frame_++, &kaldi_frame);
 
         if (mean_var_norm_) {
-            mean_var_norm_->Normalize(&kaldi_frame);
+            mean_var_norm_->Normalize(&frame);
         }
 
         return frame; // RVO? or just wrap it with std::move
