@@ -9,7 +9,7 @@ enum class Error : int {
     OK = 0,
     OutOfMemory,
     AssertionFailure,
-    InvalidFileHandle,
+    OpenFileFailure,
     VocabularyMismatch,
     NoRecognitionResult,
     Unknown,
