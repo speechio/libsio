@@ -28,6 +28,10 @@ struct FeatureExtractorConfig {
 class FeatureExtractor {
     const FeatureExtractorConfig* config_ = nullptr;
 
+    // Kaldi online feature supports internal resampler:
+    //   https://github.com/kaldi-asr/kaldi/blob/d366a93aad98127683b010fd01e145093c1e9e08/src/feat/online-feature.cc#L143
+    // Implementation:
+    //   https://github.com/kaldi-asr/kaldi/blob/master/src/feat/resample.h#L147
     Unique<kaldi::OnlineBaseFeature*> pimpl_; // polymorphic base pointer for fbank, mfcc etc
 
     Nullable<const MeanVarNorm*> mean_var_norm_ = nullptr; // MVN is optional

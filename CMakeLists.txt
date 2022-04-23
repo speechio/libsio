@@ -140,6 +140,7 @@ include_directories(${CMAKE_SOURCE_DIR})
 set(SIO_ROOT "${CMAKE_SOURCE_DIR}/sio")
 add_library(sio SHARED
     ${SIO_ROOT}/error.cc
+    ${SIO_ROOT}/audio.cc
 )
 add_executable(unittest
     ${SIO_ROOT}/error_test.cc
