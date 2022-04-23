@@ -134,6 +134,7 @@ add_library(kenlm SHARED
 )
 set(KENLM_LIBRARIES kenlm)
 
+set(SIO_DEPS ${KENLM_LIBRARIES} ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
 
 # libsio
 include_directories(${CMAKE_SOURCE_DIR})
@@ -142,6 +143,9 @@ add_library(sio SHARED
     ${SIO_ROOT}/error.cc
     ${SIO_ROOT}/audio.cc
 )
+target_link_libraries(sio ${SIO_DEPS})
+
+# libsio unittest
 add_executable(unittest
     ${SIO_ROOT}/error_test.cc
     ${SIO_ROOT}/logger_test.cc
@@ -155,17 +159,10 @@ add_executable(unittest
     ${SIO_ROOT}/finite_state_machine_test.cc
     ${SIO_ROOT}/language_model_test.cc
 )
-target_link_libraries(unittest
-    gtest_main
-    sio
-    ${KENLM_LIBRARIES}
-    ${TORCH_LIBRARIES}
-    ${KALDI_LIBRARIES}
-    ${ABSL_LIBRARIES}
-)
+target_link_libraries(unittest gtest_main sio ${SIO_DEPS})
 
 
 # stt bin
 add_executable(stt stt.cc)
-target_link_libraries(stt sio ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES} ${KENLM_LIBRARIES})
+target_link_libraries(stt sio ${SIO_DEPS})
 
