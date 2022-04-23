@@ -128,7 +128,7 @@ public:
 
 
     size_t Dim() const {
-        return 0; // TODO: this should be the dim of nnet output
+        return nnet_odim_;
     }
 
 private:
@@ -147,7 +147,8 @@ private:
                 { nnet_idim_ },
                 torch::kFloat
             ).clone();
-            chunk_feat[0][f] = std::move(frame_tensor);
+            //chunk_feat[0][f] = std::move(frame_tensor);
+            chunk_feat[0][f] = frame_tensor;
         }
 
         // FIX THIS: extremely confusing units due to subsampling factor
