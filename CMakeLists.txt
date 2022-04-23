@@ -128,6 +128,7 @@ add_library(kenlm SHARED
 )
 target_include_directories(kenlm PUBLIC ${KENLM_ROOT})
 target_compile_definitions(kenlm PUBLIC -DKENLM_MAX_ORDER=6)
+set(KENLM_LIBRARIES kenlm)
 
 
 # libsio
@@ -136,7 +137,7 @@ target_include_directories(sio INTERFACE
 	${CMAKE_SOURCE_DIR}
 	${KALDI_CMAKE_DIST}/include ${KALDI_CMAKE_DIST}/include/kaldi # needed here because Kaldi is not imported through cmake
 )
-target_link_libraries(sio INTERFACE kenlm ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
+target_link_libraries(sio INTERFACE ${KENLM_LIBRARIES} ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
 
 
 # libsio unittest
