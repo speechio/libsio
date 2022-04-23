@@ -4,6 +4,7 @@ project(sio LANGUAGES CXX VERSION 0.1)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+#add_compile_options(-W -Wall -g)
 
 # GTest
 include(FetchContent)
@@ -15,8 +16,8 @@ FetchContent_MakeAvailable(gtest)
 
 
 # Abseil (libabsl)
-include_directories(${CMAKE_SOURCE_DIR}/deps/abseil-cpp)
-add_subdirectory(${CMAKE_SOURCE_DIR}/deps/abseil-cpp)
+add_subdirectory(deps/abseil-cpp)
+
 set(ABSL_LIBRARIES
     absl::base
     absl::memory
@@ -28,10 +29,7 @@ set(ABSL_LIBRARIES
 
 
 # Kaldi (libkaldi)
-set(KALDI_CMAKE_DIST "${CMAKE_SOURCE_DIR}/deps/kaldi/dist")
-
-include_directories(${KALDI_CMAKE_DIST}/include)       # OpenFst
-include_directories(${KALDI_CMAKE_DIST}/include/kaldi) # Kaldi
+set(KALDI_CMAKE_DIST ${CMAKE_SOURCE_DIR}/deps/kaldi/dist)
 
 set(KALDI_LIBRARIES
     fst
@@ -76,18 +74,15 @@ endforeach()
 
 
 # Torch (libtorch)
-set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/deps/libtorch")
+set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} deps/libtorch)
 find_package(Torch REQUIRED)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS}")
+#set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} ${TORCH_CXX_FLAGS})
 
 
 # KenLM (libkenlm)
-# refer to:
-#   https://github.com/kpu/kenlm/blob/master/compile_query_only.sh#L22
-# to get following KenLM source list
-set(KENLM_ROOT "${CMAKE_SOURCE_DIR}/deps/kenlm")
-include_directories(${KENLM_ROOT})
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DKENLM_MAX_ORDER=6")
+# refer to: https://github.com/kpu/kenlm/blob/master/compile_query_only.sh#L22
+# to get following source list
+set(KENLM_ROOT deps/kenlm)
 add_library(kenlm SHARED
     # util module
     ${KENLM_ROOT}/util/double-conversion/bignum.cc
@@ -132,37 +127,37 @@ add_library(kenlm SHARED
     ${KENLM_ROOT}/lm/virtual_interface.cc
     ${KENLM_ROOT}/lm/vocab.cc
 )
-set(KENLM_LIBRARIES kenlm)
+target_include_directories(kenlm PUBLIC ${KENLM_ROOT})
+target_compile_definitions(kenlm PUBLIC -DKENLM_MAX_ORDER=6)
 
-set(SIO_DEPS ${KENLM_LIBRARIES} ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
 
 # libsio
-include_directories(${CMAKE_SOURCE_DIR})
-set(SIO_ROOT "${CMAKE_SOURCE_DIR}/sio")
-add_library(sio SHARED
-    ${SIO_ROOT}/error.cc
-    ${SIO_ROOT}/audio.cc
+add_library(sio INTERFACE)
+target_include_directories(sio INTERFACE
+	${CMAKE_SOURCE_DIR}
+	${KALDI_CMAKE_DIST}/include ${KALDI_CMAKE_DIST}/include/kaldi # needed here because Kaldi is not imported through cmake
 )
-target_link_libraries(sio ${SIO_DEPS})
+target_link_libraries(sio INTERFACE kenlm ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
+
 
 # libsio unittest
 add_executable(unittest
-    ${SIO_ROOT}/error_test.cc
-    ${SIO_ROOT}/logger_test.cc
-    ${SIO_ROOT}/check_test.cc
-    ${SIO_ROOT}/linked_list_test.cc
-    ${SIO_ROOT}/allocator_test.cc
-    ${SIO_ROOT}/audio_test.cc
-    ${SIO_ROOT}/feature_extractor_test.cc
-    ${SIO_ROOT}/dbg_test.cc
-    ${SIO_ROOT}/struct_loader_test.cc
-    ${SIO_ROOT}/finite_state_machine_test.cc
-    ${SIO_ROOT}/language_model_test.cc
+    sio/error_test.cc
+    sio/logger_test.cc
+    sio/check_test.cc
+    sio/linked_list_test.cc
+    sio/allocator_test.cc
+    sio/audio_test.cc
+    sio/feature_extractor_test.cc
+    sio/dbg_test.cc
+    sio/struct_loader_test.cc
+    sio/finite_state_machine_test.cc
+    sio/language_model_test.cc
 )
-target_link_libraries(unittest gtest_main sio ${SIO_DEPS})
+target_link_libraries(unittest gtest_main sio)
 
 
 # stt bin
 add_executable(stt stt.cc)
-target_link_libraries(stt sio ${SIO_DEPS})
+target_link_libraries(stt sio)
 
