@@ -16,7 +16,7 @@
 #include "sio/language_model_itf.h"
 #include "sio/language_model_impl.h"
 #include "sio/language_model.h"
-#include "sio/search.h"
+#include "sio/beam_search.h"
 #include "sio/speech_to_text_config.h"
 #include "sio/speech_to_text_model.h"
 #include "sio/speech_to_text.h"
