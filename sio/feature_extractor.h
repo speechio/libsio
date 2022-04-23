@@ -72,17 +72,16 @@ public:
 
     Vec<f32> Pop() {
         SIO_CHECK_GT(Size(), 0);
-        Vec<f32> feat_frame(Dim(), 0.0f);
 
-        // kaldi_frame is a helper frame view, no underlying data ownership
-        kaldi::SubVector<f32> kaldi_frame(feat_frame.data(), feat_frame.size());
-        pimpl_->GetFrame(cur_frame_, &kaldi_frame);
+        Vec<f32> frame(Dim(), 0.0f);
+        kaldi::SubVector<f32> kaldi_frame(frame.data(), frame.size()); // reference, no ownership
+        pimpl_->GetFrame(cur_frame_++, &kaldi_frame);
+
         if (mean_var_norm_) {
             mean_var_norm_->Normalize(&kaldi_frame);
         }
-        cur_frame_++;
 
-        return std::move(feat_frame);
+        return frame; // RVO? or just wrap it with std::move
     }
 
 
