@@ -37,7 +37,7 @@ public:
 
     inline T* Alloc() {
         if (free_list_ == nullptr) {
-            slabs_.resize(slabs_.size() + 1);
+            slabs_.emplace_back();
             vec<char>& s = slabs_.back();
             s.resize(size0_ * size1_ * sizeof(T));
 
