@@ -17,8 +17,12 @@ using FsmLabel   = i32;
 using FsmScore   = f32;
 
 
-constexpr FsmLabel kFsmInputEnd = -1; // This follows K2Fsa convention
-constexpr FsmLabel kFsmEpsilon = std::numeric_limits<FsmLabel>::lowest();
+enum FsmSpecialSymbols {
+    kFsmEps = -32768,
+    kFsmRho,
+    kFsmPhi,
+    kFsmInputEnd = -1 // This conforms to K2 Fsa
+};
 
 
 struct FsmState {
@@ -29,8 +33,8 @@ struct FsmState {
 struct FsmArc {
     FsmStateId src = 0;
     FsmStateId dst = 0;
-    FsmLabel ilabel = 0;
-    FsmLabel olabel = 0;
+    FsmLabel ilabel = kFsmEps;
+    FsmLabel olabel = kFsmEps;
     FsmScore score = 0.0f;
 };
 
@@ -68,10 +72,10 @@ struct Fsm {
     inline bool Empty() const { return this->states.empty(); }
     inline bool ContainEpsilonArc(FsmStateId s) const {
         // Preconditions:
-        //   1. kFsmEpsilon should have smallest input symbol id.
+        //   1. kFsmEps should have smallest input symbol id.
         //   2. arcs of a FsmState need to be sorted by ilabels.
         const FsmArc& first_arc = this->arcs[this->states[s].arcs_offset];
-        return (first_arc.ilabel == kFsmEpsilon);
+        return (first_arc.ilabel == kFsmEps);
     }
 
 
@@ -273,7 +277,7 @@ struct Fsm {
         {
             // 1a: Blank self-loop of start state
             this->start_state = 0;
-            AddArc(this->start_state, this->start_state, tokenizer.blk, kFsmEpsilon);
+            AddArc(this->start_state, this->start_state, tokenizer.blk, kFsmEps);
 
             // 1b: Arcs of normal tokens
             FsmStateId cur_state = 1; // 0 is already occupied by start state
@@ -284,9 +288,9 @@ struct Fsm {
                 if (t == tokenizer.bos) continue;
                 if (t == tokenizer.eos) continue;
 
-                AddArc(this->start_state, cur_state,         t,            t          ); // Entering
-                AddArc(cur_state,         cur_state,         t,            kFsmEpsilon); // Self-loop
-                AddArc(cur_state,         this->start_state, kFsmEpsilon,  kFsmEpsilon); // Leaving
+                AddArc(this->start_state, cur_state,         t,       t      ); // Entering
+                AddArc(cur_state,         cur_state,         t,       kFsmEps); // Self-loop
+                AddArc(cur_state,         this->start_state, kFsmEps, kFsmEps); // Leaving
                 cur_state++;
             }
 

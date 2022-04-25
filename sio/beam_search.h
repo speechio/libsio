@@ -308,7 +308,7 @@ private:
             nt.total_score = t->total_score + arc.score + score;
 
             // 2. LM
-            if (arc.olabel == kFsmEpsilon) {
+            if (arc.olabel == kFsmEps) {
                 memcpy(nt.lm_states, t->lm_states, sizeof(LmStateId) * lms_.size());
             } else {  /* word-end arc */
                 for (int i = 0; i != lms_.size(); i++) {
@@ -408,7 +408,7 @@ private:
         status_ = SearchStatus::kBusy;
 
         Token* t = NewToken();
-        t->trace_back.arc.ilabel = kFsmEpsilon;
+        t->trace_back.arc.ilabel = kFsmEps;
         t->trace_back.arc.olabel = tokenizer_->bos;
 
         for (int i = 0; i != lms_.size(); i++) {
@@ -472,7 +472,7 @@ private:
         for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
-                if (arc.ilabel != kFsmEpsilon && arc.ilabel != kFsmInputEnd) {
+                if (arc.ilabel != kFsmEps && arc.ilabel != kFsmInputEnd) {
                     f32 score = frame_score[arc.ilabel] + score_offset;
                     if (src.best_score + arc.score + score < score_cutoff_) continue;
 
@@ -505,7 +505,7 @@ private:
 
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
                 const FsmArc& arc = aiter.Value();
-                if (arc.ilabel == kFsmEpsilon) {
+                if (arc.ilabel == kFsmEps) {
                     if (src.best_score + arc.score < score_cutoff_) continue;
 
                     int dst_k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst));
@@ -606,7 +606,7 @@ private:
         for (k = 0, p = frontier_[it->second].head; k < config_.nbest && p != nullptr; k++, p = p->next) {
             Vec<TokenId> path;
             for(Token* t = p; t != nullptr; t = t->trace_back.token) {
-                if (t->trace_back.arc.olabel != kFsmEpsilon) {
+                if (t->trace_back.arc.olabel != kFsmEps) {
                     path.push_back(t->trace_back.arc.olabel);
                 }
             }

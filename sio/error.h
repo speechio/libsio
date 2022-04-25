@@ -8,15 +8,15 @@
 
 namespace sio {
 
-enum class Error : int {
-    OK = 0,
+enum Error {
+    OK,
     OutOfMemory,
     AssertionFailure,
     OpenFileFailure,
     VocabularyMismatch,
     NoRecognitionResult,
     Unknown,
-}; // enum class Error
+}; // enum Error
 
 
 inline const char* ErrorMsg(Error err) {
