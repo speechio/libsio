@@ -26,7 +26,7 @@ enum FsmSpecialSymbols {
 
 
 struct FsmState {
-    FsmArcId arcs_offset = 0;
+    FsmArcId offset = 0;
 };
 
 
@@ -74,7 +74,7 @@ struct Fsm {
         // Preconditions:
         //   1. kFsmEps should have smallest input symbol id.
         //   2. arcs of a FsmState need to be sorted by ilabels.
-        const FsmArc& first_arc = this->arcs[this->states[s].arcs_offset];
+        const FsmArc& first_arc = this->arcs[this->states[s].offset];
         return (first_arc.ilabel == kFsmEps);
     }
 
@@ -83,8 +83,8 @@ struct Fsm {
         SIO_CHECK(!Empty());
         SIO_CHECK_NE(i, this->states.size() - 1); // block external access to sentinel
         return FsmArcIterator(
-            &this->arcs[this->states[i  ].arcs_offset],
-            &this->arcs[this->states[i+1].arcs_offset]
+            &this->arcs[this->states[i  ].offset],
+            &this->arcs[this->states[i+1].offset]
         );
     }
 
@@ -239,12 +239,12 @@ struct Fsm {
             // invariant: n = sum( arcs of states[0, s) )
             int n = 0;
             for (FsmStateId s = 0; s != this->num_states; s++) {
-                this->states[s].arcs_offset = n;
+                this->states[s].offset = n;
                 n += out_degree[s];
             }
 
             // setup last sentinel state
-            this->states.back().arcs_offset = n;
+            this->states.back().offset = n;
         }
 
         return Error::OK;
@@ -320,10 +320,10 @@ struct Fsm {
             // invariant: n = sum( arcs of states[0, s) )
             int n = 0;
             for (FsmStateId s = 0; s != this->num_states; s++) {
-                this->states[s].arcs_offset = n;
+                this->states[s].offset = n;
                 n += out_degree[s];
             }
-            this->states.back().arcs_offset = n; // setup last sentinel state
+            this->states.back().offset = n; // setup last sentinel state
         }
 
         return Error::OK;
