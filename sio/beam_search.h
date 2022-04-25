@@ -127,10 +127,6 @@ struct TokenSet {
     StateHandle handle = 0;
 };
 
-static inline bool TokenSetBetterThan(const TokenSet& x, const TokenSet& y) {
-    return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.handle < y.handle);
-}
-
 
 class BeamSearch {
     BeamSearchConfig config_;
@@ -545,6 +541,10 @@ private:
 
 
     Error FrontierPrune() {
+        auto token_set_better_than = [](const TokenSet& x, const TokenSet& y) -> bool {
+            return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.handle < y.handle);
+        };
+
         score_cutoff_ = score_max_ - config_.beam;
 
         // adapt beam regarding to max_active constraint
@@ -553,7 +553,7 @@ private:
                 frontier_.begin(),
                 frontier_.begin() + config_.max_active - 1,
                 frontier_.end(),
-                TokenSetBetterThan
+                token_set_better_than
             );
             frontier_.resize(config_.max_active);
 
@@ -561,7 +561,7 @@ private:
         }
 
         // put best TokenSet first so that beam of next frame will be established quickly.
-        std::nth_element(frontier_.begin(), frontier_.begin(), frontier_.end(), TokenSetBetterThan);
+        std::nth_element(frontier_.begin(), frontier_.begin(), frontier_.end(), token_set_better_than);
         SIO_CHECK_EQ(frontier_[0].best_score, score_max_);
         
         return Error::OK;
