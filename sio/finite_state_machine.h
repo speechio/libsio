@@ -57,19 +57,19 @@ public:
 struct Fsm {
     str version; // TODO: make version a part of binary header
 
-    // Use i64 instead of size_t, for platform independent binary
-    // TODO: bit/little endian compatibility
+    // header
     i64 num_states = 0;
     i64 num_arcs = 0;
-
     FsmStateId start_state = 0;
     FsmStateId final_state = 0;
 
+    // data
     vec<FsmState> states;  // one extra sentinel at the end: states.size() = num_states + 1
     vec<FsmArc> arcs;
 
 
     inline bool Empty() const { return this->states.empty(); }
+
     inline bool ContainEpsilonArc(FsmStateId s) const {
         // Preconditions:
         //   1. kFsmEps should have smallest input symbol id.
