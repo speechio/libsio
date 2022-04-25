@@ -17,7 +17,7 @@ using FsmLabel   = i32;
 using FsmScore   = f32;
 
 
-enum FsmSpecialSymbols {
+enum FsmSpecialSymbol {
     kFsmEps = -32768,
     kFsmRho,
     kFsmPhi,
