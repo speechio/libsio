@@ -9,10 +9,10 @@ namespace sio {
 
 struct MeanVarNorm {
     int dim = 0;
-    Vec<f64> shift;
-    Vec<f64> scale;
+    vec<f64> shift;
+    vec<f64> scale;
 
-    Error Load(Str mean_var_norm_file) {
+    Error Load(const str& mean_var_norm_file) {
         /*
         Format of mean_var_norm file, three lines:
         line1: norm_vector_dimension
@@ -28,8 +28,8 @@ struct MeanVarNorm {
         std::ifstream is(mean_var_norm_file);
         SIO_CHECK(is.good());
 
-        Str line;
-        Vec<Str> cols;
+        str line;
+        vec<str> cols;
 
         // parse header line
         std::getline(is, line);
@@ -59,7 +59,7 @@ struct MeanVarNorm {
     }
 
 
-    void Normalize(Vec<f32> *frame) const {
+    void Normalize(vec<f32> *frame) const {
         SIO_CHECK(frame != nullptr);
         SIO_CHECK_EQ(frame->size(), this->dim); // feature dim inconsistent with MVN
 

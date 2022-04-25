@@ -70,10 +70,10 @@ public:
     }
 
 
-    Vec<f32> Pop() {
+    vec<f32> Pop() {
         SIO_CHECK_GT(Size(), 0);
 
-        Vec<f32> frame(Dim(), 0.0f);
+        vec<f32> frame(Dim(), 0.0f);
         kaldi::SubVector<f32> kaldi_frame(frame.data(), frame.size()); // no ownership
         pimpl_->GetFrame(cur_frame_++, &kaldi_frame);
 

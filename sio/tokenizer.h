@@ -11,8 +11,8 @@ using TokenId = i32;
 constexpr TokenId kNoTokenId = -1;
 
 class Tokenizer {
-    Map<TokenId, Str> index_to_token_; // TODO: consider vector implementation
-    Map<Str, TokenId> token_to_index_;
+    Map<TokenId, str> index_to_token_; // TODO: consider vector implementation
+    Map<str, TokenId> token_to_index_;
 
 public:
     TokenId blk = kNoTokenId;
@@ -20,14 +20,14 @@ public:
     TokenId bos = kNoTokenId;
     TokenId eos = kNoTokenId;
 
-    Error Load(const Str& tokenizer_vocab) {
+    Error Load(const str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
         SIO_CHECK(is.good());
-        Str line;
+        str line;
         for (TokenId index = 0; std::getline(is, line); index++) {
-            Vec<Str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
+            vec<str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
             SIO_CHECK_EQ(cols.size(), 2); // token prob
-            Str token = cols[0];
+            str token = cols[0];
             index_to_token_[index] = token;
             token_to_index_[token] = index;
 
@@ -64,12 +64,12 @@ public:
     }
 
 
-    const Str& Token(TokenId t) const {
+    const str& Token(TokenId t) const {
         return index_to_token_.at(t);
     }
 
 
-    TokenId Index(const Str& token) const {
+    TokenId Index(const str& token) const {
         return token_to_index_.at(token);
     }
 

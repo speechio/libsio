@@ -7,7 +7,7 @@
 
 namespace sio {
 
-inline Error ReadAudio(const Str& filepath, Vec<f32>* samples, f32* sample_rate) {
+inline Error ReadAudio(const str& filepath, vec<f32>* samples, f32* sample_rate) {
     std::ifstream is(filepath, std::ifstream::binary);
 	if (!is.good()) {
         return Error::OpenFileFailure;

@@ -16,10 +16,10 @@
 
 namespace sio {
 struct StructLoader {
-    std::map<Str, bool*> bool_map;
-    std::map<Str, int*> int_map;
-    std::map<Str, f32*> float_map;
-    std::map<Str, Str*> string_map;
+    std::map<str, bool*> bool_map;
+    std::map<str, int*> int_map;
+    std::map<str, f32*> float_map;
+    std::map<str, str*> string_map;
 
 
     Error Load(const Json& json) {
@@ -55,7 +55,7 @@ struct StructLoader {
             auto& p = kv.second;
             const Json *node = FindEntry(json, e);
             if (node) {
-                *p = node->get<Str>();
+                *p = node->get<str>();
             }
         }
 
@@ -63,7 +63,7 @@ struct StructLoader {
     }
 
 
-    Error Load(const Str& json_file) {
+    Error Load(const str& json_file) {
         Json j;
 
         std::ifstream json_stream(json_file);
@@ -76,10 +76,10 @@ struct StructLoader {
     }
 
 
-    void AddEntry(const Str& e, bool* addr) { bool_map[e] = addr; }
-    void AddEntry(const Str& e, int* addr) { int_map[e] = addr; }
-    void AddEntry(const Str& e, f32* addr) { float_map[e] = addr; }
-    void AddEntry(const Str& e, std::string* addr) { string_map[e] = addr; }
+    void AddEntry(const str& e, bool* addr) { bool_map[e] = addr; }
+    void AddEntry(const str& e, int* addr) { int_map[e] = addr; }
+    void AddEntry(const str& e, f32* addr) { float_map[e] = addr; }
+    void AddEntry(const str& e, str* addr) { string_map[e] = addr; }
 
 
     void Print() {
@@ -101,14 +101,14 @@ struct StructLoader {
 
 
 private:
-    static Nullable<const Json*> FindEntry(const Json& json, const Str& entry) {
+    static Nullable<const Json*> FindEntry(const Json& json, const str& entry) {
         // longest path match
-        Vec<Str> fields = absl::StrSplit(entry, ".", absl::SkipWhitespace());
+        vec<str> fields = absl::StrSplit(entry, ".", absl::SkipWhitespace());
         const Json* node = &json;
         int k = 0;
         // Loop invariant: the path from root to node matches fields[0,k)
         while(k != fields.size()) {
-            Str& field = fields[k];
+            str& field = fields[k];
             if (node->contains(field)) {
                 node = &((*node)[field]);
                 ++k;

@@ -17,7 +17,7 @@ class SlabAllocator {
     size_t size0_ = 4096; // num of allocs per slab
     size_t size1_ = 1;    // num of elems(of type T) per alloc
 
-    Vec<Vec<char>> slabs_;
+    vec<vec<char>> slabs_;
     Nullable<FreeNode*> free_list_ = nullptr;
 
     size_t num_used_ = 0;
@@ -38,7 +38,7 @@ public:
     inline T* Alloc() {
         if (free_list_ == nullptr) {
             slabs_.resize(slabs_.size() + 1);
-            Vec<char>& s = slabs_.back();
+            vec<char>& s = slabs_.back();
             s.resize(size0_ * size1_ * sizeof(T));
 
             char* p = s.data();

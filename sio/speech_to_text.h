@@ -62,7 +62,7 @@ public:
 
 
     Error Text(std::string* text) { 
-        for (const Vec<TokenId>& path : beam_search_.NBest()) {
+        for (const vec<TokenId>& path : beam_search_.NBest()) {
             for (const auto& t : path) {
                 *text += tokenizer_->Token(t);
             }

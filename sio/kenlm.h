@@ -45,13 +45,13 @@ private:
     //   Cons: index mapping has runtime overhead
     //
     // Decision: for sake of simplicity, choose solution B
-    Vec<WordId> token_to_word_;
+    vec<WordId> token_to_word_;
 
     Unique<lm::base::Model*> model_;
 
 public:
     Error Load(
-        const Str& filepath,
+        const str& filepath,
         const Tokenizer& tokenizer,
         util::LoadMethod load_method = util::LoadMethod::POPULATE_OR_READ)
     {
@@ -72,7 +72,7 @@ public:
         token_to_word_.resize(tokenizer.Size(), 0);
 
         for (TokenId t = 0; t != tokenizer.Size(); t++) {
-            const Str& token = tokenizer.Token(t);
+            const str& token = tokenizer.Token(t);
             WordId w = vocab.Index(token.c_str());
 
             // all normal tokens should be included in KenLm's vocabulary
@@ -96,7 +96,7 @@ public:
     }
 
 
-    inline WordId GetWordIndex(const Str& word) const {
+    inline WordId GetWordIndex(const str& word) const {
         return model_->BaseVocabulary().Index(word.c_str());
     }
     inline WordId GetWordIndex(TokenId t) const {

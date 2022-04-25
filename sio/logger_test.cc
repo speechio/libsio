@@ -6,7 +6,7 @@
 namespace sio {
 
     TEST(Log, Basic) {
-    Str msg = "This is a log message.";
+    str msg = "This is a log message.";
 
     SIO_INFO    << msg;
     SIO_WARNING << msg;

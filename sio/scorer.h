@@ -33,14 +33,14 @@ class Scorer {
     int right_context_ = 0;
 
     // nnet input cache
-    std::deque<Vec<f32>> feat_cache_;
+    std::deque<vec<f32>> feat_cache_;
     int cur_feat_frame_ = 0; // feats[0, cur_feat_frame_) pushed
 
     // nnet internal cache
     torch::jit::IValue subsampling_cache_;
     torch::jit::IValue elayers_output_cache_;
     torch::jit::IValue conformer_cnn_cache_;
-    Vec<torch::Tensor> acoustic_encoding_cache_;
+    vec<torch::Tensor> acoustic_encoding_cache_;
 
     // nnet output cache
     std::deque<torch::Tensor> scores_cache_;
@@ -74,7 +74,7 @@ public:
     }
 
 
-    void Push(const Vec<f32>& feat_frame) {
+    void Push(const vec<f32>& feat_frame) {
         feat_cache_.emplace_back(feat_frame);
         ++cur_feat_frame_;
 
@@ -157,7 +157,7 @@ private:
 
         //int requried_cache_size = config_.chunk_size * config_.num_left_chunks;
         int requried_cache_size = -1; // < 0 : use entire history caches
-        Vec<torch::jit::IValue> chunk_input = {
+        vec<torch::jit::IValue> chunk_input = {
             chunk_feat,
             cur_score_frame_,
             requried_cache_size,

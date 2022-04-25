@@ -136,9 +136,9 @@ class BeamSearch {
     BeamSearchConfig config_;
     const Fsm* graph_ = nullptr;
     const Tokenizer* tokenizer_ = nullptr;
-    Vec<LanguageModel> lms_;
+    vec<LanguageModel> lms_;
 
-    Str session_key_ = "default_session";
+    str session_key_ = "default_session";
     SearchStatus status_ = SearchStatus::kUnconstructed;
 
     // lattice indexes: 
@@ -146,22 +146,22 @@ class BeamSearch {
     // invariant of time & frame indexing:
     //   {time=k} ---[frame=k]---> {time=k+1}
     // where: k ~ [0, total_frames)
-    Vec<Vec<TokenSet>> lattice_;
+    vec<vec<TokenSet>> lattice_;
     SlabAllocator<Token> token_allocator_;
 
     // search frontier
     int cur_time_ = 0;  // frontier location on time axis
-    Vec<TokenSet> frontier_;
+    vec<TokenSet> frontier_;
     FastMap<StateHandle, int> frontier_map_;  // search state handle -> token set index in frontier
-    Vec<int> eps_queue_;
+    vec<int> eps_queue_;
 
     // beam
     f32 score_max_ = 0.0;
     f32 score_cutoff_ = 0.0;
 
-    Vec<f32> score_offsets_;  // keep hypotheses scores in a good dynamic range
+    vec<f32> score_offsets_;  // keep hypotheses scores in a good dynamic range
 
-    Vec<Vec<TokenId>> nbest_;
+    vec<vec<TokenId>> nbest_;
 
 public:
 
@@ -221,7 +221,7 @@ public:
     }
 
 
-    const Vec<Vec<TokenId>>& NBest() {
+    const vec<vec<TokenId>>& NBest() {
         return nbest_;
     }
 
@@ -604,7 +604,7 @@ private:
         int k;
         Token* p;
         for (k = 0, p = frontier_[it->second].head; k < config_.nbest && p != nullptr; k++, p = p->next) {
-            Vec<TokenId> path;
+            vec<TokenId> path;
             for(Token* t = p; t != nullptr; t = t->trace_back.token) {
                 if (t->trace_back.arc.olabel != kFsmEps) {
                     path.push_back(t->trace_back.arc.olabel);

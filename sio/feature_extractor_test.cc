@@ -10,7 +10,7 @@
 namespace sio {
 
 TEST(Feature, Extractor) {
-    Map<Str, int> audio_to_frames = {
+    Map<str, int> audio_to_frames = {
         {"testdata/MINI/audio/audio1.wav", 126},
         {"testdata/MINI/audio/audio2.wav", 522}
     };
@@ -24,10 +24,10 @@ TEST(Feature, Extractor) {
     FeatureExtractor feature_extractor;
     feature_extractor.Load(config);
     for (const auto& kv : audio_to_frames) {
-        Str audio_file = kv.first;
+        str audio_file = kv.first;
         int num_frames = kv.second;
 
-        Vec<f32> audio;
+        vec<f32> audio;
         f32 sample_rate;
         ReadAudio(audio_file, &audio, &sample_rate);
 

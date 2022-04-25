@@ -7,7 +7,7 @@ namespace sio {
 
 TEST(Audio, Basic) {
     std::string audio_path = "testdata/MINI/audio/audio1.wav";
-    Vec<f32> audio;
+    vec<f32> audio;
     f32 sample_rate = 0.0f;
 
     ReadAudio(audio_path, &audio, &sample_rate);

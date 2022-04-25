@@ -9,7 +9,7 @@
 namespace sio {
 
 TEST(Check, Basic) {
-    Vec<int> v = {1,2};
+    vec<int> v = {1,2};
     i32 i = 0;
     i32 sum = 0;
     SIO_CHECK("sum = sum of v[0,i)");

@@ -40,10 +40,10 @@ TEST(LanguageModel, KenLm) {
 
     std::ifstream sentences("testdata/sentences.txt");
 
-    Str sentence;
+    str sentence;
     while(std::getline(sentences, sentence)) {
-        Vec<Str> words = absl::StrSplit(sentence, " ");
-        Str log = "[KenLm]";
+        vec<str> words = absl::StrSplit(sentence, " ");
+        str log = "[KenLm]";
         
         KenLm::State state[2];
         KenLm::State* is = &state[0];
@@ -72,10 +72,10 @@ TEST(LanguageModel, CachedNgramLm) {
 
     std::ifstream sentences("testdata/sentences.txt");
 
-    Str sentence;
+    str sentence;
     while(std::getline(sentences, sentence)) {
-        Vec<Str> words = absl::StrSplit(sentence, " ");
-        Str log = "[CachedNgramLm]";
+        vec<str> words = absl::StrSplit(sentence, " ");
+        str log = "[CachedNgramLm]";
         
         LmStateId state[2];
         LmStateId* is = &state[0];

@@ -55,7 +55,7 @@ public:
 
 
 struct Fsm {
-    Str version; // TODO: make version a part of binary header
+    str version; // TODO: make version a part of binary header
 
     // Use i64 instead of size_t, for platform independent binary
     // TODO: bit/little endian compatibility
@@ -65,8 +65,8 @@ struct Fsm {
     FsmStateId start_state = 0;
     FsmStateId final_state = 0;
 
-    Vec<FsmState> states;  // one extra sentinel at the end: states.size() = num_states + 1
-    Vec<FsmArc> arcs;
+    vec<FsmState> states;  // one extra sentinel at the end: states.size() = num_states + 1
+    vec<FsmArc> arcs;
 
 
     inline bool Empty() const { return this->states.empty(); }
@@ -174,8 +174,8 @@ struct Fsm {
         SIO_CHECK(Empty());
         SIO_INFO << "Loading Fsm from string stream";
 
-        Str line;
-        Vec<Str> cols;
+        str line;
+        vec<str> cols;
 
         /* 1: Parse header */
         {
@@ -202,10 +202,10 @@ struct Fsm {
                 SIO_CHECK_EQ(cols.size(), 3);
                 //dbg(cols);
 
-                Vec<Str> arc_info = absl::StrSplit(cols[2], '/');
+                vec<str> arc_info = absl::StrSplit(cols[2], '/');
                 SIO_CHECK_EQ(arc_info.size(), 2);
 
-                Vec<Str> labels = absl::StrSplit(arc_info[0], ':');
+                vec<str> labels = absl::StrSplit(arc_info[0], ':');
                 SIO_CHECK(labels.size() == 1 || labels.size() == 2); // 1:Fsa,  2:Fst
 
                 AddArc(
@@ -230,7 +230,7 @@ struct Fsm {
         /* 3: Setup states */
         {
             this->states.resize(this->num_states + 1); // + 1 sentinel
-            Vec<int> out_degree(this->num_states, 0);
+            vec<int> out_degree(this->num_states, 0);
 
             for (const auto& arc : this->arcs) {
                 out_degree[arc.src]++;
@@ -312,7 +312,7 @@ struct Fsm {
             this->num_states = this->final_state + 1;
             this->states.resize(this->num_states + 1); // + 1 sentinel
 
-            Vec<int> out_degree(this->num_states, 0);
+            vec<int> out_degree(this->num_states, 0);
             for (const auto& arc : this->arcs) {
                 out_degree[arc.src]++;
             }
