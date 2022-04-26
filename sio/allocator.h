@@ -4,8 +4,26 @@
 #include "sio/ptr.h"
 #include "sio/check.h"
 #include "sio/vec.h"
+#include "sio/dbg_macro.h"
 
 namespace sio {
+
+/*
+*                      size1
+*            ┌─────┬─────┬─────┐
+*            │size0│size0│size0│ ..
+*            ├─────┼─────┼─────┘
+*            │size0│size0│ ...
+*      size2 ├─────┼─────┘
+*            │size0│ ...
+*            └─────┘
+*              ...
+*
+*  1. A slab caches a 2D matrix of elements, allocated by operating system all at once.
+*  2. Each Alloc() yields a row by returning a T* to first elem of the row.
+*  3. Each Free() reclaims a row back to internal free list.
+*
+*/
 
 struct FreeNode {
     Nullable<FreeNode*> next = nullptr;
@@ -14,8 +32,9 @@ struct FreeNode {
 template <typename T>
 class SlabAllocator {
     // A slab is a blob of raw memory with size0_ * size1_ * sizeof(T) bytes.
-    size_t size0_ = 4096; // num of allocs per slab
-    size_t size1_ = 1;    // num of elems(of type T) per alloc
+    size_t size0_ = 0; // element size in bytes
+    size_t size1_ = 0; // num of elements per alloc
+    size_t size2_ = 0; // num of allocs per slab
 
     vec<vec<char>> slabs_;
     Nullable<FreeNode*> free_list_ = nullptr;
@@ -25,30 +44,31 @@ class SlabAllocator {
 
 public:
 
-    void SetSlabSize(size_t size0, size_t size1 = 1) {
+    void SetSize(size_t size2, size_t size1 = 1, size_t size0 = sizeof(T)) {
         SIO_CHECK(slabs_.empty());
-        SIO_CHECK_GE(size0, 1);
-        SIO_CHECK_GE(size1 * sizeof(T), sizeof(FreeNode*)); // each allocation should be at least as large as a pointer.
+        SIO_CHECK_GE(size0 * size1, sizeof(FreeNode*)); // each allocation should be at least as large as a pointer.
+        SIO_CHECK_GE(size2, 1);
 
         size0_ = size0;
         size1_ = size1;
+		size2_ = size2;
     }
 
 
     inline T* Alloc() {
         if (free_list_ == nullptr) {
             slabs_.emplace_back();
-            vec<char>& s = slabs_.back();
-            s.resize(size0_ * size1_ * sizeof(T));
+            vec<char>& slab = slabs_.back();
+            slab.resize(size0_ * size1_ * size2_);
 
-            char* p = s.data();
-            for (int i = 0; i < size0_; i++) {
+            char* p = slab.data();
+            for (size_t i = 0; i < size2_; i++) {
                 FreeListPush((FreeNode*)p);
-                p += size1_ * sizeof(T);
+                p += size0_ * size1_;
             }
         }
 
-        num_used_++;
+        dbg(num_used_++);
         return (T*) FreeListPop();
     }
 

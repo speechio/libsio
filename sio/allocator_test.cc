@@ -12,7 +12,7 @@ TEST(Allocator, SlabAllocator) {
     };
 
     SlabAllocator<S> pool;
-    pool.SetSlabSize(2);
+    pool.SetSize(2);
 
     EXPECT_EQ(pool.NumUsed(), 0);
     EXPECT_EQ(pool.NumFree(), 0);

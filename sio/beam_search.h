@@ -143,7 +143,7 @@ class BeamSearch {
     //   {time=k} ---[frame=k]---> {time=k+1}
     // where: k ~ [0, total_frames)
     vec<vec<TokenSet>> lattice_;
-    SlabAllocator<Token> token_allocator_;
+    SlabAllocator<Token> token_arena_;
 
     // search frontier
     int cur_time_ = 0;  // frontier location on time axis
@@ -233,7 +233,7 @@ public:
 private:
 
     inline Token* NewToken(const Token* copy_from = nullptr) {
-        Token* p = token_allocator_.Alloc();
+        Token* p = token_arena_.Alloc();
         if (copy_from == nullptr) {
             new (p) Token(); // placement new via default constructor
         } else {
@@ -245,7 +245,7 @@ private:
 
     inline void DeleteToken(Token *p) {
         //p->~Token();
-        token_allocator_.Free(p);
+        token_arena_.Free(p);
     }
 
 
@@ -383,8 +383,8 @@ private:
 
 
     Error InitSession() {
-        SIO_CHECK_EQ(token_allocator_.NumUsed(), 0);
-        token_allocator_.SetSlabSize(config_.token_allocator_slab_size);
+        SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
+        token_arena_.SetSize(config_.token_allocator_slab_size);
 
         SIO_CHECK(lattice_.empty());
         lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
@@ -439,7 +439,7 @@ private:
         frontier_map_.clear();
 
         lattice_.clear();
-        token_allocator_.Reset();
+        token_arena_.Reset();
 
         if (config_.apply_score_offsets) {
             score_offsets_.clear();
