@@ -4,25 +4,24 @@
 #include "sio/ptr.h"
 #include "sio/check.h"
 #include "sio/vec.h"
-#include "sio/dbg_macro.h"
 
 namespace sio {
 
 /*
-*                      size1
-*            ┌─────┬─────┬─────┐
-*            │size0│size0│size0│ ..
-*            ├─────┼─────┼─────┘
-*            │size0│size0│ ...
-*      size2 ├─────┼─────┘
-*            │size0│ ...
-*            └─────┘
-*              ...
-*
-*  1. A slab caches a 2D matrix of elements, allocated by operating system all at once.
-*  2. Each Alloc() yields a row by returning a T* to first elem of the row.
-*  3. Each Free() reclaims a row back to internal free list.
-*
+**                      size1
+**            ┌─────┬─────┬─────┐
+**            │size0│size0│size0│ ..
+**            ├─────┼─────┼─────┘
+**            │size0│size0│ ...
+**      size2 ├─────┼─────┘
+**            │size0│ ...
+**            └─────┘
+**              ...
+**
+**  1. A slab caches a 2D matrix of elements, allocated by operating system all at once.
+**  2. Each Alloc() yields a row by returning a T* to first elem of the row.
+**  3. Each Free() reclaims a row back to internal free list.
+**
 */
 
 struct FreeNode {
@@ -51,7 +50,7 @@ public:
 
         size0_ = size0;
         size1_ = size1;
-		size2_ = size2;
+        size2_ = size2;
     }
 
 
@@ -68,7 +67,7 @@ public:
             }
         }
 
-        dbg(num_used_++);
+        num_used_++;
         return (T*) FreeListPop();
     }
 
