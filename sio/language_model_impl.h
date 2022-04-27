@@ -7,13 +7,11 @@
 
 namespace sio {
 
-/*
-** PrefixTreeLm is used for LM-free decoding (e.g. vanilla CTC),
-** Conceptually, it is a forever-expanding prefix tree:
-** - each arc represents an emitted token / word
-** - each leaf node represents a tree-search head
-** - each path from root to leaf represents a unique decoded hypothesis
-*/
+// PrefixTreeLm is used for LM-free decoding (e.g. vanilla CTC),
+// Conceptually, it is a forever-expanding prefix tree:
+// - each arc represents an emitted token / word
+// - each leaf node represents a tree-search head
+// - each path from root to leaf represents a unique decoded hypothesis
 class PrefixTreeLm : public LanguageModelItf {
 public:
     LmStateId NullState() const override {
@@ -33,13 +31,11 @@ public:
 }; // class PrefixTreeLm
 
 
-/*
-** KenLm's model is designed to be stateless, so it can be shared by multiple threads.
-** But query threads still need to handle KenLm's states, NgramLm severs as a state manager:
-**   1. maintains an indexing system via a bidirectional map: state index <-> KenLm's state
-**   2. provides index-based interface to hide actual states from outside world
-** NgramLm instance is stateful so it should not be shared by multiple threads.
-*/
+// KenLm's model is designed to be stateless, so it can be shared by multiple threads.
+// But query threads still need to handle KenLm's states, NgramLm severs as a state manager:
+//   1. maintains an indexing system via a bidirectional map: state index <-> KenLm's state
+//   2. provides index-based interface to hide actual states from outside world
+// NgramLm instance is stateful so it should not be shared by multiple threads.
 class NgramLm : public LanguageModelItf {
     // bidirectional map:
     //   state -> index via hashmap

@@ -8,22 +8,19 @@
 
 namespace sio {
 
-/* 
-** GSL-like (Guideline Supported Library) pointer annotations for old style-C:
-** 
-** C pointers are great at pointing "things" but failing to express:
-**     - ownership
-**     - nullability
-** Note that these two properties are orthogonal to each other.
-** 
-** So to make C pointers clearer, aliasing annotations are introduced throughout this library:
-**     - T*                  denotes pointers without ownership & cannot be null
-**     - Owner<T*>           denotes pointers with    ownership & cannot be null
-**     - Nullable<T*>        denotes pointers without ownership & can    be null
-**     - Nullable<Owner<T*>> denotes pointers with    ownership & can    be null
-** With consistent use of this convention, raw pointers (T*) are just as safe as reference.
-*/
-
+// GSL-like (Guideline Supported Library) pointer annotations for old style-C:
+// 
+// C pointers are great at pointing "things" but failing to express:
+//     - ownership
+//     - nullability
+// Note that these two properties are orthogonal to each other.
+// 
+// So to make C pointers clearer, aliasing annotations are introduced throughout this library:
+//     - T*                  denotes pointers without ownership & cannot be null
+//     - Owner<T*>           denotes pointers with    ownership & cannot be null
+//     - Nullable<T*>        denotes pointers without ownership & can    be null
+//     - Nullable<Owner<T*>> denotes pointers with    ownership & can    be null
+// With consistent use of this convention, raw pointers (T*) are just as safe as reference.
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Owner = T;
 
@@ -31,10 +28,7 @@ template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::
 using Nullable = T;
 
 
-/*
-** Other than above annotates to raw pointers, 
-** following aliases are used for C++11 smart pointers
-*/
+// C++11 smart pointer aliasings
 template <typename T, typename = typename absl::enable_if_t<std::is_pointer<T>::value>>
 using Unique = std::unique_ptr<typename std::remove_pointer<T>::type>;
 

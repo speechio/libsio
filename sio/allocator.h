@@ -7,22 +7,19 @@
 
 namespace sio {
 
-/*
-**                      size1
-**            ┌─────┬─────┬─────┐
-**            │size0│size0│size0│ ..
-**            ├─────┼─────┼─────┘
-**            │size0│size0│ ...
-**      size2 ├─────┼─────┘
-**            │size0│ ...
-**            └─────┘
-**              ...
-**
-**  1. A slab caches a 2D matrix of elements, allocated by operating system all at once.
-**  2. Each Alloc() yields a row by returning a T* to the beginning of the row.
-**  3. Each Free() reclaims a row back to internal free list.
-*/
-
+//                  size1
+//        ┌─────┬─────┬─────┐
+//        │size0│size0│size0│ ..
+//        ├─────┼─────┼─────┘
+//        │size0│size0│ ...
+//  size2 ├─────┼─────┘
+//        │size0│ ...
+//        └─────┘
+//          ...
+//
+//  1. A slab caches a 2D matrix of elements, allocated by operating system all at once.
+//  2. Each Alloc() yields a row by returning a T* to the beginning of the row.
+//  3. Each Free() reclaims a row back to internal free list.
 template <typename T>
 class SlabAllocator {
     struct FreeNode;

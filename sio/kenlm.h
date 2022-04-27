@@ -10,14 +10,12 @@
 
 namespace sio {
 
-/*
-** Wrapper class for KenLm model, the underlying model structure can be either "trie" or "probing".
-** Main purposes:
-**  1. loads & holds kenlm model resources (with ownership)
-**  2. handles the index mapping between tokenizer & kenlm vocab
-**  3. KenLm yields log10 score, whereas ASR decoder normally uses natural log, a conversion is need.
-**  4. provides a stateless ngram query engine, can be shared by multiple threads
-*/
+// Wrapper class for KenLm model, the underlying model structure can be either "trie" or "probing".
+// Main purposes:
+//  1. loads & holds kenlm model resources (with ownership)
+//  2. handles the index mapping between tokenizer & kenlm vocab
+//  3. KenLm yields log10 score, whereas ASR decoder normally uses natural log, a conversion is need.
+//  4. provides a stateless ngram query engine, can be shared by multiple threads
 class KenLm {
 public:
     using State = lm::ngram::State;
