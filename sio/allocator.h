@@ -19,19 +19,16 @@ namespace sio {
 **              ...
 **
 **  1. A slab caches a 2D matrix of elements, allocated by operating system all at once.
-**  2. Each Alloc() yields a row by returning a T* to first elem of the row.
+**  2. Each Alloc() yields a row by returning a T* to the beginning of the row.
 **  3. Each Free() reclaims a row back to internal free list.
-**
 */
-
-struct FreeNode {
-    Nullable<FreeNode*> next = nullptr;
-};
 
 template <typename T>
 class SlabAllocator {
+    struct FreeNode;
+
     // A slab is a blob of raw memory with size0_ * size1_ * sizeof(T) bytes.
-    size_t size0_ = 0; // element size in bytes
+    size_t size0_ = 0; // num of bytes per element
     size_t size1_ = 0; // num of elements per alloc
     size_t size2_ = 0; // num of allocs per slab
 
@@ -91,6 +88,11 @@ public:
     }
 
 private:
+
+    struct FreeNode {
+        Nullable<FreeNode*> next = nullptr;
+    };
+
 
     inline void FreeListPush(FreeNode* p) {
         p->next = free_list_;
