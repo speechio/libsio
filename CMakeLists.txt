@@ -135,6 +135,7 @@ set(KENLM_LIBRARIES kenlm)
 add_library(sio INTERFACE)
 target_include_directories(sio INTERFACE
 	${CMAKE_SOURCE_DIR}
+	${CMAKE_SOURCE_DIR}/deps
 	${KALDI_CMAKE_DIST}/include ${KALDI_CMAKE_DIST}/include/kaldi # needed here because Kaldi is not imported through cmake
 )
 target_compile_options(sio INTERFACE -fsanitize=address)
