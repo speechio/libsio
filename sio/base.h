@@ -12,6 +12,6 @@
 #include "sio/map.h"
 #include "sio/util.h"
 #include "sio/math.h"
-#include "sio/dbg_macro.h"
+#include "sio/dbg.h"
 
 #endif

@@ -21,3 +21,4 @@ TEST(dbg_macro, Basic) {
 
     dbg("---- dbg macro ----", i, m, v, "==== dbg macro ====");
 }
+

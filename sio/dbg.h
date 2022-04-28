@@ -1,5 +1,5 @@
-#ifndef SIO_DBG_MACRO_H
-#define SIO_DBG_MACRO_H
+#ifndef SIO_DBG_H
+#define SIO_DBG_H
 
 // 2021.12 Jiayu notes:
 //   this code is copied from: https://github.com/sharkdp/dbg-macro/dbg.h
