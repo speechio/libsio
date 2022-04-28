@@ -10,7 +10,7 @@
 namespace sio {
 
 TEST(Feature, Extractor) {
-    Map<str, int> audio_to_frames = {
+    hashmap<str, int> audio_to_frames = {
         {"testdata/MINI/audio/audio1.wav", 126},
         {"testdata/MINI/audio/audio2.wav", 522}
     };

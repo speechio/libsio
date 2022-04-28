@@ -1,5 +1,5 @@
-#ifndef SIO_MAP_H
-#define SIO_MAP_H
+#ifndef SIO_HASH_H
+#define SIO_HASH_H
 
 #include <unordered_map>
 #include <absl/container/flat_hash_map.h>
@@ -13,7 +13,7 @@ template <
     class Eq = std::equal_to<K>,
     class Allocator = std::allocator<std::pair<const K, V>>
 >
-using Map = std::unordered_map<K, V, Hash, Eq, Allocator>;
+using hashmap = std::unordered_map<K, V, Hash, Eq, Allocator>;
 
 template <
     class K,
@@ -22,7 +22,7 @@ template <
     class Eq = absl::container_internal::hash_default_eq<K>,
     class Allocator = std::allocator<std::pair<const K, V>>
 >
-using FastMap = absl::flat_hash_map<K, V, Hash, Eq, Allocator>;
+using hashtab = absl::flat_hash_map<K, V, Hash, Eq, Allocator>;
 
 };
 

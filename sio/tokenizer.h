@@ -11,8 +11,8 @@ using TokenId = i32;
 constexpr TokenId kNoTokenId = -1;
 
 class Tokenizer {
-    Map<TokenId, str> index_to_token_; // TODO: consider vector implementation
-    Map<str, TokenId> token_to_index_;
+    hashmap<TokenId, str> index_to_token_; // TODO: consider vector implementation
+    hashmap<str, TokenId> token_to_index_;
 
 public:
     TokenId blk = kNoTokenId;

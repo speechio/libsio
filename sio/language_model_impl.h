@@ -43,7 +43,7 @@ class NgramLm : public LanguageModelItf {
     // Note that the hashmap implementation must not reallocate,
     // because reallocation will invalidate all pointers in the vector.
     // std::unordered_map is OK (backed with linked list), Google's swiss table is not.
-    Map<KenLm::State, LmStateId, KenLm::StateHasher> state_to_index_;
+    hashmap<KenLm::State, LmStateId, KenLm::StateHasher> state_to_index_;
     vec<const KenLm::State*> index_to_state_;
 
     const KenLm* kenlm_ = nullptr;
