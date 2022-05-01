@@ -1,6 +1,6 @@
-#include "sio_stt.h"
+#include "sio.h"
 
-#include "sio/sio_stt.h"
+#include "sio/stt.h"
 
 struct sio_stt_model* sio_stt_model_create(const char* path) { return nullptr;}
 int sio_stt_model_destroy(struct sio_stt_model* model) { return 0; }
