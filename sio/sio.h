@@ -1,5 +1,5 @@
-#ifndef SIO_H
-#define SIO_H
+#ifndef SIO_SIO_H
+#define SIO_SIO_H
 
 #ifdef __cplusplus
 extern "C" {
