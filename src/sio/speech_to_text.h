@@ -19,6 +19,7 @@ class SpeechToText {
     FeatureExtractor feature_extractor_;
     Scorer scorer_;
     BeamSearch beam_search_;
+    str text_;
 
 public:
     Error Load(SpeechToTextModel& model) {
@@ -57,19 +58,21 @@ public:
 
 
     Error To() { 
-        return Advance(nullptr, 0, /*dont care sample rate*/123.456, /*eos*/true);
+        Advance(nullptr, 0, /*dont care sample rate*/123.456, /*eos*/true);
+
+        for (const vec<TokenId>& path : beam_search_.NBest()) {
+            for (const auto& t : path) {
+                text_ += tokenizer_->Token(t);
+            }
+            text_ += "\t";
+        }
+        
+        return Error::OK;
     }
 
 
-    Error Text(std::string* text) { 
-        for (const vec<TokenId>& path : beam_search_.NBest()) {
-            for (const auto& t : path) {
-                *text += tokenizer_->Token(t);
-            }
-            *text += "\t";
-        }
-
-        return Error::OK;
+    const char* Text() { 
+        return text_.c_str();
     }
 
 
@@ -77,6 +80,7 @@ public:
         feature_extractor_.Reset();
         scorer_.Reset();
         beam_search_.Reset();
+        text_.clear();
 
         return Error::OK; 
     }

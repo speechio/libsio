@@ -131,36 +131,45 @@ target_compile_definitions(kenlm PUBLIC -DKENLM_MAX_ORDER=6)
 set(KENLM_LIBRARIES kenlm)
 
 
-# libsio
-add_library(sio INTERFACE)
-target_include_directories(sio INTERFACE
-	${CMAKE_SOURCE_DIR}
-	${CMAKE_SOURCE_DIR}/deps
-	${KALDI_CMAKE_DIST}/include ${KALDI_CMAKE_DIST}/include/kaldi # needed here because Kaldi is not imported through cmake
+# libsiocxx
+add_library(siocxx INTERFACE)
+target_include_directories(siocxx INTERFACE
+    ${CMAKE_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/deps
+    ${KALDI_CMAKE_DIST}/include ${KALDI_CMAKE_DIST}/include/kaldi # needed here because Kaldi is not imported through cmake
 )
-#target_compile_options(sio INTERFACE -fsanitize=address)
-#target_link_options(sio INTERFACE -fsanitize=address)
-target_link_libraries(sio INTERFACE ${KENLM_LIBRARIES} ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
+#target_compile_options(siocxx INTERFACE -fsanitize=address)
+#target_link_options(siocxx INTERFACE -fsanitize=address)
+target_link_libraries(siocxx INTERFACE ${KENLM_LIBRARIES} ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
 
 
-# libsio unittest
+# libsiocxx unittest
 add_executable(unittest
-    sio/error_test.cc
-    sio/logger_test.cc
-    sio/check_test.cc
-    sio/linked_list_test.cc
-    sio/allocator_test.cc
-    sio/audio_test.cc
-    sio/feature_extractor_test.cc
-    sio/dbg_test.cc
-    sio/struct_loader_test.cc
-    sio/finite_state_machine_test.cc
-    sio/language_model_test.cc
+    src/sio/error_test.cc
+    src/sio/logger_test.cc
+    src/sio/check_test.cc
+    src/sio/linked_list_test.cc
+    src/sio/allocator_test.cc
+    src/sio/audio_test.cc
+    src/sio/feature_extractor_test.cc
+    src/sio/dbg_test.cc
+    src/sio/struct_loader_test.cc
+    src/sio/finite_state_machine_test.cc
+    src/sio/language_model_test.cc
 )
-target_link_libraries(unittest gtest_main sio)
+target_link_libraries(unittest gtest_main siocxx)
+
+# libsio
+add_library(sio SHARED
+    src/sio.cc
+)
+target_include_directories(sio
+    PUBLIC ${CMAKE_SOURCE_DIR}/src
+)
+target_link_libraries(sio PRIVATE siocxx)
 
 
 # stt bin
 add_executable(stt stt.cc)
-target_link_libraries(stt sio)
+target_link_libraries(stt siocxx)
 
