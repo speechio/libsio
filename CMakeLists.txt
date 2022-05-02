@@ -138,9 +138,9 @@ target_include_directories(sioxx INTERFACE
     ${CMAKE_SOURCE_DIR}/deps
     ${KALDI_CMAKE_DIST}/include ${KALDI_CMAKE_DIST}/include/kaldi # needed here because Kaldi is not imported through cmake
 )
+target_link_libraries(sioxx INTERFACE ${KENLM_LIBRARIES} ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
 #target_compile_options(sioxx INTERFACE -fsanitize=address)
 #target_link_options(sioxx INTERFACE -fsanitize=address)
-target_link_libraries(sioxx INTERFACE ${KENLM_LIBRARIES} ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
 
 
 # libsioxx unittest
@@ -158,6 +158,7 @@ add_executable(unittest
     src/sio/language_model_test.cc
 )
 target_link_libraries(unittest gtest_main sioxx)
+
 
 # libsio
 add_library(sio STATIC
