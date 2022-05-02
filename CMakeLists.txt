@@ -160,7 +160,7 @@ add_executable(unittest
 target_link_libraries(unittest gtest_main siocxx)
 
 # libsio
-add_library(sio SHARED
+add_library(sio STATIC
     src/sio.cc
 )
 target_include_directories(sio

@@ -9,15 +9,13 @@ struct sio_module* sio_create(const char* path) {
 }
 
 int sio_destroy(struct sio_module* m) {
-	sio::SpeechToTextModel* model = (sio::SpeechToTextModel*)m;
-	delete model;
+	delete (sio::SpeechToTextModel*)m;
 	return 0;
 }
 
 struct sio_stt* sio_stt_create(struct sio_module* m) {
-	sio::SpeechToTextModel* model = (sio::SpeechToTextModel*)m;
 	sio::SpeechToText *stt = new sio::SpeechToText;
-	stt->Load(*model);
+	stt->Load(*(sio::SpeechToTextModel*)m);
 	return (struct sio_stt*)stt;
 }
 
@@ -27,22 +25,18 @@ int sio_stt_destroy(struct sio_stt* stt) {
 }
 
 int sio_stt_speech_f32(struct sio_stt* stt, float* samples, int n, float sample_rate) {
-	sio::SpeechToText* p = (sio::SpeechToText*)stt;
-	p->Speech(samples, n, sample_rate);
-	return 0;
+	return ((sio::SpeechToText*)stt)->Speech(samples, n, sample_rate);
 }
 
 int sio_stt_to(struct sio_stt* stt) {
-	sio::SpeechToText* p = (sio::SpeechToText*)stt;
-	p->To();
-	return 0;
+	return ((sio::SpeechToText*)stt)->To();
 }
 
-const char* sio_stt_text(struct sio_stt* stt) { return nullptr; }
+const char* sio_stt_text(struct sio_stt* stt) {
+    return ((sio::SpeechToText*)stt)->Text();
+}
 
 int sio_stt_reset(struct sio_stt* stt) {
-	sio::SpeechToText* p = (sio::SpeechToText*)stt;
-	p->Reset();
-	return 0;
+	return ((sio::SpeechToText*)stt)->Reset();
 }
 
