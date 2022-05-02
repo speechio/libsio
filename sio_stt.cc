@@ -5,14 +5,17 @@
 #include <iostream>
 #include <vector>
 
-#include "sio/audio.h"
-#include "sio.h"
+#include "sio/stt.h"
 
 int main() {
-    struct sio_module* siom = sio_create("model/stt.json");
-    struct sio_stt* stt = sio_stt_create(siom);
+    sio::SpeechToTextModel model;
+    model.Load("model/stt.json");
 
-    size_t samples_per_chunk = 1000;
+    sio::SpeechToText stt;
+    stt.Load(model);
+
+    size_t samples_per_chunk = model.config.online ? 1000 : std::numeric_limits<size_t>::max();
+
     std::ifstream audio_list("wav.list");
     std::string audio;
     int ndone = 0;
@@ -28,17 +31,15 @@ int main() {
         size_t offset = 0;
         while (offset < samples.size()) { // streaming via successive Speech() calls
             size_t k = std::min(samples_per_chunk, samples.size() - offset);
-            sio_stt_speech(stt, &samples[offset], k, sample_rate);
+            stt.Speech(&samples[offset], k, sample_rate);
             offset += k;
         }
-        sio_stt_to(stt);
-        text = sio_stt_text(stt);
+        stt.To();
+        text = stt.Text();
         std::cout << ++ndone << "\t" << audio << "\t" << offset/sample_rate << "\t" << text << "\n";
 
-        sio_stt_reset(stt);
+        stt.Reset();
     }
 
-    sio_stt_destroy(stt);
-    sio_destroy(siom);
     return 0;
 }

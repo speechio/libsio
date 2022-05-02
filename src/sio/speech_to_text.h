@@ -71,7 +71,7 @@ public:
     }
 
 
-    const char* Text() { 
+    const char* Text() const {
         return text_.c_str();
     }
 

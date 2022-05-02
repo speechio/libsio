@@ -131,19 +131,19 @@ target_compile_definitions(kenlm PUBLIC -DKENLM_MAX_ORDER=6)
 set(KENLM_LIBRARIES kenlm)
 
 
-# libsiocxx
-add_library(siocxx INTERFACE)
-target_include_directories(siocxx INTERFACE
+# libsioxx
+add_library(sioxx INTERFACE)
+target_include_directories(sioxx INTERFACE
     ${CMAKE_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/deps
     ${KALDI_CMAKE_DIST}/include ${KALDI_CMAKE_DIST}/include/kaldi # needed here because Kaldi is not imported through cmake
 )
-#target_compile_options(siocxx INTERFACE -fsanitize=address)
-#target_link_options(siocxx INTERFACE -fsanitize=address)
-target_link_libraries(siocxx INTERFACE ${KENLM_LIBRARIES} ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
+#target_compile_options(sioxx INTERFACE -fsanitize=address)
+#target_link_options(sioxx INTERFACE -fsanitize=address)
+target_link_libraries(sioxx INTERFACE ${KENLM_LIBRARIES} ${TORCH_LIBRARIES} ${KALDI_LIBRARIES} ${ABSL_LIBRARIES})
 
 
-# libsiocxx unittest
+# libsioxx unittest
 add_executable(unittest
     src/sio/error_test.cc
     src/sio/logger_test.cc
@@ -157,7 +157,7 @@ add_executable(unittest
     src/sio/finite_state_machine_test.cc
     src/sio/language_model_test.cc
 )
-target_link_libraries(unittest gtest_main siocxx)
+target_link_libraries(unittest gtest_main sioxx)
 
 # libsio
 add_library(sio STATIC
@@ -166,10 +166,10 @@ add_library(sio STATIC
 target_include_directories(sio
     PUBLIC ${CMAKE_SOURCE_DIR}/src
 )
-target_link_libraries(sio PRIVATE siocxx)
+target_link_libraries(sio PRIVATE sioxx)
 
 
 # stt bin
-add_executable(stt stt.cc)
-target_link_libraries(stt siocxx)
+add_executable(sio_stt sio_stt.cc)
+target_link_libraries(sio_stt sioxx)
 

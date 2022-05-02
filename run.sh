@@ -1,5 +1,5 @@
 rm -f build/unittest
-rm -f build/stt
+rm -f build/sio_stt
 
 cmake -S . -B build
 cmake --build build -j 40
@@ -9,5 +9,5 @@ if [[ `uname -s` == "Darwin" ]]; then
 fi
 
 SIO_VERBOSITY=INFO build/unittest
-SIO_VERBOSITY=INFO build/stt
+SIO_VERBOSITY=INFO build/sio_stt
 
