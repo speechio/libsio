@@ -1,5 +1,5 @@
-#ifndef SIO_FINITE_STATE_MACHINE_H
-#define SIO_FINITE_STATE_MACHINE_H
+#ifndef SIO_FST_H
+#define SIO_FST_H
 
 #include <limits>
 #include <algorithm>
