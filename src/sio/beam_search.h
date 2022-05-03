@@ -7,7 +7,7 @@
 #include "sio/base.h"
 #include "sio/allocator.h"
 #include "sio/tokenizer.h"
-#include "sio/finite_state_machine.h"
+#include "sio/fst.h"
 #include "sio/language_model.h"
 
 namespace sio {
@@ -70,19 +70,19 @@ struct BeamSearchConfig {
 /*
  * StateHandle represents a unique state in decoding graph during beam search.
  *
- *   For single-graph decoding: StateHandle = FsmStateId. e.g.:
+ *   For single-graph decoding: StateHandle = FstStateId. e.g.:
  *       * T (vanilla CTC)
  *       * TLG (CTC with lexicon & external LM)
  *       * HCLG (WFST)
  *
  *   For multi-graph decoding: say StateHandle = 64-bits(32 + 32) integer:
- *       1st 32 bits represent a Fsm
- *       2nd 32 bits represent a state inside that Fsm
+ *       1st 32 bits represent a Fst
+ *       2nd 32 bits represent a state inside that Fst
  */
-using StateHandle = FsmStateId;
+using StateHandle = FstStateId;
 //using StateHandle = u64;
 
-static inline StateHandle ComposeStateHandle(int graph, FsmStateId state) {
+static inline StateHandle ComposeStateHandle(int graph, FstStateId state) {
     return state;
     //return (static_cast<StateHandle>(graph) << 32) + static_cast<StateHandle>(state);
 }
@@ -90,9 +90,9 @@ static inline int HandleToGraph(StateHandle h) {
     return 0;
     //return static_cast<int>(static_cast<u32>(h >> 32));
 }
-static inline FsmStateId HandleToState(StateHandle h) {
+static inline FstStateId HandleToState(StateHandle h) {
     return h;
-    //return static_cast<FsmStateId>(static_cast<u32>(h))
+    //return static_cast<FstStateId>(static_cast<u32>(h))
 }
 
 
@@ -101,7 +101,7 @@ struct TokenSet;
 
 struct TraceBack {
     Token* token = nullptr;
-    FsmArc arc;
+    FstArc arc;
     f32 score = 0.0;
     LmScore lm_scores[SIO_MAX_LM] = {}; // zero initialized to 0.0
 };
@@ -130,7 +130,7 @@ struct TokenSet {
 
 class BeamSearch {
     BeamSearchConfig config_;
-    const Fsm* graph_ = nullptr;
+    const Fst* graph_ = nullptr;
     const Tokenizer* tokenizer_ = nullptr;
     vec<LanguageModel> lms_;
 
@@ -161,7 +161,7 @@ class BeamSearch {
 
 public:
 
-    Error Load(const BeamSearchConfig& config, const Fsm& graph, const Tokenizer& tokenizer) {
+    Error Load(const BeamSearchConfig& config, const Fst& graph, const Tokenizer& tokenizer) {
         SIO_CHECK(status_ == SearchStatus::kUnconstructed);
 
         config_ = config; // make a copy to block outside changes 
@@ -291,7 +291,7 @@ private:
     }
 
 
-    bool TokenPassing(const TokenSet& src, const FsmArc& arc, f32 score, TokenSet* dst) {
+    bool TokenPassing(const TokenSet& src, const FstArc& arc, f32 score, TokenSet* dst) {
         bool changed = false; // dst token set is changed
 
         for (const Token* t = src.head; t != nullptr; t = t->next) {
@@ -304,7 +304,7 @@ private:
             nt.total_score = t->total_score + arc.score + score;
 
             // 2. LM
-            if (arc.olabel == kFsmEps) {
+            if (arc.olabel == kFstEps) {
                 memcpy(nt.lm_states, t->lm_states, sizeof(LmStateId) * lms_.size());
             } else {  /* word-end arc */
                 for (int i = 0; i != lms_.size(); i++) {
@@ -404,7 +404,7 @@ private:
         status_ = SearchStatus::kBusy;
 
         Token* t = NewToken();
-        t->trace_back.arc.ilabel = kFsmEps;
+        t->trace_back.arc.ilabel = kFstEps;
         t->trace_back.arc.olabel = tokenizer_->bos;
 
         for (int i = 0; i != lms_.size(); i++) {
@@ -467,8 +467,8 @@ private:
 
         for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
-                const FsmArc& arc = aiter.Value();
-                if (arc.ilabel != kFsmEps && arc.ilabel != kFsmInputEnd) {
+                const FstArc& arc = aiter.Value();
+                if (arc.ilabel != kFstEps && arc.ilabel != kFstInputEnd) {
                     f32 score = frame_score[arc.ilabel] + score_offset;
                     if (src.best_score + arc.score + score < score_cutoff_) continue;
 
@@ -500,8 +500,8 @@ private:
             if (src.best_score < score_cutoff_) continue;
 
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
-                const FsmArc& arc = aiter.Value();
-                if (arc.ilabel == kFsmEps) {
+                const FstArc& arc = aiter.Value();
+                if (arc.ilabel == kFstEps) {
                     if (src.best_score + arc.score < score_cutoff_) continue;
 
                     int dst_k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst));
@@ -525,8 +525,8 @@ private:
 
         for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
-                const FsmArc& arc = aiter.Value();
-                if (arc.ilabel == kFsmInputEnd) {
+                const FstArc& arc = aiter.Value();
+                if (arc.ilabel == kFstInputEnd) {
                     TokenSet& dst = frontier_[
                         FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
                     ];
@@ -606,7 +606,7 @@ private:
         for (k = 0, p = frontier_[it->second].head; k < config_.nbest && p != nullptr; k++, p = p->next) {
             vec<TokenId> path;
             for(Token* t = p; t != nullptr; t = t->trace_back.token) {
-                if (t->trace_back.arc.olabel != kFsmEps) {
+                if (t->trace_back.arc.olabel != kFstEps) {
                     path.push_back(t->trace_back.arc.olabel);
                 }
             }

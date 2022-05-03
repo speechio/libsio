@@ -11,7 +11,7 @@
 #include "sio/feature_extractor.h"
 #include "sio/tokenizer.h"
 #include "sio/scorer.h"
-#include "sio/finite_state_machine.h"
+#include "sio/fst.h"
 #include "sio/kenlm.h"
 #include "sio/language_model_itf.h"
 #include "sio/language_model_impl.h"

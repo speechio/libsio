@@ -6,6 +6,6 @@ deps/kaldi_dist
 deps/kenlm
 deps/abseil-cpp
 deps/libtorch
-*.fsm
+*.fst
 model
 wav.list

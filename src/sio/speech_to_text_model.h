@@ -8,7 +8,7 @@
 #include "sio/base.h"
 #include "sio/mean_var_norm.h"
 #include "sio/tokenizer.h"
-#include "sio/finite_state_machine.h"
+#include "sio/fst.h"
 #include "sio/speech_to_text_config.h"
 
 namespace sio {
@@ -26,7 +26,7 @@ struct SpeechToTextModel {
 
     torch::jit::script::Module nnet;
 
-    Fsm graph;
+    Fst graph;
 
     Error Load(std::string config_file) { 
         config.Load(config_file);
