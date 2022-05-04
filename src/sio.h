@@ -8,15 +8,15 @@ extern "C" {
 #endif
 
 struct sio_module {
-    intptr_t stt_module;
-    intptr_t tts_module;
+    void* stt_module;
+    void* tts_module;
 };
 
 struct sio_stt {
-    intptr_t runtime;
+    void* runtime;
 };
 
-struct sio_module sio_create(const char* filepath);
+struct sio_module sio_create(const char* path);
 int sio_destroy(struct sio_module);
 
 struct sio_stt sio_stt_create(struct sio_module);

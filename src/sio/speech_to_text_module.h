@@ -13,7 +13,8 @@
 
 namespace sio {
 /*
- * SpeechToTextModule loads & stores stateless resources, can be shared by different runtime threads.
+ * SpeechToTextModule holds ownerships of static resources/assets for speech recognition.
+ * It is stateless, and can be shared by mulitple runtime threads.
  * TODO: check torchscript multi-thread usage.
  */
 struct SpeechToTextModule {

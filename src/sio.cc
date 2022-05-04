@@ -1,24 +1,22 @@
 #include "sio.h"
 
 #include "sio/stt.h"
-//#include "sio/tts.h"
 
 struct sio_module sio_create(const char* path) {
     sio::SpeechToTextModule* p = new sio::SpeechToTextModule;
     p->Load(path);
-    return { (intptr_t)p, (intptr_t)nullptr };
+    return { (void*)p };
 }
 
 int sio_destroy(struct sio_module m) {
     delete (sio::SpeechToTextModule*)m.stt_module;
-    //delete (sio::TextToSpeechModel*)m.tts_module;
     return 0;
 }
 
 struct sio_stt sio_stt_create(struct sio_module m) {
     sio::SpeechToTextRuntime* p = new sio::SpeechToTextRuntime;
     p->Load(*(sio::SpeechToTextModule*)m.stt_module);
-    return { (intptr_t)p };
+    return { (void*)p };
 }
 
 int sio_stt_destroy(struct sio_stt stt) {
