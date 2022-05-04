@@ -2,25 +2,52 @@
 
 #include "sio/stt.h"
 
-struct sio_module sio_create(const char* path) {
+int sio_init(const char* path, struct sio_module* m) {
+    SIO_CHECK(m != nullptr);
+    SIO_CHECK(m->stt_module == nullptr);
+
     sio::SpeechToTextModule* p = new sio::SpeechToTextModule;
-    p->Load(path);
-    return { (void*)p };
+    int err = p->Load(path);
+    if (!err) {
+        m->stt_module = p;
+    } else {
+        delete p;
+    }
+
+    return err;
 }
 
-int sio_destroy(struct sio_module m) {
-    delete (sio::SpeechToTextModule*)m.stt_module;
+int sio_deinit(struct sio_module* m) {
+    SIO_CHECK(m != nullptr);
+
+    delete (sio::SpeechToTextModule*)m->stt_module;
+    m->stt_module = nullptr;
+
     return 0;
 }
 
-struct sio_stt sio_stt_create(struct sio_module m) {
+int sio_stt_init(struct sio_module m, struct sio_stt* stt) {
+    SIO_CHECK(m.stt_module != nullptr);
+    SIO_CHECK(stt != nullptr);
+    SIO_CHECK(stt->runtime == nullptr);
+
     sio::SpeechToTextRuntime* p = new sio::SpeechToTextRuntime;
-    p->Load(*(sio::SpeechToTextModule*)m.stt_module);
-    return { (void*)p };
+    int err = p->Load(*(sio::SpeechToTextModule*)m.stt_module);
+    if (!err) {
+        stt->runtime = p;
+    } else {
+        delete p;
+    }
+
+    return err;
 }
 
-int sio_stt_destroy(struct sio_stt stt) {
-    delete (sio::SpeechToTextRuntime*)stt.runtime;
+int sio_stt_deinit(struct sio_stt* stt) {
+    SIO_CHECK(stt != nullptr);
+
+    delete (sio::SpeechToTextRuntime*)stt->runtime;
+    stt->runtime = nullptr;
+
     return 0;
 }
 
