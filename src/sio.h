@@ -1,8 +1,6 @@
 #ifndef SIO_H
 #define SIO_H
 
-#include <stdint.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
