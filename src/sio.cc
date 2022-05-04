@@ -1,42 +1,44 @@
 #include "sio.h"
 
 #include "sio/stt.h"
+//#include "sio/tts.h"
 
-struct sio_module* sio_create(const char* path) {
-    sio::SpeechToTextModel* model = new sio::SpeechToTextModel;
-    model->Load(path);
-    return (sio_module*)model;
+struct sio_handle sio_create(const char* path) {
+    sio::SpeechToTextModel* p = new sio::SpeechToTextModel;
+    p->Load(path);
+    return { (uintptr_t)p, (uintptr_t)nullptr };
 }
 
-int sio_destroy(struct sio_module* m) {
-    delete (sio::SpeechToTextModel*)m;
+int sio_destroy(struct sio_handle sio) {
+    delete (sio::SpeechToTextModel*)sio.stt_module;
+    //delete (sio::TextToSpeechModel*)sio.tts_module;
     return 0;
 }
 
-struct sio_stt* sio_stt_create(struct sio_module* m) {
-    sio::SpeechToText *stt = new sio::SpeechToText;
-    stt->Load(*(sio::SpeechToTextModel*)m);
-    return (struct sio_stt*)stt;
+struct sio_stt_handle sio_stt_create(struct sio_handle sio) {
+    sio::SpeechToText* p = new sio::SpeechToText;
+    p->Load(*(sio::SpeechToTextModel*)sio.stt_module);
+    return { (uintptr_t)p };
 }
 
-int sio_stt_destroy(struct sio_stt* stt) {
-    delete (sio::SpeechToText*)stt;
+int sio_stt_destroy(struct sio_stt_handle stt) {
+    delete (sio::SpeechToText*)stt.runtime;
     return 0;
 }
 
-int sio_stt_speech(struct sio_stt* stt, float* samples, int n, float sample_rate) {
-    return ((sio::SpeechToText*)stt)->Speech(samples, n, sample_rate);
+int sio_stt_speech(struct sio_stt_handle stt, const float* samples, int n, float sample_rate) {
+    return ((sio::SpeechToText*)stt.runtime)->Speech(samples, n, sample_rate);
 }
 
-int sio_stt_to(struct sio_stt* stt) {
-    return ((sio::SpeechToText*)stt)->To();
+int sio_stt_to(struct sio_stt_handle stt) {
+    return ((sio::SpeechToText*)stt.runtime)->To();
 }
 
-const char* sio_stt_text(struct sio_stt* stt) {
-    return ((sio::SpeechToText*)stt)->Text();
+const char* sio_stt_text(struct sio_stt_handle stt) {
+    return ((sio::SpeechToText*)stt.runtime)->Text();
 }
 
-int sio_stt_reset(struct sio_stt* stt) {
-    return ((sio::SpeechToText*)stt)->Reset();
+int sio_stt_reset(struct sio_stt_handle stt) {
+    return ((sio::SpeechToText*)stt.runtime)->Reset();
 }
 
