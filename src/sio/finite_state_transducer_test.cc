@@ -1,4 +1,4 @@
-#include "sio/fst.h"
+#include "sio/finite_state_transducer.h"
 
 #include <gtest/gtest.h>
 #include <fstream>

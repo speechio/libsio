@@ -7,7 +7,7 @@
 #include "sio/base.h"
 #include "sio/allocator.h"
 #include "sio/tokenizer.h"
-#include "sio/fst.h"
+#include "sio/finite_state_transducer.h"
 #include "sio/language_model.h"
 
 namespace sio {

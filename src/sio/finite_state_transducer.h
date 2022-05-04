@@ -1,5 +1,5 @@
-#ifndef SIO_FST_H
-#define SIO_FST_H
+#ifndef SIO_FINITE_STATE_TRANSDUCER_H
+#define SIO_FINITE_STATE_TRANSDUCER_H
 
 #include <limits>
 #include <algorithm>

@@ -8,12 +8,12 @@ extern "C" {
 #endif
 
 struct sio_module {
-    uintptr_t stt_module;
-    uintptr_t tts_module;
+    intptr_t stt_module;
+    intptr_t tts_module;
 };
 
 struct sio_stt {
-    uintptr_t runtime;
+    intptr_t runtime;
 };
 
 struct sio_module sio_create(const char* filepath);

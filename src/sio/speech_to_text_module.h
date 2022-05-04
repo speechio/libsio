@@ -1,5 +1,5 @@
-#ifndef SIO_SPEECH_TO_TEXT_MODEL_H
-#define SIO_SPEECH_TO_TEXT_MODEL_H
+#ifndef SIO_SPEECH_TO_TEXT_MODULE_H
+#define SIO_SPEECH_TO_TEXT_MODULE_H
 
 #include <fstream>
 
@@ -8,16 +8,15 @@
 #include "sio/base.h"
 #include "sio/mean_var_norm.h"
 #include "sio/tokenizer.h"
-#include "sio/fst.h"
+#include "sio/finite_state_transducer.h"
 #include "sio/speech_to_text_config.h"
 
 namespace sio {
 /*
- * SpeechToTextModel stores stateless resources, 
- * can be shared by different threads.
+ * SpeechToTextModule loads & stores stateless resources, can be shared by different runtime threads.
  * TODO: check torchscript multi-thread usage.
  */
-struct SpeechToTextModel {
+struct SpeechToTextModule {
     SpeechToTextConfig config;
 
     Unique<MeanVarNorm*> mean_var_norm; // need pointer here because MVN is optional
@@ -58,7 +57,7 @@ struct SpeechToTextModel {
         return Error::OK;
     }
 
-}; // class SpeechToTextModel
+}; // class SpeechToTextModule
 }  // namespace sio
 
 #endif

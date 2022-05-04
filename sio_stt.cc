@@ -8,13 +8,12 @@
 #include "sio/stt.h"
 
 int main() {
-    sio::SpeechToTextModel model;
-    model.Load("model/stt.json");
+    sio::SpeechToTextModule stt_module;
+    stt_module.Load("stt_module/stt.json");
+    size_t samples_per_chunk = stt_module.config.online ? 1000 : std::numeric_limits<size_t>::max();
 
-    sio::SpeechToText stt;
-    stt.Load(model);
-
-    size_t samples_per_chunk = model.config.online ? 1000 : std::numeric_limits<size_t>::max();
+    sio::SpeechToTextRuntime stt;
+    stt.Load(stt_module);
 
     std::ifstream audio_list("wav.list");
     std::string audio;

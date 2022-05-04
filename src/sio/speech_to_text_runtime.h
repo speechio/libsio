@@ -1,5 +1,5 @@
-#ifndef SIO_SPEECH_TO_TEXT_H
-#define SIO_SPEECH_TO_TEXT_H
+#ifndef SIO_SPEECH_TO_TEXT_RUNTIME_H
+#define SIO_SPEECH_TO_TEXT_RUNTIME_H
 
 #include <stddef.h>
 
@@ -11,10 +11,10 @@
 #include "sio/tokenizer.h"
 #include "sio/scorer.h"
 #include "sio/beam_search.h"
-#include "sio/speech_to_text_model.h"
+#include "sio/speech_to_text_module.h"
 
 namespace sio {
-class SpeechToText {
+class SpeechToTextRuntime {
     const Tokenizer* tokenizer_ = nullptr;
     FeatureExtractor feature_extractor_;
     Scorer scorer_;
@@ -22,29 +22,30 @@ class SpeechToText {
     str text_;
 
 public:
-    Error Load(SpeechToTextModel& model) {
+
+    Error Load(SpeechToTextModule& m) {
         SIO_CHECK(tokenizer_ == nullptr); // Can't reload
-        tokenizer_ = &model.tokenizer;
+        tokenizer_ = &m.tokenizer;
 
         SIO_INFO << "Loading feature extractor ...";
         feature_extractor_.Load(
-            model.config.feature_extractor, 
-            model.mean_var_norm.get()
+            m.config.feature_extractor, 
+            m.mean_var_norm.get()
         );
 
         SIO_INFO << "Loading scorer ...";
         scorer_.Load(
-            model.config.scorer,
-            model.nnet,
+            m.config.scorer,
+            m.nnet,
             feature_extractor_.Dim(),
             tokenizer_->Size()
         );
 
         SIO_INFO << "Loading beam search ...";
         beam_search_.Load(
-            model.config.beam_search,
-            model.graph,
-            model.tokenizer
+            m.config.beam_search,
+            m.graph,
+            m.tokenizer
         );
 
         return Error::OK;
@@ -112,6 +113,6 @@ private:
         return Error::OK;
     }
 
-}; // class SpeechToText
+}; // class SpeechToTextRuntime
 }  // namespace sio
 #endif
