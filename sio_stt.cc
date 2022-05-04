@@ -5,15 +5,17 @@
 #include <iostream>
 #include <vector>
 
-#include "sio/stt.h"
+#include "sio/stt.h" // libsioxx
+#include "sio.h" // libsio
 
 int main() {
-    sio::SpeechToTextModule stt_module;
-    stt_module.Load("stt_module/stt.json");
-    size_t samples_per_chunk = stt_module.config.online ? 1000 : std::numeric_limits<size_t>::max();
+    struct sio_module sio = {}; // Zerolization Is Initialization(ZII) required here
+    sio_init("model/stt.json", &sio);
 
-    sio::SpeechToTextRuntime stt;
-    stt.Load(stt_module);
+    struct sio_stt stt = {}; // ZII required here
+    sio_stt_init(sio, &stt);
+
+    size_t samples_per_chunk = 1600;
 
     std::ifstream audio_list("wav.list");
     std::string audio;
@@ -30,15 +32,18 @@ int main() {
         size_t offset = 0;
         while (offset < samples.size()) { // streaming via successive Speech() calls
             size_t k = std::min(samples_per_chunk, samples.size() - offset);
-            stt.Speech(&samples[offset], k, sample_rate);
+            sio_stt_speech(stt, &samples[offset], k, sample_rate);
             offset += k;
         }
-        stt.To();
-        text = stt.Text();
-        std::cout << ++ndone << "\t" << audio << "\t" << offset/sample_rate << "\t" << text << "\n";
+        sio_stt_to(stt);
+        text = sio_stt_text(stt); // const char* -> str::string copy
+        sio_stt_reset(stt);
 
-        stt.Reset();
+        std::cout << ++ndone << "\t" << audio << "\t" << offset/sample_rate << "\t" << text << "\n";
     }
+
+    sio_stt_deinit(&stt);
+    sio_deinit(&sio);
 
     return 0;
 }
