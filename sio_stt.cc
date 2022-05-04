@@ -1,13 +1,12 @@
 #include <assert.h>
-#include <limits>
 #include <string>
 #include <fstream>
 #include <iostream>
 #include <vector>
 
 #include "sio/audio.h" // import sio::ReadAudio()
-//#include "sio/stt.h" // libsio internal C++ implementations
-#include "sio.h" // exported libsio C APIs
+//#include "sio/stt.h" // internal C++ implementations
+#include "sio.h" // public C APIs
 
 int main() {
     struct sio_package sio = {}; // Zerolization Is Initialization(ZII) required
