@@ -15,18 +15,17 @@ int main() {
     struct sio_stt stt = {}; // ZII required
     sio_stt_init(sio, &stt);
 
-    size_t samples_per_chunk = 1600; // 100ms for 16k audio
-
     std::ifstream audio_list("wav.list");
     std::string audio;
-    int ndone = 0;
 
+    int ndone = 0;
     while (std::getline(audio_list, audio)) {
         std::vector<float> samples;
         float sample_rate;
 
         sio::ReadAudio(audio, &samples, &sample_rate);
         assert(samples.size() != 0 && sample_rate == 16000.0);
+        size_t samples_per_chunk = sample_rate/20; // 50ms
 
         size_t offset = 0;
         while (offset < samples.size()) { // streaming via successive Speech() calls
