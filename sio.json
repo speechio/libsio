@@ -1,0 +1,35 @@
+{
+    "stt": {
+        "online": true,
+        "feature_extractor": {
+            "type": "fbank",
+            "sample_rate": 16000.0,
+            "dither": 1.0,
+            "num_mel_bins": 80
+        },
+        "mean_var_norm": "model/mean_var_norm.txt",
+        "tokenizer": {
+            "vocab": "model/tokenizer.vocab",
+            "model": "model/tokenizer.model"
+        },
+        "nnet": "model/final.pts",
+        "graph": "",
+        "context": "model/context.json",
+        "end_pointing": false,
+        "scorer": {
+            "chunk_size": -1,
+            "num_left_chunks": -1,
+            "num_threads": 1
+        },
+        "beam_search": {
+            "debug": true,
+            "beam": 16.0,
+            "max_active": 13,
+            "token_set_size": 15,
+            "nbest": 2,
+            "insertion_penalty": 1e-6,
+            "apply_score_offsets": true,
+            "token_allocator_slab_size": 4096
+        }
+    }
+}

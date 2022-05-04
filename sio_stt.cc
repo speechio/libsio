@@ -5,21 +5,29 @@
 #include <vector>
 
 #include "sio/audio.h" // import sio::ReadAudio()
-//#include "sio/stt.h" // internal C++ implementations
-#include "sio.h" // public C APIs
+//#include "sio/stt.h" // call sio via internal C++ implementations (libsioxx)
+#include "sio.h" // call sio via public C APIs (libsio)
 
-int main() {
+int main(int argc, char* argv[]) {
+    if (argc != 2 && argc != 3) {
+        printf("usage:\n  %s <audio_list> [<sio_config>]\n  <sio_config> defaults ./sio.json\n", argv[0]);
+        return 0;
+    }
+
+    const char* audio_list = argv[1];
+    const char* sio_config = (argc == 3) ? argv[2] : "sio.json";
+
     struct sio_package sio = {}; // Zerolization Is Initialization(ZII) required
-    sio_init("model/sio.json", &sio);
+    sio_init(sio_config, &sio);
 
     struct sio_stt stt = {}; // ZII required
     sio_stt_init(sio, &stt);
 
-    std::ifstream audio_list("wav.list");
+    std::ifstream audios(audio_list);
     std::string audio;
 
     int ndone = 0;
-    while (std::getline(audio_list, audio)) {
+    while (std::getline(audios, audio)) {
         std::vector<float> samples;
         float sample_rate;
 
