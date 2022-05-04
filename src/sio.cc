@@ -2,14 +2,15 @@
 
 #include "sio/stt.h"
 
-int sio_init(const char* path, struct sio_module* m) {
-    SIO_CHECK(m != nullptr);
-    SIO_CHECK(m->stt_module == nullptr);
+int sio_init(const char* path, struct sio_package* pkg) {
+    SIO_CHECK(pkg != nullptr);
+    SIO_CHECK(pkg->stt_module == nullptr);
 
     sio::SpeechToTextModule* p = new sio::SpeechToTextModule;
     int err = p->Load(path);
+
     if (!err) {
-        m->stt_module = p;
+        pkg->stt_module = p;
     } else {
         delete p;
     }
@@ -17,22 +18,24 @@ int sio_init(const char* path, struct sio_module* m) {
     return err;
 }
 
-int sio_deinit(struct sio_module* m) {
-    SIO_CHECK(m != nullptr);
+int sio_deinit(struct sio_package* pkg) {
+    SIO_CHECK(pkg != nullptr);
 
-    delete (sio::SpeechToTextModule*)m->stt_module;
-    m->stt_module = nullptr;
+    delete (sio::SpeechToTextModule*)pkg->stt_module;
+    pkg->stt_module = nullptr;
 
     return 0;
 }
 
-int sio_stt_init(struct sio_module m, struct sio_stt* stt) {
-    SIO_CHECK(m.stt_module != nullptr);
+int sio_stt_init(struct sio_package pkg, struct sio_stt* stt) {
+    SIO_CHECK(pkg.stt_module != nullptr);
+
     SIO_CHECK(stt != nullptr);
     SIO_CHECK(stt->runtime == nullptr);
 
     sio::SpeechToTextRuntime* p = new sio::SpeechToTextRuntime;
-    int err = p->Load(*(sio::SpeechToTextModule*)m.stt_module);
+    int err = p->Load(*(sio::SpeechToTextModule*)pkg.stt_module);
+
     if (!err) {
         stt->runtime = p;
     } else {
