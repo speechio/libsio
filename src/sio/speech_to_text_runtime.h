@@ -77,10 +77,11 @@ public:
     }
 
 
-    Error Reset() { 
-        feature_extractor_.Reset();
-        scorer_.Reset();
-        beam_search_.Reset();
+    Error Clear() { 
+        feature_extractor_.Clear();
+        scorer_.Clear();
+        beam_search_.Clear();
+
         text_.clear();
 
         return Error::OK; 

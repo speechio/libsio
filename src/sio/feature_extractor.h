@@ -85,7 +85,7 @@ public:
     }
 
 
-    Error Reset() {
+    Error Clear() {
         SIO_CHECK_EQ(config_->type, "fbank");
         pimpl_.reset();
         pimpl_ = std::make_unique<kaldi::OnlineFbank>(config_->fbank);

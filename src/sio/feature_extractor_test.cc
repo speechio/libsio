@@ -38,7 +38,7 @@ TEST(Feature, Extractor) {
         while(feature_extractor.Size() > 0) {
             auto frame = feature_extractor.Pop();
         }
-        feature_extractor.Reset();
+        feature_extractor.Clear();
     }
 }
 

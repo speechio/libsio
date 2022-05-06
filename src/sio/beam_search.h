@@ -222,7 +222,7 @@ public:
     }
 
 
-    Error Reset() {
+    Error Clear() {
         SIO_CHECK(status_ == SearchStatus::kDone);
         DeinitSession();
         SIO_CHECK(status_ == SearchStatus::kIdle);
@@ -439,7 +439,7 @@ private:
         frontier_map_.clear();
 
         lattice_.clear();
-        token_arena_.Reset();
+        token_arena_.Clear();
 
         if (config_.apply_score_offsets) {
             score_offsets_.clear();

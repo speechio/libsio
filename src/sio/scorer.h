@@ -106,7 +106,7 @@ public:
     }
 
 
-    Error Reset() {
+    Error Clear() {
         feat_cache_.clear();
         cur_feat_frame_ = 0;
 

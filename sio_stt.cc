@@ -10,15 +10,15 @@
 
 int main(int argc, char* argv[]) {
     if (argc != 2 && argc != 3) {
-        printf("usage:\n  %s <audio_list> [<sio_config>]\n  <sio_config> defaults ./sio.json\n", argv[0]);
+        printf("usage:\n  %s <audio_list> [<config>]\n  <config> defaults ./sio.json\n", argv[0]);
         return 0;
     }
 
     const char* audio_list = argv[1];
-    const char* sio_config = (argc == 3) ? argv[2] : "sio.json";
+    const char* config = (argc == 3) ? argv[2] : "sio.json";
 
     struct sio_package sio = {}; // Zerolization Is Initialization(ZII) required
-    sio_init(sio_config, &sio);
+    sio_init(config, &sio);
 
     struct sio_stt stt = {}; // ZII required
     sio_stt_init(sio, &stt);
@@ -43,7 +43,7 @@ int main(int argc, char* argv[]) {
         }
         sio_stt_to(stt);
         std::string text = sio_stt_text(stt); // const char* -> std::string copy
-        sio_stt_reset(stt);
+        sio_stt_clear(stt);
 
         std::cout << ++ndone << "\t" << audio << "\t" << offset/sample_rate << "\t" << text << "\n";
     }

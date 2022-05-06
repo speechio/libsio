@@ -66,7 +66,7 @@ const char* sio_stt_text(struct sio_stt stt) {
     return ((sio::SpeechToTextRuntime*)stt.runtime)->Text();
 }
 
-int sio_stt_reset(struct sio_stt stt) {
-    return ((sio::SpeechToTextRuntime*)stt.runtime)->Reset();
+int sio_stt_clear(struct sio_stt stt) {
+    return ((sio::SpeechToTextRuntime*)stt.runtime)->Clear();
 }
 

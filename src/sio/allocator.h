@@ -76,7 +76,7 @@ public:
     size_t NumFree() const { return num_free_; }
 
 
-    void Reset() {
+    void Clear() {
         slabs_.clear();
         free_list_ = nullptr;
 
