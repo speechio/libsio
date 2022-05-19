@@ -171,6 +171,6 @@ target_link_libraries(sio PRIVATE sioxx)
 
 
 # stt bin
-add_executable(sio_stt sio_stt.cc)
-target_link_libraries(sio_stt sio sioxx)
+add_executable(stt stt.cc)
+target_link_libraries(stt sio sioxx)
 
