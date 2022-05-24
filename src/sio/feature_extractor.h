@@ -10,7 +10,7 @@
 #include "sio/mean_var_norm.h"
 
 namespace sio {
-struct FeatureExtractorConfig {
+struct FeatureConfig {
     std::string type; // support "fbank" only
     kaldi::FbankOptions fbank;
 
@@ -26,7 +26,7 @@ struct FeatureExtractorConfig {
 
 
 class FeatureExtractor {
-    const FeatureExtractorConfig* config_ = nullptr;
+    const FeatureConfig* config_ = nullptr;
 
     // Kaldi online feature supports internal resampler:
     //   https://github.com/kaldi-asr/kaldi/blob/d366a93aad98127683b010fd01e145093c1e9e08/src/feat/online-feature.cc#L143
@@ -42,7 +42,7 @@ class FeatureExtractor {
 
 public:
 
-    Error Load(const FeatureExtractorConfig& config, Nullable<const MeanVarNorm*> mvn = nullptr) { 
+    Error Load(const FeatureConfig& config, Nullable<const MeanVarNorm*> mvn = nullptr) { 
         SIO_CHECK_EQ(config.type, "fbank");
         config_ = &config;
 

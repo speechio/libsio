@@ -12,7 +12,7 @@ namespace sio {
 struct SpeechToTextConfig {
     bool online = true;
 
-    FeatureExtractorConfig feature_extractor;
+    FeatureConfig feature;
     std::string mean_var_norm;
 
     std::string tokenizer_vocab;
@@ -30,20 +30,20 @@ struct SpeechToTextConfig {
     Error Register(StructLoader* loader, const std::string module = "") {
         loader->AddEntry(module + ".online", &online);
 
-        feature_extractor.Register(loader, module + ".feature_extractor");
+        this->feature.Register(loader, module + ".feature");
         loader->AddEntry(module + ".mean_var_norm", &mean_var_norm);
 
         loader->AddEntry(module + ".tokenizer.vocab", &tokenizer_vocab);
         loader->AddEntry(module + ".tokenizer.model", &tokenizer_model);
 
         loader->AddEntry(module + ".nnet", &nnet);
-        scorer.Register(loader, module + ".scorer");
+        this->scorer.Register(loader, module + ".scorer");
 
         loader->AddEntry(module + ".graph", &graph);
         loader->AddEntry(module + ".context", &context);
         loader->AddEntry(module + ".do_endpointing", &do_endpointing);
 
-        beam_search.Register(loader, module + ".beam_search");
+        this->beam_search.Register(loader, module + ".beam_search");
 
         return Error::OK;
     }

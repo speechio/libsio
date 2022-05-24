@@ -1,7 +1,8 @@
 {
     "stt": {
         "online": true,
-        "feature_extractor": {
+        "end_pointing": false,
+        "feature": {
             "type": "fbank",
             "sample_rate": 16000.0,
             "dither": 1.0,
@@ -13,14 +14,12 @@
             "model": "model/tokenizer.model"
         },
         "nnet": "model/final.pts",
-        "graph": "",
-        "context": "model/context.json",
-        "end_pointing": false,
         "scorer": {
             "chunk_size": -1,
             "num_left_chunks": -1,
             "num_threads": 1
         },
+        "graph": "",
         "beam_search": {
             "debug": true,
             "beam": 16.0,

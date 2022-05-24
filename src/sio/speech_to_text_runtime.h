@@ -29,7 +29,7 @@ public:
 
         SIO_INFO << "Loading feature extractor ...";
         feature_extractor_.Load(
-            m.config.feature_extractor, 
+            m.config.feature,
             m.mean_var_norm.get()
         );
 
@@ -60,14 +60,12 @@ public:
 
     Error To() { 
         Advance(nullptr, 0, /*dont care sample rate*/123.456, /*eos*/true);
-
         for (const vec<TokenId>& path : beam_search_.NBest()) {
             for (const auto& t : path) {
                 text_ += tokenizer_->Token(t);
             }
             text_ += "\t";
         }
-        
         return Error::OK;
     }
 
@@ -81,7 +79,6 @@ public:
         feature_extractor_.Clear();
         scorer_.Clear();
         beam_search_.Clear();
-
         text_.clear();
 
         return Error::OK; 

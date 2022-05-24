@@ -15,14 +15,14 @@ TEST(Feature, Extractor) {
         {"testdata/MINI/audio/audio2.wav", 522}
     };
 
-    FeatureExtractorConfig config;
-    config.type = "fbank";
-    config.fbank.frame_opts.samp_freq = 16000;
-    config.fbank.frame_opts.dither = 1.0;
-    config.fbank.mel_opts.num_bins = 80;
+    FeatureConfig feature_config;
+    feature_config.type = "fbank";
+    feature_config.fbank.frame_opts.samp_freq = 16000;
+    feature_config.fbank.frame_opts.dither = 1.0;
+    feature_config.fbank.mel_opts.num_bins = 80;
 
     FeatureExtractor feature_extractor;
-    feature_extractor.Load(config);
+    feature_extractor.Load(feature_config);
     for (const auto& kv : audio_to_frames) {
         str audio_file = kv.first;
         int num_frames = kv.second;
