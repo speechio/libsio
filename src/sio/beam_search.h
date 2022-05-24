@@ -195,7 +195,7 @@ public:
         OnFrameBegin();
         {
             FrontierExpandEmitting(score.data_ptr<float>());
-            FrontierExpandEpsilon();
+            FrontierExpandEps();
             FrontierPrune();
             FrontierPinDown();
         }
@@ -207,7 +207,7 @@ public:
 
     Error PushEos() {
         SIO_CHECK(status_ == SearchStatus::kBusy);
-        ExpandFrontierEos();
+        FrontierExpandEos();
         TraceBestPath();
         SIO_CHECK(status_ == SearchStatus::kDone);
 
@@ -426,7 +426,7 @@ private:
         score_max_ = ts.best_score;
         score_cutoff_ = score_max_ - config_.beam;
 
-        FrontierExpandEpsilon();
+        FrontierExpandEps();
         FrontierPinDown();
 
         return Error::OK;
@@ -484,7 +484,7 @@ private:
     }
 
 
-    Error FrontierExpandEpsilon() {
+    Error FrontierExpandEps() {
         SIO_CHECK(eps_queue_.empty());
 
         for (int k = 0; k != frontier_.size(); k++) {
@@ -520,7 +520,7 @@ private:
     }
 
 
-    Error ExpandFrontierEos() {
+    Error FrontierExpandEos() {
         SIO_CHECK(frontier_.empty());
 
         for (const TokenSet& src : lattice_.back()) {
