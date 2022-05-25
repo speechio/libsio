@@ -137,11 +137,10 @@ class BeamSearch {
     str session_key_ = "default_session";
     SearchStatus status_ = SearchStatus::kUnconstructed;
 
-    // lattice indexes: 
-    //   [time, token_set_index]
+    // lattice indexes: [time, token_set_index]
     // invariant of time & frame indexing:
-    //   {time=k} ---[frame=k]---> {time=k+1}
-    // where: k ~ [0, total_frames)
+    //   {time=k} --[frame=k]--> {time=k+1}
+    //   where: k ~ [0, total_frames)
     vec<vec<TokenSet>> lattice_;
     SlabAllocator<Token> token_arena_;
 
@@ -534,8 +533,8 @@ private:
                 }
             }
         }
-        status_ = SearchStatus::kDone;
 
+        status_ = SearchStatus::kDone;
         return Error::OK;
     }
 
@@ -569,9 +568,7 @@ private:
 
 
     Error FrontierPinDown() {
-        // use "copy" instead of "move" in push_back(),
-        // so frontier's capacity() is reserved after clear(),
-        // to avoid unnecessary reallocations across frames.
+        // use "copy" instead of "move", so frontier's capacity() is reserved across frames
         lattice_.push_back(frontier_);
 
         frontier_.clear();
@@ -619,17 +616,11 @@ private:
     }
 
 
-    void OnSessionBegin() {
+    void OnSessionBegin() { }
 
-    }
+    void OnSessionEnd() { }
 
-    void OnSessionEnd() {
-
-    }
-
-    void OnFrameBegin() {
-
-    }
+    void OnFrameBegin() { }
 
     void OnFrameEnd() {
         if (config_.debug) {
