@@ -42,10 +42,9 @@ int main(int argc, char* argv[]) {
             offset += k;
         }
         sio_stt_to(stt);
-        std::string text = sio_stt_text(stt); // const char* -> std::string copy
-        sio_stt_clear(stt);
+        std::cout << ++ndone << "\t" << audio << "\t" << offset/sample_rate << "\t" << sio_stt_text(stt) << "\n";
 
-        std::cout << ++ndone << "\t" << audio << "\t" << offset/sample_rate << "\t" << text << "\n";
+        sio_stt_clear(stt);
     }
 
     sio_stt_deinit(&stt);
