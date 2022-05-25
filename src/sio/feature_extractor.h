@@ -74,6 +74,7 @@ public:
         SIO_CHECK_GT(Size(), 0);
 
         vec<f32> frame(Dim(), 0.0f);
+
         kaldi::SubVector<f32> kaldi_frame(frame.data(), frame.size()); // reference semantic
         pimpl_->GetFrame(cur_frame_++, &kaldi_frame);
 
@@ -81,7 +82,7 @@ public:
             mean_var_norm_->Normalize(&frame);
         }
 
-        return frame; // guarenteed RVO
+        return frame; // RVO
     }
 
 

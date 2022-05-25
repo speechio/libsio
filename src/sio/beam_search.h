@@ -183,7 +183,7 @@ public:
 
 
     Error Push(const torch::Tensor score) {
-        SIO_CHECK_EQ(score.dim(), 1); // should be one frame per each Push() call site
+        SIO_CHECK_EQ(score.dim(), 1); // frame by frame
 
         SIO_CHECK(status_ == SearchStatus::kIdle || status_ == SearchStatus::kBusy);
         if (status_ == SearchStatus::kIdle) {

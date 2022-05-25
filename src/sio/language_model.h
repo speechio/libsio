@@ -9,9 +9,8 @@
 namespace sio {
 
 // main purposes of this wrapper class:
-// 1. expose polymorphic LM through value semantics rather than reference semantics
+// 1. expose polymorphic LM via value semantics instead of reference semantics
 // 2. centralized LoadXXXLm() uses for typical LM types
-// 3. possible resource holders in addition to pimpl_
 class LanguageModel {
     Unique<LanguageModelItf*> pimpl_;
 
@@ -19,7 +18,6 @@ public:
 
     Error LoadPrefixTreeLm() {
         SIO_CHECK(pimpl_ == nullptr);
-
         pimpl_ = std::make_unique<PrefixTreeLm>();
         return Error::OK;
     }
@@ -28,13 +26,13 @@ public:
     Error LoadCachedNgramLm(const KenLm& kenlm, float scale = 1.0, size_t cache_size = 100000) {
         SIO_CHECK(pimpl_ == nullptr);
 
-        Unique<NgramLm*> ngram_lm = std::make_unique<NgramLm>();
-        ngram_lm->Load(kenlm);
+        Unique<NgramLm*> ngram = std::make_unique<NgramLm>();
+        ngram->Load(kenlm);
 
-        Unique<CachedLm*> cached_lm = std::make_unique<CachedLm>();
-        cached_lm->Load(std::move(ngram_lm)/* sink */, scale, cache_size);
+        Unique<CachedLm*> cached_ngram = std::make_unique<CachedLm>();
+        cached_ngram->Load(std::move(ngram)/*sink*/, scale, cache_size);
 
-        pimpl_ = std::move(cached_lm);
+        pimpl_ = std::move(cached_ngram);
         return Error::OK;
     }
 
