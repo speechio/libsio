@@ -11,7 +11,7 @@ struct sio_package {
 };
 
 struct sio_stt {
-    void* runtime;
+    void* handle;
 };
 
 int sio_init(const char* path, struct sio_package*);

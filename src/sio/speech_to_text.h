@@ -1,5 +1,5 @@
-#ifndef SIO_SPEECH_TO_TEXT_RUNTIME_H
-#define SIO_SPEECH_TO_TEXT_RUNTIME_H
+#ifndef SIO_SPEECH_TO_TEXT_H
+#define SIO_SPEECH_TO_TEXT_H
 
 #include <stddef.h>
 
@@ -23,7 +23,7 @@ enum class SpeechToTextStatus : int {
 };
 
 
-class SpeechToTextRuntime {
+class SpeechToText {
     const Tokenizer* tokenizer_ = nullptr;
     FeatureExtractor feature_extractor_;
     Scorer scorer_;
@@ -141,6 +141,6 @@ private:
         return Error::OK;
     }
 
-}; // class SpeechToTextRuntime
+}; // class SpeechToText
 }  // namespace sio
 #endif

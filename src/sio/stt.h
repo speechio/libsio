@@ -19,7 +19,7 @@
 #include "sio/beam_search.h"
 #include "sio/speech_to_text_config.h"
 #include "sio/speech_to_text_module.h"
-#include "sio/speech_to_text_runtime.h"
+#include "sio/speech_to_text.h"
 
 #endif
 
