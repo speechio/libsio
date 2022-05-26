@@ -32,9 +32,9 @@ int main(int argc, char* argv[]) {
 
         sio::ReadAudio(audio, &samples, &sample_rate);
         assert(samples.size() != 0 && sample_rate == 16000.0);
-        size_t samples_per_chunk = sample_rate/20; // 50ms
 
         size_t offset = 0;
+        size_t samples_per_chunk = sample_rate/20; // 50ms
         while (offset < samples.size()) { // streaming via successive Speech() calls
             size_t k = std::min(samples_per_chunk, samples.size() - offset);
             sio_stt_speech(stt, &samples[offset], k, sample_rate);
