@@ -12,14 +12,6 @@
 
 namespace sio {
 
-enum class SearchStatus : int {
-    kUnconstructed,
-    kIdle,
-    kBusy,
-    kDone,
-};
-
-
 struct BeamSearchConfig {
     bool debug = false;
 
@@ -135,7 +127,6 @@ class BeamSearch {
     vec<LanguageModel> lms_;
 
     str session_key_ = "default_session";
-    SearchStatus status_ = SearchStatus::kUnconstructed;
 
     // lattice indexes: [time, token_set_index]
     // invariant of time & frame indexing:
@@ -161,8 +152,6 @@ class BeamSearch {
 public:
 
     Error Load(const BeamSearchConfig& config, const Fst& graph, const Tokenizer& tokenizer) {
-        SIO_CHECK(status_ == SearchStatus::kUnconstructed);
-
         config_ = config; // make a copy to block outside changes 
 
         SIO_CHECK(graph_ == nullptr);
@@ -175,7 +164,55 @@ public:
         lms_.resize(1);
         lms_[0].LoadPrefixTreeLm();
 
-        status_ = SearchStatus::kIdle;
+        return Error::OK;
+    }
+
+
+    Error InitSession() {
+        SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
+        token_arena_.SetSize(config_.token_allocator_slab_size);
+
+        SIO_CHECK(lattice_.empty());
+        lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
+
+        SIO_CHECK(frontier_.empty());
+        frontier_.reserve(config_.max_active * 3);
+
+        SIO_CHECK(frontier_map_.empty());
+        frontier_map_.reserve(frontier_.capacity() * 2); // presumably 50% load factoer
+
+        if (config_.apply_score_offsets) {
+            SIO_CHECK(score_offsets_.empty());
+            score_offsets_.push_back(0.0);
+        }
+
+        Token* t = NewToken();
+        t->trace_back.arc.ilabel = kFstEps;
+        t->trace_back.arc.olabel = tokenizer_->bos;
+
+        for (int i = 0; i != lms_.size(); i++) {
+            LanguageModel& lm = lms_[i];
+
+            LmScore bos_score = lm.GetScore(lm.NullState(), tokenizer_->bos, &t->lm_states[i]);
+            t->total_score += bos_score;
+        }
+
+        SIO_CHECK_EQ(cur_time_, 0);
+        int k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, graph_->start_state));
+        SIO_CHECK_EQ(k, 0);
+        TokenSet& ts = frontier_[0];
+
+        SIO_CHECK(ts.head == nullptr);
+        ts.head = t;
+        ts.best_score = t->total_score;
+
+        score_max_ = ts.best_score;
+        score_cutoff_ = score_max_ - config_.beam;
+
+        FrontierExpandEps();
+        FrontierPinDown();
+
+        OnSessionBegin();
 
         return Error::OK;
     }
@@ -183,13 +220,6 @@ public:
 
     Error Push(const torch::Tensor score) {
         SIO_CHECK_EQ(score.dim(), 1); // frame by frame
-
-        SIO_CHECK(status_ == SearchStatus::kIdle || status_ == SearchStatus::kBusy);
-        if (status_ == SearchStatus::kIdle) {
-            InitSession();
-            OnSessionBegin();
-        }
-        SIO_CHECK(status_ == SearchStatus::kBusy);
 
         OnFrameBegin();
         {
@@ -205,12 +235,8 @@ public:
 
 
     Error PushEos() {
-        SIO_CHECK(status_ == SearchStatus::kBusy);
         FrontierExpandEos();
         TraceBestPath();
-        SIO_CHECK(status_ == SearchStatus::kDone);
-
-        OnSessionEnd();
 
         return Error::OK;
     }
@@ -221,12 +247,23 @@ public:
     }
 
 
-    Error Clear() {
-        SIO_CHECK(status_ == SearchStatus::kDone);
-        DeinitSession();
-        SIO_CHECK(status_ == SearchStatus::kIdle);
+    Error DeinitSession() {
+        OnSessionEnd();
 
-        return Error::OK; 
+        cur_time_ = 0;
+        frontier_.clear();
+        frontier_map_.clear();
+
+        lattice_.clear();
+        token_arena_.Clear();
+
+        if (config_.apply_score_offsets) {
+            score_offsets_.clear();
+        }
+
+        nbest_.clear();
+
+        return Error::OK;
     }
 
 private:
@@ -381,77 +418,6 @@ private:
     }
 
 
-    Error InitSession() {
-        SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
-        token_arena_.SetSize(config_.token_allocator_slab_size);
-
-        SIO_CHECK(lattice_.empty());
-        lattice_.reserve(25 * 30); // 25 frame_rates(subsample = 4) * 30 seconds
-
-        SIO_CHECK(frontier_.empty());
-        frontier_.reserve(config_.max_active * 3);
-
-        SIO_CHECK(frontier_map_.empty());
-        frontier_map_.reserve(frontier_.capacity() * 2); // presumably 50% load factoer
-
-        if (config_.apply_score_offsets) {
-            SIO_CHECK(score_offsets_.empty());
-            score_offsets_.push_back(0.0);
-        }
-
-        // Initialize search session
-        status_ = SearchStatus::kBusy;
-
-        Token* t = NewToken();
-        t->trace_back.arc.ilabel = kFstEps;
-        t->trace_back.arc.olabel = tokenizer_->bos;
-
-        for (int i = 0; i != lms_.size(); i++) {
-            LanguageModel& lm = lms_[i];
-
-            LmScore bos_score = lm.GetScore(lm.NullState(), tokenizer_->bos, &t->lm_states[i]);
-            t->total_score += bos_score;
-        }
-
-        SIO_CHECK_EQ(cur_time_, 0);
-        int k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, graph_->start_state));
-        SIO_CHECK_EQ(k, 0);
-        TokenSet& ts = frontier_[0];
-
-        SIO_CHECK(ts.head == nullptr);
-        ts.head = t;
-        ts.best_score = t->total_score;
-
-        score_max_ = ts.best_score;
-        score_cutoff_ = score_max_ - config_.beam;
-
-        FrontierExpandEps();
-        FrontierPinDown();
-
-        return Error::OK;
-    }
-
-
-    Error DeinitSession() {
-        cur_time_ = 0;
-        frontier_.clear();
-        frontier_map_.clear();
-
-        lattice_.clear();
-        token_arena_.Clear();
-
-        if (config_.apply_score_offsets) {
-            score_offsets_.clear();
-        }
-
-        nbest_.clear();
-
-        status_ = SearchStatus::kIdle;
-
-        return Error::OK;
-    }
-
-
     Error FrontierExpandEmitting(const float* frame_score) {
         SIO_CHECK(frontier_.empty());
 
@@ -534,7 +500,6 @@ private:
             }
         }
 
-        status_ = SearchStatus::kDone;
         return Error::OK;
     }
 
@@ -617,11 +582,8 @@ private:
 
 
     void OnSessionBegin() { }
-
     void OnSessionEnd() { }
-
     void OnFrameBegin() { }
-
     void OnFrameEnd() {
         if (config_.debug) {
             printf("%d\t%f\t%f\t%lu\n",

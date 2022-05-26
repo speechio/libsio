@@ -14,17 +14,28 @@
 #include "sio/speech_to_text_module.h"
 
 namespace sio {
+
+enum class SpeechToTextStatus : int {
+    kUnconstructed,
+    kIdle,
+    kBusy,
+    kDone,
+};
+
+
 class SpeechToTextRuntime {
     const Tokenizer* tokenizer_ = nullptr;
     FeatureExtractor feature_extractor_;
     Scorer scorer_;
     BeamSearch beam_search_;
     str text_;
+	SpeechToTextStatus status_ = SpeechToTextStatus::kUnconstructed;
 
 public:
 
     Error Load(SpeechToTextModule& m) {
-        SIO_CHECK(tokenizer_ == nullptr); // Can't reload
+		SIO_CHECK(status_ == SpeechToTextStatus::kUnconstructed);
+
         tokenizer_ = &m.tokenizer;
 
         SIO_INFO << "Loading feature extractor ...";
@@ -48,17 +59,28 @@ public:
             m.tokenizer
         );
 
+		status_ = SpeechToTextStatus::kIdle;
+
         return Error::OK;
     }
 
 
     Error Speech(const f32* samples, size_t num_samples, f32 sample_rate) {
+		SIO_CHECK(status_ == SpeechToTextStatus::kIdle || status_ == SpeechToTextStatus::kBusy);
+		if (status_ == SpeechToTextStatus::kIdle) {
+			beam_search_.InitSession();
+			status_ = SpeechToTextStatus::kBusy;
+		}
+
         SIO_CHECK(samples != nullptr && num_samples != 0);
+
         return Advance(samples, num_samples, sample_rate, /*eos*/false);
     }
 
 
     Error To() { 
+		SIO_CHECK(status_ == SpeechToTextStatus::kBusy);
+
         Advance(nullptr, 0, /*dont care sample rate*/123.456, /*eos*/true);
         for (const vec<TokenId>& path : beam_search_.NBest()) {
             for (const auto& t : path) {
@@ -66,20 +88,28 @@ public:
             }
             text_ += "\t";
         }
+
+		status_ = SpeechToTextStatus::kDone;
+
         return Error::OK;
     }
 
 
     const char* Text() const {
+		SIO_CHECK(status_ == SpeechToTextStatus::kDone);
         return text_.c_str();
     }
 
 
     Error Clear() { 
+		SIO_CHECK(status_ == SpeechToTextStatus::kDone);
+
         feature_extractor_.Clear();
         scorer_.Clear();
-        beam_search_.Clear();
+        beam_search_.DeinitSession();
         text_.clear();
+
+		status_ = SpeechToTextStatus::kIdle;
 
         return Error::OK; 
     }
