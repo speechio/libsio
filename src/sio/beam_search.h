@@ -126,7 +126,7 @@ class BeamSearch {
     const Tokenizer* tokenizer_ = nullptr;
     vec<LanguageModel> lms_;
 
-    str session_key_ = "default_session";
+    str session_key_;
 
     // lattice indexes: [time, token_set_index]
     // invariant of time & frame indexing:
@@ -168,7 +168,9 @@ public:
     }
 
 
-    Error InitSession() {
+    Error InitSession(const char* session_key = "default_session") {
+        session_key_ = session_key;
+
         SIO_CHECK_EQ(token_arena_.NumUsed(), 0);
         token_arena_.SetSize(config_.token_allocator_slab_size);
 
