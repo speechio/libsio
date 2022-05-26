@@ -60,7 +60,6 @@ public:
         );
 
         status_ = SpeechToTextStatus::kIdle;
-
         return Error::OK;
     }
 
@@ -71,9 +70,6 @@ public:
             beam_search_.InitSession();
             status_ = SpeechToTextStatus::kBusy;
         }
-
-        SIO_CHECK(samples != nullptr && num_samples != 0);
-
         return Advance(samples, num_samples, sample_rate, /*eos*/false);
     }
 
@@ -90,7 +86,6 @@ public:
         }
 
         status_ = SpeechToTextStatus::kDone;
-
         return Error::OK;
     }
 
@@ -110,7 +105,6 @@ public:
         text_.clear();
 
         status_ = SpeechToTextStatus::kIdle;
-
         return Error::OK; 
     }
 
