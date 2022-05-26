@@ -29,12 +29,12 @@ class SpeechToText {
     Scorer scorer_;
     BeamSearch beam_search_;
     str text_;
-	SpeechToTextStatus status_ = SpeechToTextStatus::kUnconstructed;
+    SpeechToTextStatus status_ = SpeechToTextStatus::kUnconstructed;
 
 public:
 
     Error Load(SpeechToTextModule& m) {
-		SIO_CHECK(status_ == SpeechToTextStatus::kUnconstructed);
+        SIO_CHECK(status_ == SpeechToTextStatus::kUnconstructed);
 
         tokenizer_ = &m.tokenizer;
 
@@ -59,18 +59,18 @@ public:
             m.tokenizer
         );
 
-		status_ = SpeechToTextStatus::kIdle;
+        status_ = SpeechToTextStatus::kIdle;
 
         return Error::OK;
     }
 
 
     Error Speech(const f32* samples, size_t num_samples, f32 sample_rate) {
-		SIO_CHECK(status_ == SpeechToTextStatus::kIdle || status_ == SpeechToTextStatus::kBusy);
-		if (status_ == SpeechToTextStatus::kIdle) {
-			beam_search_.InitSession();
-			status_ = SpeechToTextStatus::kBusy;
-		}
+        SIO_CHECK(status_ == SpeechToTextStatus::kIdle || status_ == SpeechToTextStatus::kBusy);
+        if (status_ == SpeechToTextStatus::kIdle) {
+            beam_search_.InitSession();
+            status_ = SpeechToTextStatus::kBusy;
+        }
 
         SIO_CHECK(samples != nullptr && num_samples != 0);
 
@@ -79,7 +79,7 @@ public:
 
 
     Error To() { 
-		SIO_CHECK(status_ == SpeechToTextStatus::kBusy);
+        SIO_CHECK(status_ == SpeechToTextStatus::kBusy);
 
         Advance(nullptr, 0, /*dont care sample rate*/123.456, /*eos*/true);
         for (const vec<TokenId>& path : beam_search_.NBest()) {
@@ -89,27 +89,27 @@ public:
             text_ += "\t";
         }
 
-		status_ = SpeechToTextStatus::kDone;
+        status_ = SpeechToTextStatus::kDone;
 
         return Error::OK;
     }
 
 
     const char* Text() const {
-		SIO_CHECK(status_ == SpeechToTextStatus::kDone);
+        SIO_CHECK(status_ == SpeechToTextStatus::kDone);
         return text_.c_str();
     }
 
 
     Error Clear() { 
-		SIO_CHECK(status_ == SpeechToTextStatus::kDone);
+        SIO_CHECK(status_ == SpeechToTextStatus::kDone);
 
         feature_extractor_.Clear();
         scorer_.Clear();
         beam_search_.DeinitSession();
         text_.clear();
 
-		status_ = SpeechToTextStatus::kIdle;
+        status_ = SpeechToTextStatus::kIdle;
 
         return Error::OK; 
     }
