@@ -14,7 +14,20 @@
 #include "sio/speech_to_text_module.h"
 
 namespace sio {
-
+//
+//                            Set()           Speech()          Text()
+//                            ┌──┐              ┌──┐             ┌──┐
+//                            │  │              │  │             │  │
+//                            │  │              │  │             │  │
+//                            │  ▼              │  ▼             │  ▼
+// ┌───────────────┐ Load() ┌─┴────┐ Speech() ┌─┴────┐  To()   ┌─┴────┐
+// │ Unconstructed ├───────►│ Idle ├─────────►│ Busy ├────────►│ Done │
+// └───────────────┘        └──────┘          └──────┘         └───┬──┘
+//                             ▲                                   │
+//                             │                                   │
+//                             │              Clear()              │
+//                             └───────────────────────────────────┘
+//
 enum class SpeechToTextStatus : int {
     kUnconstructed,
     kIdle,
