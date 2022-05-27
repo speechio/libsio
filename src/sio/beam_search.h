@@ -141,9 +141,9 @@ class BeamSearch {
     hashtab<StateHandle, int> frontier_map_;  // search state handle -> token set index in frontier
     vec<int> eps_queue_;
 
-    // beam
+    // beam range
     f32 score_max_ = 0.0;
-    f32 score_cutoff_ = 0.0;
+    f32 score_min_ = 0.0;
 
     vec<f32> score_offsets_;  // keep hypotheses scores in a good dynamic range
 
@@ -193,10 +193,7 @@ public:
         t->trace_back.arc.olabel = tokenizer_->bos;
 
         for (int i = 0; i != lms_.size(); i++) {
-            LanguageModel& lm = lms_[i];
-
-            LmScore bos_score = lm.GetScore(lm.NullState(), tokenizer_->bos, &t->lm_states[i]);
-            t->total_score += bos_score;
+            t->total_score += lms_[i].GetScore(lms_[i].NullState(), tokenizer_->bos, &t->lm_states[i]);
         }
 
         SIO_CHECK_EQ(cur_time_, 0);
@@ -209,7 +206,7 @@ public:
         ts.best_score = t->total_score;
 
         score_max_ = ts.best_score;
-        score_cutoff_ = score_max_ - config_.beam;
+        score_min_ = score_max_ - config_.beam;
 
         FrontierExpandEps();
         FrontierPinDown();
@@ -362,10 +359,10 @@ private:
             nt.trace_back.score = score;
 
             // beam pruning
-            if (nt.total_score < score_cutoff_) {
+            if (nt.total_score < score_min_) {
                 continue;
             } else if (nt.total_score > score_max_) {  // high enough to lift current beam range
-                score_cutoff_ += (nt.total_score - score_max_);
+                score_min_ += (nt.total_score - score_max_);
                 score_max_ = nt.total_score;
             }
 
@@ -423,21 +420,18 @@ private:
     Error FrontierExpandEmitting(const float* frame_score) {
         SIO_CHECK(frontier_.empty());
 
-        cur_time_++; // consumes a time frame
         score_max_ -= 1000.0;
-        score_cutoff_ -= 1000.0;
+        score_min_ -= 1000.0;
+        cur_time_++; // consumes a time frame
 
-        f32 score_offset = 0.0;
-        if (config_.apply_score_offsets) {
-            score_offset = score_offsets_.back();
-        }
+        f32 score_offset = config_.apply_score_offsets ? score_offsets_.back() : 0.0;
 
         for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
                 if (arc.ilabel != kFstEps && arc.ilabel != kFstInputEnd) {
                     f32 score = frame_score[arc.ilabel] + score_offset;
-                    if (src.best_score + arc.score + score < score_cutoff_) continue;
+                    if (src.best_score + arc.score + score < score_min_) continue;
 
                     TokenSet& dst = frontier_[
                         FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
@@ -464,12 +458,12 @@ private:
             int src_k = eps_queue_.back(); eps_queue_.pop_back();
             const TokenSet& src = frontier_[src_k];
 
-            if (src.best_score < score_cutoff_) continue;
+            if (src.best_score < score_min_) continue;
 
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
                 if (arc.ilabel == kFstEps) {
-                    if (src.best_score + arc.score < score_cutoff_) continue;
+                    if (src.best_score + arc.score < score_min_) continue;
 
                     int dst_k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst));
                     TokenSet& dst = frontier_[dst_k];
@@ -511,7 +505,7 @@ private:
             return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.handle < y.handle);
         };
 
-        score_cutoff_ = score_max_ - config_.beam;
+        score_min_ = score_max_ - config_.beam;
 
         // adapt beam regarding to max_active constraint
         if (config_.max_active > 0 && frontier_.size() > config_.max_active) {
@@ -523,7 +517,7 @@ private:
             );
             frontier_.resize(config_.max_active);
 
-            score_cutoff_ = std::max(score_cutoff_, frontier_.back().best_score);
+            score_min_ = std::max(score_min_, frontier_.back().best_score);
         }
 
         // put best TokenSet first so that beam of next frame will be established quickly.
@@ -591,7 +585,7 @@ private:
             printf("%d\t%f\t%f\t%lu\n",
                 cur_time_,
                 score_max_,
-                score_max_ - score_cutoff_,
+                score_max_ - score_min_,
                 lattice_.back().size()
             );
         }
