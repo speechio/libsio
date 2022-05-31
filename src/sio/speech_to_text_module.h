@@ -78,7 +78,7 @@ struct SpeechToTextModule {
                 Context& context = contexts.back();
                 context.Load(Json::parse(line));
 
-                if (context.type == ContextType::KENLM) {
+                if (context.type == ContextType::KenLm) {
                     kenlms.emplace_back();
                     kenlms.back().Load(context.path, tokenizer);
                     kenlms_map.insert({context.name, kenlms.size()-1});

@@ -10,14 +10,14 @@
 namespace sio {
 
 enum class ContextType : int {
-    UNDEFINED,
-    KENLM,
-    FSTLM
+    UndefinedLm,
+    KenLm,
+    FstLm
 };
 
 
 struct Context {
-    ContextType type = ContextType::UNDEFINED;
+    ContextType type = ContextType::UndefinedLm;
 
     str name;
     str path;
@@ -28,10 +28,10 @@ struct Context {
 
 
     int Load(const Json& info) {
-        if (info["type"] == "KENLM") {
-            type = ContextType::KENLM;
-        } else if (info["type"] == "FSTLM") {
-            type = ContextType::FSTLM;
+        if (info["type"] == "KenLm") {
+            type = ContextType::KenLm;
+        } else if (info["type"] == "FstLm") {
+            type = ContextType::FstLm;
         } else {
             SIO_PANIC(Error::Unreachable);
         }
