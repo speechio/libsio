@@ -2,11 +2,50 @@
 #define SIO_LANGUAGE_MODEL_H
 
 #include "sio/base.h"
+#include "sio/json.h"
 #include "sio/kenlm.h"
 #include "sio/language_model_itf.h"
 #include "sio/language_model_impl.h"
 
 namespace sio {
+
+enum class LanguageModelType : int {
+    UNDEFINED_LM,
+    PREFIX_TREE_LM,
+    NGRAM_LM,
+    HOTFIX_LM
+};
+
+
+struct LanguageModelInfo {
+    LanguageModelType type = LanguageModelType::UNDEFINED_LM;
+
+    str name;
+    str path;
+
+    bool major = false;
+    f32 scale = 1.0;
+    size_t cache = 10000;
+
+    int Load(const Json& info) {
+        name = info["name"];
+        path = info["path"];
+
+        if (info["type"] == "NGRAM_LM") {
+            type = LanguageModelType::NGRAM_LM;
+        } else if (info["type"] == "HOTFIX_LM") {
+            type = LanguageModelType::HOTFIX_LM;
+        } else {
+            SIO_PANIC(Error::Unreachable);
+        }
+
+        scale = info["scale"];
+        cache = info["cache"];
+
+        return Error::OK;
+    }
+};
+
 
 // main purposes of this wrapper class:
 // 1. expose polymorphic LM via value semantics instead of reference semantics

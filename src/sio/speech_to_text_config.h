@@ -7,6 +7,7 @@
 #include "sio/struct_loader.h"
 #include "sio/feature_extractor.h"
 #include "sio/scorer.h"
+#include "sio/language_model.h"
 
 namespace sio {
 struct SpeechToTextConfig {
@@ -27,23 +28,27 @@ struct SpeechToTextConfig {
 
     BeamSearchConfig beam_search;
 
+    std::string language_model;
+
     Error Register(StructLoader* loader, const std::string module = "") {
         loader->AddEntry(module + ".online", &online);
 
-        this->feature.Register(loader, module + ".feature");
+        feature.Register(loader, module + ".feature");
         loader->AddEntry(module + ".mean_var_norm", &mean_var_norm);
 
         loader->AddEntry(module + ".tokenizer.vocab", &tokenizer_vocab);
         loader->AddEntry(module + ".tokenizer.model", &tokenizer_model);
 
         loader->AddEntry(module + ".nnet", &nnet);
-        this->scorer.Register(loader, module + ".scorer");
+        scorer.Register(loader, module + ".scorer");
 
         loader->AddEntry(module + ".graph", &graph);
         loader->AddEntry(module + ".context", &context);
         loader->AddEntry(module + ".do_endpointing", &do_endpointing);
 
-        this->beam_search.Register(loader, module + ".beam_search");
+        beam_search.Register(loader, module + ".beam_search");
+
+        loader->AddEntry(module + ".language_model", &language_model);
 
         return Error::OK;
     }

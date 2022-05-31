@@ -9,6 +9,8 @@
 #include "sio/mean_var_norm.h"
 #include "sio/tokenizer.h"
 #include "sio/finite_state_transducer.h"
+#include "sio/kenlm.h"
+#include "sio/language_model.h"
 #include "sio/speech_to_text_config.h"
 
 namespace sio {
@@ -27,6 +29,11 @@ struct SpeechToTextModule {
     torch::jit::script::Module nnet;
 
     Fst graph;
+
+    vec<LanguageModelInfo> lms;
+
+    vec<KenLm> kenlms;
+    hashmap<str, int> kenlms_map;
 
     Error Load(std::string config_file) { 
         config.Load(config_file);
@@ -53,6 +60,32 @@ struct SpeechToTextModule {
         } else {
             SIO_INFO << "Building decoding graph from: " << config.tokenizer_vocab;
             graph.BuildTokenTopology(tokenizer);
+        }
+
+        if (config.language_model != "") {
+            SIO_INFO << "Loading language models from: " << config.language_model;
+            std::ifstream lm_config(config.language_model);
+            SIO_CHECK(lm_config.good());
+
+            str line;
+            while(std::getline(lm_config, line)) {
+                if (absl::StartsWith(line, "#")) {
+                    continue;
+                }
+
+                lms.emplace_back();
+                LanguageModelInfo& lm = lms.back();
+                lm.Load(Json::parse(line));
+
+                if (lm.type == LanguageModelType::NGRAM_LM) {
+                    kenlms.emplace_back();
+                    kenlms.back().Load(lm.path, tokenizer);
+                    kenlms_map.insert({lm.name, kenlms.size()-1});
+                }
+                SIO_INFO << "    LM loaded: " 
+                         << lm.name << " " << lm.path << " " << lm.scale << " " << lm.cache;
+            }
+            SIO_INFO << "Total language models: " << lms.size();
         }
 
         return Error::OK;
