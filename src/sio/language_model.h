@@ -12,8 +12,8 @@ namespace sio {
 enum class LanguageModelType : int {
     UNDEFINED_LM,
     PREFIX_TREE_LM,
-    NGRAM_LM,
-    HOTFIX_LM
+    KEN_LM,
+    FST_LM
 };
 
 
@@ -31,10 +31,10 @@ struct LanguageModelInfo {
         name = info["name"];
         path = info["path"];
 
-        if (info["type"] == "NGRAM_LM") {
-            type = LanguageModelType::NGRAM_LM;
-        } else if (info["type"] == "HOTFIX_LM") {
-            type = LanguageModelType::HOTFIX_LM;
+        if (info["type"] == "KEN_LM") {
+            type = LanguageModelType::KEN_LM;
+        } else if (info["type"] == "FST_LM") {
+            type = LanguageModelType::FST_LM;
         } else {
             SIO_PANIC(Error::Unreachable);
         }

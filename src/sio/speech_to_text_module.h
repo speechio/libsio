@@ -77,7 +77,7 @@ struct SpeechToTextModule {
                 LanguageModelInfo& lm = lms.back();
                 lm.Load(Json::parse(line));
 
-                if (lm.type == LanguageModelType::NGRAM_LM) {
+                if (lm.type == LanguageModelType::KEN_LM) {
                     kenlms.emplace_back();
                     kenlms.back().Load(lm.path, tokenizer);
                     kenlms_map.insert({lm.name, kenlms.size()-1});
