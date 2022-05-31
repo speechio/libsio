@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <assert.h>
 #include <string>
 #include <fstream>
@@ -8,13 +9,12 @@
 #include "sio.h"
 
 int main(int argc, char* argv[]) {
-    if (argc != 2 && argc != 3) {
-        printf("usage:\n  %s <audio_list> [<config>]\n  <config> defaults ./sio.json\n", argv[0]);
+    if (argc != 2) {
+        printf("usage:\n  %s <audio_list>\n", argv[0]);
         return 0;
     }
-
     const char* audio_list = argv[1];
-    const char* config = (argc == 3) ? argv[2] : "sio.json";
+    const char* config = std::getenv("SIO") ? std::getenv("SIO") : "sio.json";
 
     struct sio_package sio = {}; // Zerolization Is Initialization(ZII) is required here
     sio_init(config, &sio);

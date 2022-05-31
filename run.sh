@@ -9,5 +9,5 @@ if [[ `uname -s` == "Darwin" ]]; then
 fi
 
 SIO_VERBOSITY=INFO build/unittest
-SIO_VERBOSITY=INFO build/stt wav.list
+SIO_VERBOSITY=INFO SIO=sio.json build/stt wav.list
 

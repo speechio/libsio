@@ -64,6 +64,7 @@ struct SpeechToTextModule {
 
         if (config.language_model != "") {
             SIO_INFO << "Loading language models from: " << config.language_model;
+
             std::ifstream lm_config(config.language_model);
             SIO_CHECK(lm_config.good());
 
@@ -74,17 +75,22 @@ struct SpeechToTextModule {
                 }
 
                 lms.emplace_back();
-                LanguageModelInfo& lm = lms.back();
-                lm.Load(Json::parse(line));
+                LanguageModelInfo& lm_info = lms.back();
+                lm_info.Load(Json::parse(line));
 
-                if (lm.type == LanguageModelType::KEN_LM) {
+                if (lm_info.type == LanguageModelType::KEN_LM) {
                     kenlms.emplace_back();
-                    kenlms.back().Load(lm.path, tokenizer);
-                    kenlms_map.insert({lm.name, kenlms.size()-1});
+                    kenlms.back().Load(lm_info.path, tokenizer);
+                    kenlms_map.insert({lm_info.name, kenlms.size()-1});
+                } else {
+                    ; // TODO
                 }
+
                 SIO_INFO << "    LM loaded: " 
-                         << lm.name << " " << lm.path << " " << lm.scale << " " << lm.cache;
+                         << lm_info.name  << " " << lm_info.path << " " 
+                         << lm_info.scale << " " << lm_info.cache;
             }
+
             SIO_INFO << "Total language models: " << lms.size();
         }
 
