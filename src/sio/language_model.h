@@ -26,10 +26,8 @@ struct Context {
     f32 scale = 1.0;
     size_t cache = 10000;
 
-    int Load(const Json& info) {
-        name = info["name"];
-        path = info["path"];
 
+    int Load(const Json& info) {
         if (info["type"] == "KENLM") {
             type = ContextType::KENLM;
         } else if (info["type"] == "FSTLM") {
@@ -38,6 +36,10 @@ struct Context {
             SIO_PANIC(Error::Unreachable);
         }
 
+        name = info["name"];
+        path = info["path"];
+
+        major = info["major"];
         scale = info["scale"];
         cache = info["cache"];
 
