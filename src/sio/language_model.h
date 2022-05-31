@@ -9,16 +9,15 @@
 
 namespace sio {
 
-enum class LanguageModelType : int {
-    UNDEFINED_LM,
-    PREFIX_TREE_LM,
-    KEN_LM,
-    FST_LM
+enum class ContextType : int {
+    UNDEFINED,
+    KENLM,
+    FSTLM
 };
 
 
-struct LanguageModelInfo {
-    LanguageModelType type = LanguageModelType::UNDEFINED_LM;
+struct Context {
+    ContextType type = ContextType::UNDEFINED;
 
     str name;
     str path;
@@ -31,10 +30,10 @@ struct LanguageModelInfo {
         name = info["name"];
         path = info["path"];
 
-        if (info["type"] == "KEN_LM") {
-            type = LanguageModelType::KEN_LM;
-        } else if (info["type"] == "FST_LM") {
-            type = LanguageModelType::FST_LM;
+        if (info["type"] == "KENLM") {
+            type = ContextType::KENLM;
+        } else if (info["type"] == "FSTLM") {
+            type = ContextType::FSTLM;
         } else {
             SIO_PANIC(Error::Unreachable);
         }

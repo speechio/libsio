@@ -30,13 +30,13 @@ struct SpeechToTextModule {
 
     Fst graph;
 
-    vec<LanguageModelInfo> lms;
+    vec<Context> contexts;
 
     vec<KenLm> kenlms;
     hashmap<str, int> kenlms_map;
 
-    Error Load(std::string config_file) { 
-        config.Load(config_file);
+    Error Load(std::string stt_config) { 
+        config.Load(stt_config);
 
         if (config.mean_var_norm != "") {
             SIO_CHECK(!mean_var_norm);
@@ -62,36 +62,36 @@ struct SpeechToTextModule {
             graph.BuildTokenTopology(tokenizer);
         }
 
-        if (config.language_model != "") {
-            SIO_INFO << "Loading language models from: " << config.language_model;
+        if (config.contexts != "") {
+            SIO_INFO << "Loading language models from: " << config.contexts;
 
-            std::ifstream lm_config(config.language_model);
-            SIO_CHECK(lm_config.good());
+            std::ifstream contexts_stream(config.contexts);
+            SIO_CHECK(contexts_stream.good());
 
             str line;
-            while(std::getline(lm_config, line)) {
+            while(std::getline(contexts_stream, line)) {
                 if (absl::StartsWith(line, "#")) {
                     continue;
                 }
 
-                lms.emplace_back();
-                LanguageModelInfo& lm_info = lms.back();
-                lm_info.Load(Json::parse(line));
+                contexts.emplace_back();
+                Context& context = contexts.back();
+                context.Load(Json::parse(line));
 
-                if (lm_info.type == LanguageModelType::KEN_LM) {
+                if (context.type == ContextType::KENLM) {
                     kenlms.emplace_back();
-                    kenlms.back().Load(lm_info.path, tokenizer);
-                    kenlms_map.insert({lm_info.name, kenlms.size()-1});
+                    kenlms.back().Load(context.path, tokenizer);
+                    kenlms_map.insert({context.name, kenlms.size()-1});
                 } else {
                     ; // TODO
                 }
 
-                SIO_INFO << "    LM loaded: " 
-                         << lm_info.name  << " " << lm_info.path << " " 
-                         << lm_info.scale << " " << lm_info.cache;
+                SIO_INFO << "    Context LM loaded: " 
+                         << context.name  << " " << context.path << " " 
+                         << context.scale << " " << context.cache;
             }
 
-            SIO_INFO << "Total language models: " << lms.size();
+            SIO_INFO << "Total contexts: " << contexts.size();
         }
 
         return Error::OK;

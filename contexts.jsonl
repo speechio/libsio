@@ -1,0 +1,2 @@
+{"name": "domain", "type": "KENLM", "path": "model/testset_domain_lm/test.trie", "major": false, "scale": 0.1, "cache": 100000}
+{"name": "hotfix", "type": "FSTLM", "path": "model/hotfix.fst", "major": false, "scale": 0.1, "cache": 100000}

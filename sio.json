@@ -30,6 +30,6 @@
             "apply_score_offsets": true,
             "token_allocator_slab_size": 4096
         },
-        "language_model": "lm.jsonl"
+        "contexts": "contexts.jsonl"
     }
 }

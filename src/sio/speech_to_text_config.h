@@ -12,6 +12,7 @@
 namespace sio {
 struct SpeechToTextConfig {
     bool online = true;
+    bool do_endpointing = false;
 
     FeatureConfig feature;
     std::string mean_var_norm;
@@ -23,15 +24,13 @@ struct SpeechToTextConfig {
     ScorerConfig scorer;
 
     std::string graph;
-    std::string context;
-    bool do_endpointing = false;
+    std::string contexts;
 
     BeamSearchConfig beam_search;
 
-    std::string language_model;
-
     Error Register(StructLoader* loader, const std::string module = "") {
         loader->AddEntry(module + ".online", &online);
+        loader->AddEntry(module + ".do_endpointing", &do_endpointing);
 
         feature.Register(loader, module + ".feature");
         loader->AddEntry(module + ".mean_var_norm", &mean_var_norm);
@@ -43,12 +42,9 @@ struct SpeechToTextConfig {
         scorer.Register(loader, module + ".scorer");
 
         loader->AddEntry(module + ".graph", &graph);
-        loader->AddEntry(module + ".context", &context);
-        loader->AddEntry(module + ".do_endpointing", &do_endpointing);
+        loader->AddEntry(module + ".contexts", &contexts);
 
         beam_search.Register(loader, module + ".beam_search");
-
-        loader->AddEntry(module + ".language_model", &language_model);
 
         return Error::OK;
     }
