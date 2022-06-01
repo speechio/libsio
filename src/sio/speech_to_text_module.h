@@ -78,25 +78,20 @@ struct SpeechToTextModule {
                 contexts.emplace_back();
                 contexts.back().Load(Json::parse(line));
 
-                // Load static LM resource for current context
+                // Load static LM resources for current context
                 const Context& c = contexts.back();
                 if (c.type == LmType::KenLm) {
                     SIO_CHECK(kenlms.find(c.name) == kenlms.end());
                     KenLm m;
                     m.Load(c.path, tokenizer);
                     kenlms[c.name] = std::move(m);
-
                 } else if (c.type == LmType::FstLm) {
                     ; // TODO
                 }
-
-                SIO_INFO << "    Context LM loaded: " 
-                         << c.name <<" "<< c.major <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
+                SIO_INFO << "    Context LM loaded: " << c.name <<" "<< c.major <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
             }
-
             SIO_INFO << "    Total contexts: " << contexts.size();
         }
-
         return Error::OK;
     }
 
