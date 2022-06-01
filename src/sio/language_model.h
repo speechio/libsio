@@ -11,6 +11,7 @@ namespace sio {
 
 enum class LmType : int {
     UndefinedLm,
+    PrefixTreeLm,
     KenLm,
     FstLm
 };
@@ -28,21 +29,40 @@ struct Context {
 
 
     int Load(const Json& info) {
-        if (info["type"] == "KenLm") {
-            type = LmType::KenLm;
-        } else if (info["type"] == "FstLm") {
-            type = LmType::FstLm;
-        } else {
-            SIO_PANIC(Error::Unreachable);
+        if (info["type"] == "PrefixTreeLm") {
+            type = LmType::PrefixTreeLm;
+
+            name = info["name"];
+            major = info["major"];
+
+            return Error::OK;
         }
 
-        name = info["name"];
-        path = info["path"];
+        if (info["type"] == "KenLm") {
+            type = LmType::KenLm;
 
-        major = info["major"];
-        scale = info["scale"];
-        cache = info["cache"];
+            name = info["name"];
+            path = info["path"];
+            major = info["major"];
+            scale = info["scale"];
+            cache = info["cache"];
 
+            return Error::OK;
+        }
+
+        if (info["type"] == "FstLm") {
+            type = LmType::FstLm;
+
+            name = info["name"];
+            path = info["path"];
+            major = info["major"];
+            scale = info["scale"];
+            cache = info["cache"];
+
+            return Error::OK;
+        }
+
+        SIO_PANIC(Error::Unreachable);
         return Error::OK;
     }
 };

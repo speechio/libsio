@@ -29,11 +29,11 @@ struct SpeechToTextModule {
     torch::jit::script::Module nnet;
 
     Fst graph;
-
     vec<Context> contexts;
 
-    vec<KenLm> kenlms;
-    hashmap<str, int> kenlms_map;
+    // choose unordered_map instead of vector because:
+    //   rehash retains element memory address stability, realloc doesn't
+    hashmap<str, KenLm> kenlms;
 
     Error Load(std::string stt_config) { 
         config.Load(stt_config);
@@ -63,7 +63,7 @@ struct SpeechToTextModule {
         }
 
         if (config.contexts != "") {
-            SIO_INFO << "Loading language models from: " << config.contexts;
+            SIO_INFO << "Loading contexts from: " << config.contexts;
 
             std::ifstream contexts_stream(config.contexts);
             SIO_CHECK(contexts_stream.good());
@@ -78,23 +78,24 @@ struct SpeechToTextModule {
                 contexts.back().Load(Json::parse(line));
 
                 const Context& c = contexts.back();
-                switch (c.type) {
-                    case LmType::KenLm:
-                        kenlms.emplace_back();
-                        kenlms.back().Load(c.path, tokenizer);
-                        kenlms_map.insert({c.name, kenlms.size()-1});
-                        break;
-                    case LmType::FstLm:
-                        break; // TODO
-                    default:
-                        ;
+                if (c.type == LmType::PrefixTreeLm) {
+                    ; // PrefixTreeLm doesn't have static resources
+                } else if (c.type == LmType::KenLm) {
+                    SIO_CHECK(kenlms.find(c.name) == kenlms.end());
+                    KenLm m;
+                    m.Load(c.path, tokenizer);
+                    kenlms[c.name] = std::move(m);
+                } else if (c.type == LmType::FstLm) {
+                    ; // TODO
+                } else {
+                    SIO_PANIC(Error::Unreachable);
                 }
 
                 SIO_INFO << "    Context LM loaded: " 
-                         << c.name <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
+                         << c.name <<" "<< c.major <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
             }
 
-            SIO_INFO << "Total contexts: " << contexts.size();
+            SIO_INFO << "    Total contexts: " << contexts.size();
         }
 
         return Error::OK;

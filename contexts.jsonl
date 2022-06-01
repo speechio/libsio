@@ -1,2 +1,3 @@
-{"name": "domain", "type": "KenLm", "path": "model/testset_domain_lm/test.trie", "major": false, "scale": 0.1, "cache": 100000}
-{"name": "hotfix", "type": "FstLm", "path": "model/hotfix.fst", "major": false, "scale": 0.1, "cache": 100000}
+{"name": "base", "type": "PrefixTreeLm", "major": true}
+{"name": "domain", "type": "KenLm", "major": false, "path": "model/testset_domain_lm/test.trie", "scale": 0.1, "cache": 100000}
+{"name": "hotfix", "type": "FstLm", "major": false, "path": "model/hotfix.fst", "scale": 0.1, "cache": 100000}
