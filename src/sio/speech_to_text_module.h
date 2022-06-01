@@ -75,20 +75,23 @@ struct SpeechToTextModule {
                 }
 
                 contexts.emplace_back();
-                Context& context = contexts.back();
-                context.Load(Json::parse(line));
+                contexts.back().Load(Json::parse(line));
 
-                if (context.type == ContextType::KenLm) {
-                    kenlms.emplace_back();
-                    kenlms.back().Load(context.path, tokenizer);
-                    kenlms_map.insert({context.name, kenlms.size()-1});
-                } else {
-                    ; // TODO
+                const Context& c = contexts.back();
+                switch (c.type) {
+                    case LmType::KenLm:
+                        kenlms.emplace_back();
+                        kenlms.back().Load(c.path, tokenizer);
+                        kenlms_map.insert({c.name, kenlms.size()-1});
+                        break;
+                    case LmType::FstLm:
+                        break; // TODO
+                    default:
+                        ;
                 }
 
                 SIO_INFO << "    Context LM loaded: " 
-                         << context.name  << " " << context.path << " " 
-                         << context.scale << " " << context.cache;
+                         << c.name <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
             }
 
             SIO_INFO << "Total contexts: " << contexts.size();
