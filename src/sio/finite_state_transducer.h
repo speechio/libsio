@@ -271,7 +271,6 @@ struct Fst {
     Error BuildTokenTopology(const Tokenizer& tokenizer) {
         SIO_CHECK(Empty());
         SIO_CHECK_NE(tokenizer.Size(), 0);
-        SIO_INFO << "Building token graph T from tokenizer with size: " << tokenizer.Size();
 
         /* 1: Build Fst arcs */
         {

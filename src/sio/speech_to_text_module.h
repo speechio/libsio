@@ -58,7 +58,7 @@ struct SpeechToTextModule {
             SIO_CHECK(is.good());
             graph.Load(is);
         } else {
-            SIO_INFO << "Building decoding graph from: " << config.tokenizer_vocab;
+            SIO_INFO << "Building decoding graph(T.fst) from tokenizer of size:" << tokenizer.Size();
             graph.BuildTokenTopology(tokenizer);
         }
 
