@@ -184,7 +184,7 @@ public:
                     break;
 
                 default:
-                    ;
+                    SIO_PANIC(Error::UnsupportedLanguageModel);
             }
         }
 

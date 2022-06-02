@@ -16,7 +16,7 @@ enum Error {
     VocabularyMismatch,
     NoRecognitionResult,
     Unreachable,
-    UnsupportedLmType,
+    UnsupportedLanguageModel,
     Unknown,
 }; // enum Error
 
@@ -30,7 +30,7 @@ inline const char* ErrorMsg(Error err) {
         case Error::VocabularyMismatch: return "mismatched vocabulary of tokenizer and KenLM";
         case Error::NoRecognitionResult: return "no recognition result";
         case Error::Unreachable: return "control flow hits unreachable";
-        case Error::UnsupportedLmType: return "unsupported language model type";
+        case Error::UnsupportedLanguageModel: return "unsupported language model type";
         case Error::Unknown: return "(unknown error)";
     }
 

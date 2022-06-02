@@ -37,7 +37,7 @@ struct Context {
             type = LmType::FstLm;
         }
 
-        switch(type) {
+        switch (type) {
             case LmType::PrefixTreeLm:
                 name = info["name"];
                 major = info["major"];
@@ -53,7 +53,7 @@ struct Context {
                 break;
 
             default:
-                SIO_PANIC(Error::Unreachable);
+                SIO_PANIC(Error::UnsupportedLanguageModel);
         }
 
         return Error::OK;
