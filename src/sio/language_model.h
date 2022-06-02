@@ -73,18 +73,24 @@ struct Context {
 // 2. centralized LoadXXXLm() uses for typical LM types
 class LanguageModel {
     Unique<LanguageModelItf*> pimpl_;
+    bool major_ = false;
 
 public:
 
-    Error LoadPrefixTreeLm() {
+    Error LoadPrefixTreeLm(bool major = false) {
         SIO_CHECK(pimpl_ == nullptr);
+
+        major_ = major;
         pimpl_ = std::make_unique<PrefixTreeLm>();
+
         return Error::OK;
     }
 
 
-    Error LoadCachedNgramLm(const KenLm& kenlm, float scale = 1.0, size_t cache_size = 100000) {
+    Error LoadCachedNgramLm(const KenLm& kenlm, float scale = 1.0, size_t cache_size = 100000, bool major = false) {
         SIO_CHECK(pimpl_ == nullptr);
+
+        major_ = major;
 
         Unique<NgramLm*> ngram = std::make_unique<NgramLm>();
         ngram->Load(kenlm);
@@ -93,9 +99,11 @@ public:
         cached_ngram->Load(std::move(ngram)/*sink*/, scale, cache_size);
 
         pimpl_ = std::move(cached_ngram);
+
         return Error::OK;
     }
 
+    bool Major() { return major_; }
 
     LmStateId NullState() const {
         SIO_CHECK(pimpl_ != nullptr);

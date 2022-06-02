@@ -88,7 +88,9 @@ struct SpeechToTextModule {
                 } else if (c.type == LmType::FstLm) {
                     ; // TODO
                 }
-                SIO_INFO << "    Context LM loaded: " << c.name <<" "<< c.major <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
+                SIO_INFO << "    Context LM loaded: " 
+                         << (c.major ? "*" : " ")
+                         << c.name <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
             }
             SIO_INFO << "    Total contexts: " << contexts.size();
         }

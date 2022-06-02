@@ -51,13 +51,13 @@ public:
 
         tokenizer_ = &m.tokenizer;
 
-        SIO_INFO << "Loading feature extractor ...";
+        SIO_INFO << "Setting up feature extractor ...";
         feature_extractor_.Load(
             m.config.feature,
             m.mean_var_norm.get()
         );
 
-        SIO_INFO << "Loading scorer ...";
+        SIO_INFO << "Setting up scorer ...";
         scorer_.Load(
             m.config.scorer,
             m.nnet,
@@ -65,12 +65,17 @@ public:
             tokenizer_->Size()
         );
 
-        SIO_INFO << "Loading beam search ...";
+        SIO_INFO << "Setting up beam search ...";
         beam_search_.Load(
             m.config.beam_search,
             m.graph,
             m.tokenizer
         );
+
+        SIO_INFO << "Setting up contexts ...";
+        if (!m.contexts.empty()) {
+            beam_search_.SetContexts(m.contexts, m.kenlms);
+        }
 
         status_ = SpeechToTextStatus::kIdle;
         return Error::OK;

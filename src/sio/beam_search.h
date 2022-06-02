@@ -161,8 +161,27 @@ public:
         tokenizer_ = &tokenizer;
 
         SIO_CHECK(lms_.empty());
-        lms_.resize(1);
-        lms_[0].LoadPrefixTreeLm();
+
+        return Error::OK;
+    }
+
+
+    Error SetContexts(const vec<Context>& contexts, const hashmap<str, KenLm>& kenlms) {
+        for (const auto& c : contexts) {
+            lms_.emplace_back();
+            LanguageModel& lm = lms_.back();
+
+            switch (c.type) {
+            case LmType::PrefixTreeLm:
+                lm.LoadPrefixTreeLm(c.major);
+                break;
+            case LmType::KenLm:
+                lm.LoadCachedNgramLm(kenlms.at(c.name), c.scale, c.cache, c.major);
+                break;
+            default:
+                ;
+            }
+        }
 
         return Error::OK;
     }
@@ -318,8 +337,10 @@ private:
 
     inline bool ContextEqual(const Token& x, const Token& y) {
         for (int i = 0; i != lms_.size(); i++) {
-            if (x.lm_states[i] != y.lm_states[i]) {
-                return false;
+            if (lms_[i].Major()) {
+                if (x.lm_states[i] != y.lm_states[i]) {
+                    return false;
+                }
             }
         }
         return true;

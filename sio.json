@@ -21,11 +21,11 @@
         },
         "graph": "",
         "beam_search": {
-            "debug": true,
+            "debug": false,
             "beam": 16.0,
             "max_active": 13,
             "token_set_size": 15,
-            "nbest": 2,
+            "nbest": 1,
             "insertion_penalty": 1e-6,
             "apply_score_offsets": true,
             "token_allocator_slab_size": 4096
