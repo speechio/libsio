@@ -172,14 +172,19 @@ public:
             LanguageModel& lm = lms_.back();
 
             switch (c.type) {
-            case LmType::PrefixTreeLm:
-                lm.LoadPrefixTreeLm(c.major);
-                break;
-            case LmType::KenLm:
-                lm.LoadCachedNgramLm(kenlms.at(c.name), c.scale, c.cache, c.major);
-                break;
-            default:
-                ;
+                case LmType::PrefixTreeLm:
+                    lm.LoadPrefixTreeLm(c.major);
+                    break;
+
+                case LmType::KenLm:
+                    lm.LoadCachedNgramLm(kenlms.at(c.name), c.scale, c.cache, c.major);
+                    break;
+
+                case LmType::FstLm:
+                    break;
+
+                default:
+                    ;
             }
         }
 

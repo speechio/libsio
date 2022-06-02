@@ -31,41 +31,35 @@ struct Context {
     int Load(const Json& info) {
         if (info["type"] == "PrefixTreeLm") {
             type = LmType::PrefixTreeLm;
-
-            name = info["name"];
-            major = info["major"];
-
-            return Error::OK;
-        }
-
-        if (info["type"] == "KenLm") {
+        } else if (info["type"] == "KenLm") {
             type = LmType::KenLm;
-
-            name = info["name"];
-            path = info["path"];
-            major = info["major"];
-            scale = info["scale"];
-            cache = info["cache"];
-
-            return Error::OK;
-        }
-
-        if (info["type"] == "FstLm") {
+        } else if (info["type"] == "FstLm") {
             type = LmType::FstLm;
-
-            name = info["name"];
-            path = info["path"];
-            major = info["major"];
-            scale = info["scale"];
-            cache = info["cache"];
-
-            return Error::OK;
         }
 
-        SIO_PANIC(Error::Unreachable);
+        switch(type) {
+            case LmType::PrefixTreeLm:
+                name = info["name"];
+                major = info["major"];
+                break;
+
+            case LmType::KenLm:
+            case LmType::FstLm:
+                name = info["name"];
+                path = info["path"];
+                major = info["major"];
+                scale = info["scale"];
+                cache = info["cache"];
+                break;
+
+            default:
+                SIO_PANIC(Error::Unreachable);
+        }
+
         return Error::OK;
     }
-};
+
+}; // struct Context
 
 
 // main purposes of this wrapper class:
