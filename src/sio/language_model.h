@@ -24,7 +24,7 @@ struct Context {
     str path;
 
     f32 scale = 1.0;
-    size_t cache = 10000;
+    size_t cache = 100000;
 
     LmType type = LmType::UndefinedLm;
     Unique<KenLm*> kenlm;
@@ -40,10 +40,10 @@ class LanguageModel {
 
 public:
 
-    Error LoadPrefixTreeLm(bool major = false) {
+    Error LoadPrefixTreeLm() {
         SIO_CHECK(pimpl_ == nullptr);
 
-        major_ = major;
+        major_ = true; // major is intrinsically required for prefix tree search
         pimpl_ = std::make_unique<PrefixTreeLm>();
 
         return Error::OK;
