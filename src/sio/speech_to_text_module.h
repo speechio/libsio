@@ -21,19 +21,12 @@ namespace sio {
  */
 struct SpeechToTextModule {
     SpeechToTextConfig config;
-
-    Unique<MeanVarNorm*> mean_var_norm; // need pointer here because MVN is optional
-
+    Unique<MeanVarNorm*> mean_var_norm; // pointer here because MVN is optional
     Tokenizer tokenizer;
-
     torch::jit::script::Module nnet;
-
     Fst graph;
     vec<Context> contexts;
 
-    // choose unordered_map instead of vector because:
-    //   rehash retains element memory address stability, realloc doesn't
-    hashmap<str, KenLm> kenlms;
 
     Error Load(std::string stt_config) { 
         config.Load(stt_config);
@@ -73,23 +66,45 @@ struct SpeechToTextModule {
                 if (absl::StartsWith(line, "#")) {
                     continue;
                 }
+                Json info = Json::parse(line);
 
-                // Load context infomation
                 contexts.emplace_back();
-                contexts.back().Load(Json::parse(line));
+                Context& c = contexts.back();
 
-                // Load static LM resources for current context
-                const Context& c = contexts.back();
-                if (c.type == LmType::KenLm) {
-                    SIO_CHECK(kenlms.find(c.name) == kenlms.end());
-                    KenLm m;
-                    m.Load(c.path, tokenizer);
-                    kenlms[c.name] = std::move(m);
-                } else if (c.type == LmType::FstLm) {
-                    ; // TODO
+                if (info["type"] == "PrefixTreeLm") {
+                    c.type = LmType::PrefixTreeLm;
+                } else if (info["type"] == "KenLm") {
+                    c.type = LmType::KenLm;
+                } else if (info["type"] == "FstLm") {
+                    c.type = LmType::FstLm;
                 }
-                SIO_INFO << "    Contextual LM loaded: " 
-                         << c.name <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
+
+                switch (c.type) {
+                    case LmType::PrefixTreeLm:
+                        // There is no static resource for prefix tree lm
+                        c.major = info["major"];
+                        c.name = info["name"];
+                        break;
+
+                    case LmType::KenLm:
+                        c.major = info["major"];
+                        c.name = info["name"];
+                        c.path = info["path"];
+                        c.scale = info["scale"];
+                        c.cache = info["cache"];
+
+                        c.kenlm = std::make_unique<KenLm>();
+                        c.kenlm->Load(c.path, tokenizer);
+
+                        break;
+
+                    case LmType::FstLm:
+                        break;
+
+                    default:
+                        SIO_PANIC(Error::UnsupportedLanguageModel);
+                }
+                SIO_INFO << "    Contextual LM loaded: " << c.name <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
             }
             SIO_INFO << "    Total contexts: " << contexts.size();
         }

@@ -18,47 +18,16 @@ enum class LmType : int {
 
 
 struct Context {
-    LmType type = LmType::UndefinedLm;
+    bool major = false;
 
     str name;
     str path;
 
-    bool major = false;
     f32 scale = 1.0;
     size_t cache = 10000;
 
-
-    int Load(const Json& info) {
-        if (info["type"] == "PrefixTreeLm") {
-            type = LmType::PrefixTreeLm;
-        } else if (info["type"] == "KenLm") {
-            type = LmType::KenLm;
-        } else if (info["type"] == "FstLm") {
-            type = LmType::FstLm;
-        }
-
-        switch (type) {
-            case LmType::PrefixTreeLm:
-                name = info["name"];
-                major = info["major"];
-                break;
-
-            case LmType::KenLm:
-            case LmType::FstLm:
-                name = info["name"];
-                path = info["path"];
-                major = info["major"];
-                scale = info["scale"];
-                cache = info["cache"];
-                break;
-
-            default:
-                SIO_PANIC(Error::UnsupportedLanguageModel);
-        }
-
-        return Error::OK;
-    }
-
+    LmType type = LmType::UndefinedLm;
+    Unique<KenLm*> kenlm;
 }; // struct Context
 
 

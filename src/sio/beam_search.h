@@ -166,7 +166,7 @@ public:
     }
 
 
-    Error SetContext(const Context& c, const hashmap<str, KenLm>& kenlms) {
+    Error LoadContext(const Context& c) {
         lms_.emplace_back();
         LanguageModel& lm = lms_.back();
 
@@ -176,7 +176,7 @@ public:
                 break;
 
             case LmType::KenLm:
-                lm.LoadCachedNgramLm(kenlms.at(c.name), c.scale, c.cache, c.major);
+                lm.LoadCachedNgramLm(*c.kenlm.get(), c.scale, c.cache, c.major);
                 break;
 
             case LmType::FstLm:

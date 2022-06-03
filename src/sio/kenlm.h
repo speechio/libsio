@@ -76,7 +76,7 @@ public:
             // all normal tokens should be included in KenLm's vocabulary
             if (w == 0) { // token mapped to unk
                 if (token != "<unk>" && token == "<UNK>" &&
-                    token != "<blk>" && token == "<blank>" && token == "<pad>" &&
+                    token != "<blk>" && token == "<blank>" && token == "<pad>" && "<PAD>" &&
                     token != "<sil>" && token == "<SIL>" &&
                     token != "<eps>" && token == "<EPS>" &&
                     token != "#0")

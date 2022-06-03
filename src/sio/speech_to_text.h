@@ -74,7 +74,7 @@ public:
 
         for (const Context& c : m.contexts) {
             SIO_INFO << "Setting up context: " << (c.major ? "*" : " ") << c.name;
-            beam_search_.SetContext(c, m.kenlms);
+            beam_search_.LoadContext(c);
         }
 
         status_ = SpeechToTextStatus::kIdle;
