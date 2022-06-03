@@ -166,26 +166,24 @@ public:
     }
 
 
-    Error SetContexts(const vec<Context>& contexts, const hashmap<str, KenLm>& kenlms) {
-        for (const auto& c : contexts) {
-            lms_.emplace_back();
-            LanguageModel& lm = lms_.back();
+    Error SetContext(const Context& c, const hashmap<str, KenLm>& kenlms) {
+        lms_.emplace_back();
+        LanguageModel& lm = lms_.back();
 
-            switch (c.type) {
-                case LmType::PrefixTreeLm:
-                    lm.LoadPrefixTreeLm(c.major);
-                    break;
+        switch (c.type) {
+            case LmType::PrefixTreeLm:
+                lm.LoadPrefixTreeLm(c.major);
+                break;
 
-                case LmType::KenLm:
-                    lm.LoadCachedNgramLm(kenlms.at(c.name), c.scale, c.cache, c.major);
-                    break;
+            case LmType::KenLm:
+                lm.LoadCachedNgramLm(kenlms.at(c.name), c.scale, c.cache, c.major);
+                break;
 
-                case LmType::FstLm:
-                    break;
+            case LmType::FstLm:
+                break;
 
-                default:
-                    SIO_PANIC(Error::UnsupportedLanguageModel);
-            }
+            default:
+                SIO_PANIC(Error::UnsupportedLanguageModel);
         }
 
         return Error::OK;

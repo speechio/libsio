@@ -72,9 +72,9 @@ public:
             m.tokenizer
         );
 
-        SIO_INFO << "Setting up contexts ...";
-        if (!m.contexts.empty()) {
-            beam_search_.SetContexts(m.contexts, m.kenlms);
+        for (const Context& c : m.contexts) {
+            SIO_INFO << "Enabling context: " << (c.major ? "*" : " ") << c.name;
+            beam_search_.SetContext(c, m.kenlms);
         }
 
         status_ = SpeechToTextStatus::kIdle;

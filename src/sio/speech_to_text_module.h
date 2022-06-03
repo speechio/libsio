@@ -89,7 +89,6 @@ struct SpeechToTextModule {
                     ; // TODO
                 }
                 SIO_INFO << "    Context LM loaded: " 
-                         << (c.major ? "*" : " ")
                          << c.name <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
             }
             SIO_INFO << "    Total contexts: " << contexts.size();
