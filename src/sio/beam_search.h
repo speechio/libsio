@@ -167,6 +167,8 @@ public:
 
 
     Error LoadContext(const Context& c) {
+        SIO_CHECK_LT(lms_.size(), SIO_MAX_LM);
+
         lms_.emplace_back();
         LanguageModel& lm = lms_.back();
 
