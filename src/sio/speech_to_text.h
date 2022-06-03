@@ -73,7 +73,7 @@ public:
         );
 
         for (const Context& c : m.contexts) {
-            SIO_INFO << "Enabling context: " << (c.major ? "*" : " ") << c.name;
+            SIO_INFO << "Setting up context: " << (c.major ? "*" : " ") << c.name;
             beam_search_.SetContext(c, m.kenlms);
         }
 

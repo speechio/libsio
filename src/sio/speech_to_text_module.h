@@ -63,7 +63,7 @@ struct SpeechToTextModule {
         }
 
         if (config.contexts != "") {
-            SIO_INFO << "Loading contexts from: " << config.contexts;
+            SIO_INFO << "Loading contextual resources from: " << config.contexts;
 
             std::ifstream contexts_stream(config.contexts);
             SIO_CHECK(contexts_stream.good());
@@ -88,7 +88,7 @@ struct SpeechToTextModule {
                 } else if (c.type == LmType::FstLm) {
                     ; // TODO
                 }
-                SIO_INFO << "    Context LM loaded: " 
+                SIO_INFO << "    Contextual LM loaded: " 
                          << c.name <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
             }
             SIO_INFO << "    Total contexts: " << contexts.size();
