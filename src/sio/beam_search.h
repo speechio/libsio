@@ -175,7 +175,7 @@ public:
         switch (c.type) {
             case LmType::PrefixTreeLm:
                 SIO_CHECK(c.major == true);
-                lm.LoadPrefixTreeLm();
+                lm.LoadPrefixTreeLm(c.major);
                 break;
 
             case LmType::KenLm:

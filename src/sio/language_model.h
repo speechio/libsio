@@ -40,10 +40,10 @@ class LanguageModel {
 
 public:
 
-    Error LoadPrefixTreeLm() {
+    Error LoadPrefixTreeLm(bool major = true) {
         SIO_CHECK(pimpl_ == nullptr);
 
-        major_ = true; // major is intrinsically required for prefix tree search
+        major_ = major;
         pimpl_ = std::make_unique<PrefixTreeLm>();
 
         return Error::OK;

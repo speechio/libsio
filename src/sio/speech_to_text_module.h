@@ -82,7 +82,7 @@ struct SpeechToTextModule {
                 switch (c.type) {
                     case LmType::PrefixTreeLm:
                         // There is no static resource for prefix tree lm
-                        c.major = true;
+                        c.major = true;  // major is intrinsically required for prefix tree search
                         c.name = info["name"];
                         break;
 
