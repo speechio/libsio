@@ -56,7 +56,7 @@ struct SpeechToTextModule {
         }
 
         if (config.contexts != "") {
-            SIO_INFO << "Loading contextual resources from: " << config.contexts;
+            SIO_INFO << "Loading static resources for contexts: " << config.contexts;
 
             std::ifstream contexts_stream(config.contexts);
             SIO_CHECK(contexts_stream.good());
@@ -81,8 +81,8 @@ struct SpeechToTextModule {
 
                 switch (c.type) {
                     case LmType::PrefixTreeLm:
-                        // There is no static resource for prefix tree lm
-                        c.major = true;  // major is intrinsically required for prefix tree search
+                        // PrefixTreeLm doesn't require static resources
+                        c.major = true; // required for prefix tree search
                         c.name = info["name"];
                         break;
 

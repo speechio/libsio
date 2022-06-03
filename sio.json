@@ -20,6 +20,7 @@
             "num_threads": 1
         },
         "graph": "",
+        "contexts": "contexts.jsonl",
         "beam_search": {
             "debug": false,
             "beam": 16.0,
@@ -29,7 +30,6 @@
             "insertion_penalty": 1e-6,
             "apply_score_offsets": true,
             "token_allocator_slab_size": 4096
-        },
-        "contexts": "contexts.jsonl"
+        }
     }
 }

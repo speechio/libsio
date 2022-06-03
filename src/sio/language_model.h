@@ -16,22 +16,7 @@ enum class LmType : int {
     FstLm
 };
 
-
-struct Context {
-    bool major = false;
-
-    str name;
-    str path;
-
-    f32 scale = 1.0;
-    size_t cache = 100000;
-
-    LmType type = LmType::UndefinedLm;
-    Unique<KenLm*> kenlm;
-}; // struct Context
-
-
-// main purposes of this wrapper class:
+// Main purposes of this wrapper class:
 // 1. expose polymorphic LM via value semantics instead of reference semantics
 // 2. centralized LoadXXXLm() uses for typical LM types
 class LanguageModel {
@@ -79,6 +64,20 @@ public:
     }
 
 }; // class LanguageModel
+
+
+struct Context {
+    bool major = false;
+
+    str name;
+    str path;
+
+    f32 scale = 1.0;
+    size_t cache = 100000;
+
+    LmType type = LmType::UndefinedLm;
+    Unique<KenLm*> kenlm;
+}; // struct Context
 
 } // namespace sio
 #endif
