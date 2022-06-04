@@ -56,7 +56,7 @@ struct SpeechToTextModule {
         }
 
         if (config.contexts != "") {
-            SIO_INFO << "Loading static resources for contexts: " << config.contexts;
+            SIO_INFO << "Loading contexts from: " << config.contexts;
 
             std::ifstream contexts_stream(config.contexts);
             SIO_CHECK(contexts_stream.good());
@@ -71,31 +71,34 @@ struct SpeechToTextModule {
                 contexts.emplace_back();
                 Context& c = contexts.back();
 
-                if (info["type"] == "PrefixTreeLm") {
+                if (info.at("type") == "PrefixTreeLm") {
                     c.type = LmType::PrefixTreeLm;
-                } else if (info["type"] == "KenLm") {
+                } else if (info.at("type") == "KenLm") {
                     c.type = LmType::KenLm;
-                } else if (info["type"] == "FstLm") {
+                } else if (info.at("type") == "FstLm") {
                     c.type = LmType::FstLm;
                 }
 
                 switch (c.type) {
                     case LmType::PrefixTreeLm:
-                        // PrefixTreeLm doesn't require static resources
-                        c.major = true; // required for prefix tree search
-                        c.name = info["name"];
+                        c.name = info.value("name", info["type"]);
+                        c.tags = info.value("tags", "");
+
+                        SIO_INFO << "    context loaded: " << c.name;
                         break;
 
                     case LmType::KenLm:
-                        c.major = info["major"];
-                        c.name = info["name"];
-                        c.path = info["path"];
-                        c.scale = info["scale"];
-                        c.cache = info["cache"];
+                        c.name = info.value("name", info["type"]);
+                        c.tags = info.value("tags", "");
+
+                        c.path = info.at("path");
+                        c.scale = info.value("scale", 0.0);
+                        c.cache = info.value("cache", 0);
 
                         c.kenlm = std::make_unique<KenLm>();
                         c.kenlm->Load(c.path, tokenizer);
 
+                        SIO_INFO << "    context loaded: " << c.name <<" "<< c.path;
                         break;
 
                     case LmType::FstLm:
@@ -104,9 +107,8 @@ struct SpeechToTextModule {
                     default:
                         SIO_PANIC(Error::UnsupportedLanguageModel);
                 }
-                SIO_INFO << "    Contextual LM loaded: " << c.name <<" "<< c.path <<" "<< c.scale <<" "<< c.cache;
             }
-            SIO_INFO << "    Total contexts: " << contexts.size();
+            SIO_INFO << "    total contexts: " << contexts.size();
         }
         return Error::OK;
     }

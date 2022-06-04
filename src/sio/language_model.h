@@ -67,13 +67,13 @@ public:
 
 
 struct Context {
-    bool major = false;
-
     str name;
+    str tags;
+
     str path;
 
-    f32 scale = 1.0;
-    size_t cache = 100000;
+    f32 scale = 0.0;
+    size_t cache = 0;
 
     LmType type = LmType::UndefinedLm;
     Unique<KenLm*> kenlm;

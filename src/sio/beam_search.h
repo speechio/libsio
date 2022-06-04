@@ -166,20 +166,28 @@ public:
     }
 
 
-    Error LoadContext(const Context& c) {
+    Error SetContext(const Context& c) {
         SIO_CHECK_LT(lms_.size(), SIO_MAX_LM);
 
+        // Behaviour tags parsing
+        bool major = absl::StartsWith(c.tags, "*") ? true : false;
+
+        // construct contextual LM
         lms_.emplace_back();
         LanguageModel& lm = lms_.back();
 
         switch (c.type) {
             case LmType::PrefixTreeLm:
-                SIO_CHECK(c.major == true);
-                lm.LoadPrefixTreeLm(c.major);
+                SIO_CHECK(major == true);
+                lm.LoadPrefixTreeLm(major);
+
+                SIO_INFO << "    context enabled: " << c.tags << c.name;
                 break;
 
             case LmType::KenLm:
-                lm.LoadCachedNgramLm(*c.kenlm.get(), c.scale, c.cache, c.major);
+                lm.LoadCachedNgramLm(*c.kenlm.get(), c.scale, c.cache, major);
+
+                SIO_INFO << "    context enabled: " << c.tags << c.name <<" "<< c.scale <<" "<< c.cache;
                 break;
 
             case LmType::FstLm:
