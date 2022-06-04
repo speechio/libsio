@@ -81,14 +81,14 @@ struct SpeechToTextModule {
 
                 switch (c.type) {
                     case LmType::PrefixTreeLm:
-                        c.name = info.value("name", info["type"]);
+                        c.name = info.value("name", info.at("type"));
                         c.tags = info.value("tags", "");
 
                         SIO_INFO << "    context loaded: " << c.name;
                         break;
 
                     case LmType::KenLm:
-                        c.name = info.value("name", info["type"]);
+                        c.name = info.value("name", info.at("type"));
                         c.tags = info.value("tags", "");
 
                         c.path = info.at("path");
