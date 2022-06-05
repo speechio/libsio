@@ -113,7 +113,7 @@ struct Token {
 // TokenSet represents a location(time, state handle) in beam search space (sometimes called trellis space),
 // Each TokenSet holds a list of tokens representing search hypotheses
 struct TokenSet {
-    Nullable<Token*> head = nullptr; // nullptr -> TokenSet pruned or inactive
+    Nullable<Token*> head = nullptr; // nullptr: empty TokenSet (pruned or inactive)
 
     f32 best_score = std::numeric_limits<f32>::lowest();
     int time = 0;
