@@ -27,16 +27,5 @@ TEST(Fst, Basic) {
         fst2.Dump(os);
     }
 
-
-    Fst fst3;
-    Tokenizer tokenizer;
-    tokenizer.Load("testdata/tokenizer.vocab");
-    fst3.BuildTokenTopology(tokenizer);
-    fst3.DumpToText(std::cout);
-    {
-        std::ofstream os("testdata/T3.fst", std::ios::binary);
-        fst3.Dump(os);
-    }
-
 }
 } // namespace sio

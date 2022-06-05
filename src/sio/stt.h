@@ -12,6 +12,7 @@
 #include "sio/tokenizer.h"
 #include "sio/scorer.h"
 #include "sio/finite_state_transducer.h"
+#include "sio/token_topology.h"
 #include "sio/kenlm.h"
 #include "sio/language_model_impl.h"
 #include "sio/language_model.h"

@@ -9,6 +9,7 @@
 #include "sio/mean_var_norm.h"
 #include "sio/tokenizer.h"
 #include "sio/finite_state_transducer.h"
+#include "sio/token_topology.h"
 #include "sio/kenlm.h"
 #include "sio/language_model.h"
 #include "sio/speech_to_text_config.h"
@@ -32,6 +33,7 @@ struct SpeechToTextModule {
         config.Load(stt_config);
 
         if (config.mean_var_norm != "") {
+            SIO_INFO << "Loading MVN from: " << config.mean_var_norm; 
             SIO_CHECK(!mean_var_norm);
             mean_var_norm = std::make_unique<MeanVarNorm>();
             mean_var_norm->Load(config.mean_var_norm);
@@ -39,10 +41,11 @@ struct SpeechToTextModule {
             mean_var_norm.reset();
         }
 
+        SIO_INFO << "Loading tokenizer from: " << config.tokenizer_vocab; 
         tokenizer.Load(config.tokenizer_vocab);
 
         SIO_CHECK(config.nnet != "");
-        SIO_INFO << "Loading torchscript nnet from: " << config.nnet; 
+        SIO_INFO << "Loading nnet model from: " << config.nnet; 
         nnet = torch::jit::load(config.nnet);
 
         if (config.graph != "") {
@@ -52,7 +55,7 @@ struct SpeechToTextModule {
             graph.Load(is);
         } else {
             SIO_INFO << "Building decoding graph(T.fst) from tokenizer of size:" << tokenizer.Size();
-            graph.BuildTokenTopology(tokenizer);
+            BuildTokenTopology(tokenizer, &graph);
         }
 
         if (config.contexts != "") {

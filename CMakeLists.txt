@@ -155,6 +155,7 @@ add_executable(unittest
     src/sio/dbg_test.cc
     src/sio/struct_loader_test.cc
     src/sio/finite_state_transducer_test.cc
+    src/sio/token_topology_test.cc
     src/sio/language_model_test.cc
 )
 target_link_libraries(unittest gtest_main sioxx)
