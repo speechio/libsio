@@ -520,9 +520,7 @@ private:
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.state_handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
                 if (arc.ilabel == kFstInputEnd) {
-                    TokenSet& dst = frontier_[
-                        FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
-                    ];
+                    TokenSet& dst = frontier_[FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))];
                     TokenPassing(src, arc, &dst);
                 }
             }
