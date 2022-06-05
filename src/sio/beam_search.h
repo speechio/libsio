@@ -78,13 +78,13 @@ static inline StateHandle ComposeStateHandle(int graph, FstStateId state) {
     return state;
     //return (static_cast<StateHandle>(graph) << 32) + static_cast<StateHandle>(state);
 }
-static inline int HandleToGraph(StateHandle h) {
+static inline int HandleToGraph(StateHandle s) {
     return 0;
-    //return static_cast<int>(static_cast<u32>(h >> 32));
+    //return static_cast<int>(static_cast<u32>(s >> 32));
 }
-static inline FstStateId HandleToState(StateHandle h) {
-    return h;
-    //return static_cast<FstStateId>(static_cast<u32>(h))
+static inline FstStateId HandleToState(StateHandle s) {
+    return s;
+    //return static_cast<FstStateId>(static_cast<u32>(s))
 }
 
 
@@ -117,7 +117,7 @@ struct TokenSet {
 
     f32 best_score = std::numeric_limits<f32>::lowest();
     int time = 0;
-    StateHandle handle = 0;
+    StateHandle state_handle = 0;
 };
 
 
@@ -326,19 +326,19 @@ private:
     }
 
 
-    inline int FindOrAddTokenSet(int t, StateHandle h) {
+    inline int FindOrAddTokenSet(int t, StateHandle s) {
         SIO_CHECK_EQ(cur_time_, t);
 
         int k;
-        auto it = frontier_map_.find(h);
+        auto it = frontier_map_.find(s);
         if (it == frontier_map_.end()) {
             TokenSet ts;
             ts.time = t;
-            ts.handle = h;
+            ts.state_handle = s;
 
             k = frontier_.size();
             frontier_.push_back(ts);
-            frontier_map_.insert({h, k});
+            frontier_map_.insert({s, k});
         } else {
             k = it->second;
         }
@@ -460,7 +460,7 @@ private:
         f32 score_offset = config_.apply_score_offsets ? score_offsets_.back() : 0.0;
 
         for (const TokenSet& src : lattice_.back()) {
-            for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
+            for (auto aiter = graph_->GetArcIterator(HandleToState(src.state_handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
                 if (arc.ilabel != kFstEps && arc.ilabel != kFstInputEnd) {
                     f32 am_score = scores[arc.ilabel] + score_offset;
@@ -481,7 +481,7 @@ private:
         SIO_CHECK(eps_queue_.empty());
 
         for (int k = 0; k != frontier_.size(); k++) {
-            if (graph_->ContainEpsilonArc(HandleToState(frontier_[k].handle))) {
+            if (graph_->ContainEpsilonArc(HandleToState(frontier_[k].state_handle))) {
                 eps_queue_.push_back(k);
             }
         }
@@ -492,7 +492,7 @@ private:
 
             if (src.best_score < score_min_) continue;
 
-            for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
+            for (auto aiter = graph_->GetArcIterator(HandleToState(src.state_handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
                 if (arc.ilabel == kFstEps) {
                     if (src.best_score + arc.score < score_min_) continue;
@@ -517,7 +517,7 @@ private:
         SIO_CHECK(frontier_.empty());
 
         for (const TokenSet& src : lattice_.back()) {
-            for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
+            for (auto aiter = graph_->GetArcIterator(HandleToState(src.state_handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
                 if (arc.ilabel == kFstInputEnd) {
                     TokenSet& dst = frontier_[
@@ -534,7 +534,7 @@ private:
 
     Error FrontierPrune() {
         auto token_set_better_than = [](const TokenSet& x, const TokenSet& y) -> bool {
-            return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.handle < y.handle);
+            return (x.best_score != y.best_score) ? (x.best_score > y.best_score) : (x.state_handle < y.state_handle);
         };
 
         score_min_ = score_max_ - config_.beam;
