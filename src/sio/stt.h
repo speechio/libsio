@@ -13,7 +13,6 @@
 #include "sio/scorer.h"
 #include "sio/finite_state_transducer.h"
 #include "sio/kenlm.h"
-#include "sio/language_model_itf.h"
 #include "sio/language_model_impl.h"
 #include "sio/language_model.h"
 #include "sio/beam_search.h"

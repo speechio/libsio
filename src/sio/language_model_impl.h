@@ -3,16 +3,35 @@
 
 #include "sio/tokenizer.h"
 #include "sio/kenlm.h"
-#include "sio/language_model_itf.h"
 
 namespace sio {
+
+using LmStateId = i32;
+using LmWordId = i32;
+using LmScore = f32;
+
+enum class LmType : int {
+    UndefinedLm,
+    PrefixTreeLm,
+    KenLm,
+    FstLm
+};
+
+
+class LmQueryInterface {
+public:
+    virtual LmStateId NullState() const = 0;
+    virtual LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) = 0;
+    virtual ~LmQueryInterface() { }
+};
+
 
 // PrefixTreeLm is used for LM-free decoding (e.g. vanilla CTC),
 // Conceptually, it is a forever-expanding prefix tree:
 // - each arc represents an emitted token / word
 // - each leaf node represents a tree-search head
 // - each path from root to leaf represents a unique decoded hypothesis
-class PrefixTreeLm : public LanguageModelItf {
+class PrefixTreeLm : public LmQueryInterface {
 public:
     LmStateId NullState() const override {
         return 0;
@@ -36,7 +55,7 @@ public:
 //   1. maintains an indexing system via a bidirectional map: state index <-> KenLm's state
 //   2. provides index-based interface to hide actual states from outside world
 // NgramLm instance is stateful so it should not be shared by multiple threads.
-class NgramLm : public LanguageModelItf {
+class NgramLm : public LmQueryInterface {
     // bidirectional map:
     //   state -> index via hashmap
     //   index -> state* via vector
@@ -98,7 +117,7 @@ public:
 }; // class NgramLm
 
 
-class CachedLm : public LanguageModelItf {
+class CachedLm : public LmQueryInterface {
     struct CacheK {
         LmStateId istate = -1; // -1 won't collide with any valid LmStateId
         LmWordId word;
@@ -111,14 +130,14 @@ class CachedLm : public LanguageModelItf {
 
     using Cache = std::pair<CacheK, CacheV>;
 
-    Unique<LanguageModelItf*> lm_ = nullptr;
+    Unique<LmQueryInterface*> lm_ = nullptr;
     f32 scale_ = 1.0;
     vec<Cache> caches_;
 
 public:
 
     // NOTE sink argument: lm ownership transfered to loaded instance
-    Error Load(Unique<LanguageModelItf*> lm, f32 scale, size_t cache_size) {
+    Error Load(Unique<LmQueryInterface*> lm, f32 scale, size_t cache_size) {
         SIO_CHECK(lm != nullptr);
         SIO_CHECK_GT(cache_size, 0);
 

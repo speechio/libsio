@@ -4,23 +4,15 @@
 #include "sio/base.h"
 #include "sio/json.h"
 #include "sio/kenlm.h"
-#include "sio/language_model_itf.h"
 #include "sio/language_model_impl.h"
 
 namespace sio {
-
-enum class LmType : int {
-    UndefinedLm,
-    PrefixTreeLm,
-    KenLm,
-    FstLm
-};
 
 // Main purposes of this wrapper class:
 // 1. expose polymorphic LM via value semantics instead of reference semantics
 // 2. centralized LoadXXXLm() uses for typical LM types
 class LanguageModel {
-    Unique<LanguageModelItf*> pimpl_;
+    Unique<LmQueryInterface*> pimpl_;
     bool major_ = false;
 
 public:
