@@ -16,6 +16,7 @@ class LanguageModel {
     bool major_ = false;
 
 public:
+    bool Major() { return major_; }
 
     Error LoadPrefixTreeLm(bool major = true) {
         SIO_CHECK(pimpl_ == nullptr);
@@ -43,7 +44,6 @@ public:
         return Error::OK;
     }
 
-    bool Major() { return major_; }
 
     LmStateId NullState() const {
         SIO_CHECK(pimpl_ != nullptr);
