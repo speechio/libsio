@@ -362,41 +362,41 @@ private:
     bool TokenPassing(const TokenSet& src, const FstArc& arc, TokenSet* dst, f32 am_score = 0.0f) {
         bool changed = false; // dst token set is changed
 
-        for (const Token* t = src.head; t != nullptr; t = t->next) {
+        for (const Token* x = src.head; x != nullptr; x = x->next) {
             // most tokens won't survive pruning and context recombination,
             // here we use a "new token" on stack for probing, 
             // and a heap-based copy is created only after its actual survival.
-            Token nt;
+            Token y;
 
             // 1. graph & AM score
-            nt.score = t->score + arc.score + am_score;
+            y.score = x->score + arc.score + am_score;
 
             // 2. LM
             if (arc.olabel == kFstEps) {
-                memcpy(nt.lm_states, t->lm_states, sizeof(LmStateId) * lms_.size());
+                memcpy(y.lm_states, x->lm_states, sizeof(LmStateId) * lms_.size());
             } else {  /* word-end arc */
                 for (int i = 0; i != lms_.size(); i++) {
                     LanguageModel& lm = lms_[i];
 
-                    f32& lm_score = nt.traceback.lm_scores[i];
-                    lm_score = lm.GetScore(t->lm_states[i], arc.olabel, &nt.lm_states[i]);
-                    nt.score += lm_score;
+                    f32& lm_score = y.traceback.lm_scores[i];
+                    lm_score = lm.GetScore(x->lm_states[i], arc.olabel, &y.lm_states[i]);
+                    y.score += lm_score;
                 }
-                nt.score -= config_.insertion_penalty;
+                y.score -= config_.insertion_penalty;
             }
 
             // 3. trace back 
             // this can be moved to back for optimization, keep it here for simplicity
-            nt.traceback.token = t;
-            nt.traceback.arc = &arc;
-            nt.traceback.am_score = am_score;
+            y.traceback.token = x;
+            y.traceback.arc = &arc;
+            y.traceback.am_score = am_score;
 
             // beam pruning
-            if (nt.score < score_min_) {
+            if (y.score < score_min_) {
                 continue;
-            } else if (nt.score > score_max_) {  // high enough to lift current beam range
-                score_min_ += (nt.score - score_max_);
-                score_max_ = nt.score;
+            } else if (y.score > score_max_) {  // high enough to lift current beam range
+                score_min_ += (y.score - score_max_);
+                score_max_ = y.score;
             }
 
             // context recombination
@@ -405,8 +405,8 @@ private:
                 int k;
                 Token** p;
                 for (k = 0, p = &dst->head; k < config_.token_set_size && *p != nullptr; k++, p = &(*p)->next) {
-                    if (ContextEqual(**p, nt)) {
-                        if ((*p)->score < nt.score) {  // existing token is worse, remove it
+                    if (ContextEqual(**p, y)) {
+                        if ((*p)->score < y.score) {  // existing token is worse, remove it
                             Token *next = (*p)->next;
                             DeleteToken(*p);
                             *p = next;
@@ -425,13 +425,13 @@ private:
                 int k;
                 Token** p;
                 for (k = 0, p = &dst->head; k < config_.token_set_size && *p != nullptr; k++, p = &(*p)->next) {
-                    if ((*p)->score <= nt.score) {
+                    if ((*p)->score <= y.score) {
                         break;
                     }
                 }
 
                 if (k != config_.token_set_size) {
-                    Token* q = NewToken(&nt); // actual heap copy to insert
+                    Token* q = NewToken(&y); // actual heap copy to insert
 
                     q->next = *p;
                     *p = q;
