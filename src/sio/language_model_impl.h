@@ -8,7 +8,6 @@ namespace sio {
 
 using LmStateId = i32;
 using LmWordId = i32;
-using LmScore = f32;
 
 enum class LmType : int {
     UndefinedLm,
@@ -21,7 +20,7 @@ enum class LmType : int {
 class LmQueryInterface {
 public:
     virtual LmStateId NullState() const = 0;
-    virtual LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) = 0;
+    virtual f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) = 0;
     virtual ~LmQueryInterface() { }
 };
 
@@ -37,7 +36,7 @@ public:
         return 0;
     }
 
-    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
+    f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
         // prime are picked from Kaldi's VectorHasher:
         //   https://github.com/kaldi-asr/kaldi/blob/master/istate/util/stl-utils.h#L230
         // choose unsigned, because uint has well-defined warp-around behavior by C standard
@@ -93,12 +92,12 @@ public:
     }
 
 
-    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
+    f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
         //SIO_CHECK(ostate_ptr != nullptr);
 
         const KenLm::State* kenlm_istate = index_to_state_[istate];
         KenLm::State kenlm_ostate;
-        LmScore score = kenlm_->Score(
+        f32 score = kenlm_->Score(
             kenlm_istate,
             kenlm_->GetWordIndex(word),
             &kenlm_ostate
@@ -124,7 +123,7 @@ class CachedLm : public LmQueryInterface {
     };
 
     struct CacheV {
-        LmScore score;
+        f32 score;
         LmStateId ostate;
     };
 
@@ -158,7 +157,7 @@ public:
     }
 
 
-    LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
+    f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
         Cache& cache = caches_[GetCacheIndex(istate, word)];
         CacheK& k = cache.first;
         CacheV& v = cache.second;

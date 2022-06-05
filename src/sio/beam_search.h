@@ -91,21 +91,22 @@ static inline FstStateId HandleToState(StateHandle h) {
 struct Token;
 struct TokenSet;
 
-struct TraceBack {
-    Token* token = nullptr;
-    FstArc arc;
-    f32 score = 0.0;
-    LmScore lm_scores[SIO_MAX_LM] = {}; // zero initialized to 0.0
+struct Traceback {
+    Nullable<const Token*> token = nullptr; // nullptr: alpha token
+    Nullable<const FstArc*> arc = nullptr;  // nullptr: alpha token
+    f32 am_score = 0.0;
+    f32 lm_scores[SIO_MAX_LM] = {};
 };
 
 
 struct Token {
-    Nullable<Token*> next = nullptr; // nullptr -> last token in a TokenSet
+    Nullable<Token*> next = nullptr; // nullptr: last token in a TokenSet
     //TokenSet* master = nullptr;
 
-    f32 total_score = 0.0;
-    LmStateId lm_states[SIO_MAX_LM] = {}; // zero initialized to 0 
-    TraceBack trace_back;
+    f32 score = 0.0;
+    LmStateId lm_states[SIO_MAX_LM] = {};
+
+    Traceback traceback;
 };
 
 
@@ -222,11 +223,8 @@ public:
         }
 
         Token* t = NewToken();
-        t->trace_back.arc.ilabel = kFstEps;
-        t->trace_back.arc.olabel = tokenizer_->bos;
-
         for (int i = 0; i != lms_.size(); i++) {
-            t->total_score += lms_[i].GetScore(lms_[i].NullState(), tokenizer_->bos, &t->lm_states[i]);
+            t->score += lms_[i].GetScore(lms_[i].NullState(), tokenizer_->bos, &t->lm_states[i]);
         }
 
         SIO_CHECK_EQ(cur_time_, 0);
@@ -236,7 +234,7 @@ public:
 
         SIO_CHECK(ts.head == nullptr);
         ts.head = t;
-        ts.best_score = t->total_score;
+        ts.best_score = t->score;
 
         score_max_ = ts.best_score;
         score_min_ = score_max_ - config_.beam;
@@ -250,12 +248,12 @@ public:
     }
 
 
-    Error Push(const torch::Tensor score) {
-        SIO_CHECK_EQ(score.dim(), 1); // frame by frame
+    Error Push(const torch::Tensor scores_tensor) {
+        SIO_CHECK_EQ(scores_tensor.dim(), 1); // frame by frame
 
         OnFrameBegin();
         {
-            FrontierExpandEmitting(score.data_ptr<float>());
+            FrontierExpandEmitting(scores_tensor.data_ptr<float>());
             FrontierExpandEps();
             FrontierPrune();
             FrontierPinDown();
@@ -361,7 +359,7 @@ private:
     }
 
 
-    bool TokenPassing(const TokenSet& src, const FstArc& arc, f32 score, TokenSet* dst) {
+    bool TokenPassing(const TokenSet& src, const FstArc& arc, TokenSet* dst, f32 am_score = 0.0f) {
         bool changed = false; // dst token set is changed
 
         for (const Token* t = src.head; t != nullptr; t = t->next) {
@@ -371,7 +369,7 @@ private:
             Token nt;
 
             // 1. graph & AM score
-            nt.total_score = t->total_score + arc.score + score;
+            nt.score = t->score + arc.score + am_score;
 
             // 2. LM
             if (arc.olabel == kFstEps) {
@@ -380,25 +378,25 @@ private:
                 for (int i = 0; i != lms_.size(); i++) {
                     LanguageModel& lm = lms_[i];
 
-                    LmScore& lm_score = nt.trace_back.lm_scores[i];
+                    f32& lm_score = nt.traceback.lm_scores[i];
                     lm_score = lm.GetScore(t->lm_states[i], arc.olabel, &nt.lm_states[i]);
-                    nt.total_score += lm_score;
+                    nt.score += lm_score;
                 }
-                nt.total_score -= config_.insertion_penalty;
+                nt.score -= config_.insertion_penalty;
             }
 
             // 3. trace back 
             // this can be moved to back for optimization, keep it here for simplicity
-            nt.trace_back.token = const_cast<Token*>(t);
-            nt.trace_back.arc = arc;
-            nt.trace_back.score = score;
+            nt.traceback.token = t;
+            nt.traceback.arc = &arc;
+            nt.traceback.am_score = am_score;
 
             // beam pruning
-            if (nt.total_score < score_min_) {
+            if (nt.score < score_min_) {
                 continue;
-            } else if (nt.total_score > score_max_) {  // high enough to lift current beam range
-                score_min_ += (nt.total_score - score_max_);
-                score_max_ = nt.total_score;
+            } else if (nt.score > score_max_) {  // high enough to lift current beam range
+                score_min_ += (nt.score - score_max_);
+                score_max_ = nt.score;
             }
 
             // context recombination
@@ -408,7 +406,7 @@ private:
                 Token** p;
                 for (k = 0, p = &dst->head; k < config_.token_set_size && *p != nullptr; k++, p = &(*p)->next) {
                     if (ContextEqual(**p, nt)) {
-                        if ((*p)->total_score < nt.total_score) {  // existing token is worse, remove it
+                        if ((*p)->score < nt.score) {  // existing token is worse, remove it
                             Token *next = (*p)->next;
                             DeleteToken(*p);
                             *p = next;
@@ -427,7 +425,7 @@ private:
                 int k;
                 Token** p;
                 for (k = 0, p = &dst->head; k < config_.token_set_size && *p != nullptr; k++, p = &(*p)->next) {
-                    if ((*p)->total_score <= nt.total_score) {
+                    if ((*p)->score <= nt.score) {
                         break;
                     }
                 }
@@ -445,14 +443,14 @@ private:
         } // for each token in src token set
 
         if (changed) {
-            dst->best_score = dst->head->total_score;
+            dst->best_score = dst->head->score;
         }
 
         return changed;
     }
 
 
-    Error FrontierExpandEmitting(const float* frame_score) {
+    Error FrontierExpandEmitting(const float* scores) {
         SIO_CHECK(frontier_.empty());
 
         score_max_ -= 1000.0;
@@ -465,14 +463,13 @@ private:
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
                 if (arc.ilabel != kFstEps && arc.ilabel != kFstInputEnd) {
-                    f32 score = frame_score[arc.ilabel] + score_offset;
-                    if (src.best_score + arc.score + score < score_min_) continue;
+                    f32 am_score = scores[arc.ilabel] + score_offset;
+                    if (src.best_score + arc.score + am_score < score_min_) {
+                        continue;
+                    }
 
-                    TokenSet& dst = frontier_[
-                        FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
-                    ];
-
-                    TokenPassing(src, arc, score, &dst);
+                    TokenSet& dst = frontier_[FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))];
+                    TokenPassing(src, arc, &dst, am_score);
                 }
             }
         }
@@ -503,7 +500,7 @@ private:
                     int dst_k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst));
                     TokenSet& dst = frontier_[dst_k];
 
-                    bool changed = TokenPassing(src, arc, 0.0, &dst);
+                    bool changed = TokenPassing(src, arc, &dst);
 
                     if (changed && graph_->ContainEpsilonArc(arc.dst)) {
                         eps_queue_.push_back(dst_k);
@@ -526,7 +523,7 @@ private:
                     TokenSet& dst = frontier_[
                         FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))
                     ];
-                    TokenPassing(src, arc, 0.0, &dst);
+                    TokenPassing(src, arc, &dst);
                 }
             }
         }
@@ -598,11 +595,15 @@ private:
         Token* p;
         for (k = 0, p = frontier_[it->second].head; k < config_.nbest && p != nullptr; k++, p = p->next) {
             vec<TokenId> path;
-            for(Token* t = p; t != nullptr; t = t->trace_back.token) {
-                if (t->trace_back.arc.olabel != kFstEps) {
-                    path.push_back(t->trace_back.arc.olabel);
+            for(const Token* t = p; t != nullptr; t = t->traceback.token) {
+                if (t->traceback.arc != nullptr) {
+                    FstLabel olabel = t->traceback.arc->olabel;
+                    if (olabel != kFstEps) {
+                        path.push_back(t->traceback.arc->olabel);
+                    }
                 }
             }
+            path.push_back(tokenizer_->bos);
             std::reverse(path.begin(), path.end());
 
             nbest_.push_back(std::move(path));

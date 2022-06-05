@@ -51,7 +51,7 @@ public:
     }
 
 
-    inline LmScore GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) {
+    inline f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) {
         return pimpl_->GetScore(istate, word, ostate_ptr);
     }
 
