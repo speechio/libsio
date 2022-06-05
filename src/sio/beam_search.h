@@ -480,30 +480,33 @@ private:
     Error FrontierExpandEps() {
         SIO_CHECK(eps_queue_.empty());
 
-        for (int k = 0; k != frontier_.size(); k++) {
-            if (graph_->ContainEpsilonArc(HandleToState(frontier_[k].state_handle))) {
-                eps_queue_.push_back(k);
+        for (int i = 0; i != frontier_.size(); i++) {
+            if (graph_->ContainEpsilonArc(HandleToState(frontier_[i].state_handle))) {
+                eps_queue_.push_back(i);
             }
         }
 
         while (!eps_queue_.empty()) {
-            int src_k = eps_queue_.back(); eps_queue_.pop_back();
-            const TokenSet& src = frontier_[src_k];
+            int i = eps_queue_.back(); eps_queue_.pop_back();
+            const TokenSet& src = frontier_[i];
 
-            if (src.best_score < score_min_) continue;
+            if (src.best_score < score_min_) {
+                continue;
+            }
 
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.state_handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
                 if (arc.ilabel == kFstEps) {
-                    if (src.best_score + arc.score < score_min_) continue;
+                    if (src.best_score + arc.score < score_min_) {
+                        continue;
+                    }
 
-                    int dst_k = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst));
-                    TokenSet& dst = frontier_[dst_k];
+                    int j = FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst));
+                    TokenSet& dst = frontier_[j];
 
                     bool changed = TokenPassing(src, arc, &dst);
-
                     if (changed && graph_->ContainEpsilonArc(arc.dst)) {
-                        eps_queue_.push_back(dst_k);
+                        eps_queue_.push_back(j);
                     }
                 }
             }
