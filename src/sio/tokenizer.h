@@ -52,19 +52,10 @@ public:
     }
 
 
-    size_t Size() const {
-        return index_to_token_.size();
-    }
+    size_t Size() const { return index_to_token_.size(); }
 
-
-    const str& Token(TokenId i) const {
-        return index_to_token_.at(i);
-    }
-
-
-    TokenId Index(const str& t) const {
-        return token_to_index_.at(t);
-    }
+    const str& Token(TokenId i) const { return index_to_token_.at(i); }
+    TokenId Index(const str& t) const { return token_to_index_.at(t); }
 
 }; // class Tokenizer
 }  // namespace sio
