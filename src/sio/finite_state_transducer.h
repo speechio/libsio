@@ -72,10 +72,9 @@ struct Fst {
 
     inline bool ContainEpsilonArc(FstStateId s) const {
         // Preconditions:
-        //   1. kFstEps should have smallest input symbol id.
-        //   2. arcs of a FstState need to be sorted by ilabels.
-        const FstArc& first_arc = this->arcs[this->states[s].offset];
-        return (first_arc.ilabel == kFstEps);
+        //   1. kFstEps has smallest id in symbol table.
+        //   2. arcs of a FstState are sorted by ilabels.
+        return this->arcs[this->states[s].offset].ilabel == kFstEps;
     }
 
 

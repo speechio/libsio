@@ -8,52 +8,45 @@
 namespace sio {
 
 using TokenId = i32;
-constexpr TokenId kNoTokenId = -1;
 
 class Tokenizer {
     hashmap<TokenId, str> index_to_token_; // TODO: consider vector implementation
     hashmap<str, TokenId> token_to_index_;
 
 public:
-    TokenId blk = kNoTokenId;
-    TokenId unk = kNoTokenId;
-    TokenId bos = kNoTokenId;
-    TokenId eos = kNoTokenId;
+    TokenId blk = 0;
+    TokenId unk = 0;
+    TokenId bos = 0;
+    TokenId eos = 0;
 
     Error Load(const str& tokenizer_vocab) {
         std::ifstream is(tokenizer_vocab);
         SIO_CHECK(is.good());
         str line;
-        for (TokenId index = 0; std::getline(is, line); index++) {
+        for (TokenId i = 0; std::getline(is, line); i++) {
             vec<str> cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
-            SIO_CHECK_EQ(cols.size(), 2); // token prob
-            str token = cols[0];
-            index_to_token_[index] = token;
-            token_to_index_[token] = index;
+            SIO_CHECK_EQ(cols.size(), 2); // sentencepiece's vocab: "token prob"
 
-            if (token == "<blk>" || token == "<blank>" || token == "<pad>") {
-                blk = index;
-            } else if (token == "<unk>" || token == "<UNK>") {
-                unk = index;
-            } else if (token == "<s>" || token == "<bos>" || token == "<sos>") {
-                bos = index;
-            } else if (token == "</s>" || token == "<eos>") {
-                eos = index;
+            str t = cols[0];
+            index_to_token_[i] = t;
+            token_to_index_[t] = i;
+
+            if (t == "<blk>" || t == "<blank>" || t == "<pad>") {
+                blk = i;
+            } else if (t == "<unk>" || t == "<UNK>") {
+                unk = i;
+            } else if (t == "<s>" || t == "<bos>" || t == "<sos>") {
+                bos = i;
+            } else if (t == "</s>" || t == "<eos>") {
+                eos = i;
             }
         }
-
-        // Use blk & unk interchangably if only one of them is undefined
-        if (blk == kNoTokenId && unk != kNoTokenId) { blk = unk; }
-        if (unk == kNoTokenId && blk != kNoTokenId) { unk = blk; }
-
         //dbg(index_to_token_);
         //dbg(token_to_index_);
 
         // Post-condition checks
-        SIO_CHECK(blk != kNoTokenId);
-        SIO_CHECK(unk != kNoTokenId);
-        SIO_CHECK(bos != kNoTokenId);
-        SIO_CHECK(eos != kNoTokenId);
+        SIO_CHECK(bos != 0);
+        SIO_CHECK(eos != 0);
 
         return Error::OK;
     }
