@@ -57,13 +57,13 @@ public:
     }
 
 
-    const str& Token(TokenId t) const {
-        return index_to_token_.at(t);
+    const str& Token(TokenId i) const {
+        return index_to_token_.at(i);
     }
 
 
-    TokenId Index(const str& token) const {
-        return token_to_index_.at(token);
+    TokenId Index(const str& t) const {
+        return token_to_index_.at(t);
     }
 
 }; // class Tokenizer
