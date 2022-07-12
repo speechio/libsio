@@ -59,10 +59,10 @@ public:
 
 
 enum class LmType : int {
-    UndefinedLm,
-    PrefixTreeLm,
-    KenLm,
-    FstLm
+    kUndefinedLm,
+    kPrefixTreeLm,
+    kNgramLm,
+    kHintLm
 };
 
 
@@ -75,7 +75,7 @@ struct Context {
     f32 scale = 0.0;
     size_t cache = 0;
 
-    LmType type = LmType::UndefinedLm;
+    LmType type = LmType::kUndefinedLm;
     Unique<KenLm*> kenlm;
 }; // struct Context
 

@@ -75,22 +75,22 @@ struct SpeechToTextModule {
                 Context& c = contexts.back();
 
                 if (info.at("type") == "PrefixTreeLm") {
-                    c.type = LmType::PrefixTreeLm;
-                } else if (info.at("type") == "KenLm") {
-                    c.type = LmType::KenLm;
-                } else if (info.at("type") == "FstLm") {
-                    c.type = LmType::FstLm;
+                    c.type = LmType::kPrefixTreeLm;
+                } else if (info.at("type") == "NgramLm") {
+                    c.type = LmType::kNgramLm;
+                } else if (info.at("type") == "HintLm") {
+                    c.type = LmType::kHintLm;
                 }
 
                 switch (c.type) {
-                    case LmType::PrefixTreeLm:
+                    case LmType::kPrefixTreeLm:
                         c.name = info.value("name", info.at("type"));
                         c.tags = info.value("tags", "");
 
                         SIO_INFO << "    context loaded: " << c.name;
                         break;
 
-                    case LmType::KenLm:
+                    case LmType::kNgramLm:
                         c.name = info.value("name", info.at("type"));
                         c.tags = info.value("tags", "");
 
@@ -104,7 +104,7 @@ struct SpeechToTextModule {
                         SIO_INFO << "    context loaded: " << c.name <<" "<< c.path;
                         break;
 
-                    case LmType::FstLm:
+                    case LmType::kHintLm:
                         break;
 
                     default:

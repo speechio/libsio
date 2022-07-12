@@ -178,20 +178,20 @@ public:
         LanguageModel& lm = lms_.back();
 
         switch (c.type) {
-            case LmType::PrefixTreeLm:
+            case LmType::kPrefixTreeLm:
                 SIO_CHECK(major == true);
                 lm.LoadPrefixTreeLm(major);
 
                 SIO_INFO << "    context enabled: " << c.tags << c.name;
                 break;
 
-            case LmType::KenLm:
+            case LmType::kNgramLm:
                 lm.LoadCachedNgramLm(*c.kenlm.get(), c.scale, c.cache, major);
 
                 SIO_INFO << "    context enabled: " << c.tags << c.name <<" "<< c.scale <<" "<< c.cache;
                 break;
 
-            case LmType::FstLm:
+            case LmType::kHintLm:
                 break;
 
             default:
