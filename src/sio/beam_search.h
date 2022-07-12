@@ -239,7 +239,7 @@ public:
         score_max_ = ts.best_score;
         score_min_ = score_max_ - config_.beam;
 
-        FrontierExpandEps();
+        FrontierExpandEpsilon();
         FrontierPinDown();
 
         OnSessionBegin();
@@ -254,7 +254,7 @@ public:
         OnFrameBegin();
         {
             FrontierExpandEmitting(scores_tensor.data_ptr<float>());
-            FrontierExpandEps();
+            FrontierExpandEpsilon();
             FrontierPrune();
             FrontierPinDown();
         }
@@ -372,7 +372,7 @@ private:
             y.score = x->score + arc.score + am_score;
 
             // 2. LM
-            if (arc.olabel == kFstEps) {
+            if (arc.olabel == kFstEpsilon) {
                 memcpy(y.lm_states, x->lm_states, sizeof(LmStateId) * lms_.size());
             } else {  /* word-end arc */
                 for (int i = 0; i != lms_.size(); i++) {
@@ -462,7 +462,7 @@ private:
         for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.state_handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
-                if (arc.ilabel != kFstEps && arc.ilabel != kFstInputEnd) {
+                if (arc.ilabel != kFstEpsilon && arc.ilabel != kFstInputEnd) {
                     f32 am_score = scores[arc.ilabel] + score_offset;
                     if (src.best_score + arc.score + am_score < score_min_) {
                         continue;
@@ -477,7 +477,7 @@ private:
     }
 
 
-    Error FrontierExpandEps() {
+    Error FrontierExpandEpsilon() {
         SIO_CHECK(eps_queue_.empty());
 
         for (int i = 0; i != frontier_.size(); i++) {
@@ -496,7 +496,7 @@ private:
 
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.state_handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
-                if (arc.ilabel == kFstEps) {
+                if (arc.ilabel == kFstEpsilon) {
                     if (src.best_score + arc.score < score_min_) {
                         continue;
                     }
@@ -599,7 +599,7 @@ private:
             for(const Token* t = p; t != nullptr; t = t->traceback.token) {
                 if (t->traceback.arc != nullptr) {
                     FstLabel olabel = t->traceback.arc->olabel;
-                    if (olabel != kFstEps) {
+                    if (olabel != kFstEpsilon) {
                         path.push_back(t->traceback.arc->olabel);
                     }
                 }

@@ -15,7 +15,7 @@ Error BuildTokenTopology(const Tokenizer& tokenizer, Fst* topo) {
     {
         // 1a: Blank self-loop of start state
         topo->start_state = 0;
-        topo->AddArc(topo->start_state, topo->start_state, tokenizer.blk, kFstEps);
+        topo->AddArc(topo->start_state, topo->start_state, tokenizer.blk, kFstEpsilon);
 
         // 1b: Arcs of normal tokens
         FstStateId cur_state = 1; // 0 is already occupied by start state
@@ -26,9 +26,9 @@ Error BuildTokenTopology(const Tokenizer& tokenizer, Fst* topo) {
             if (t == tokenizer.bos) continue;
             if (t == tokenizer.eos) continue;
 
-            topo->AddArc(topo->start_state, cur_state,         t,       t      ); // Entering
-            topo->AddArc(cur_state,         cur_state,         t,       kFstEps); // Self-loop
-            topo->AddArc(cur_state,         topo->start_state, kFstEps, kFstEps); // Leaving
+            topo->AddArc(topo->start_state, cur_state,         t,           t      ); // Entering
+            topo->AddArc(cur_state,         cur_state,         t,           kFstEpsilon); // Self-loop
+            topo->AddArc(cur_state,         topo->start_state, kFstEpsilon, kFstEpsilon); // Leaving
             cur_state++;
         }
 

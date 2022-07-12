@@ -18,7 +18,7 @@ using FstScore   = f32;
 
 
 enum FstSpecialSymbol {
-    kFstEps = -32768,
+    kFstEpsilon = -32768,
     kFstRho,
     kFstPhi,
     kFstInputEnd = -1 // This conforms to K2 Fsa
@@ -33,8 +33,8 @@ struct FstState {
 struct FstArc {
     FstStateId src = 0;
     FstStateId dst = 0;
-    FstLabel ilabel = kFstEps;
-    FstLabel olabel = kFstEps;
+    FstLabel ilabel = kFstEpsilon;
+    FstLabel olabel = kFstEpsilon;
     FstScore score = 0.0f;
 };
 
@@ -72,9 +72,9 @@ struct Fst {
 
     inline bool ContainEpsilonArc(FstStateId s) const {
         // Preconditions:
-        //   1. kFstEps has smallest id in symbol table.
+        //   1. kFstEpsilon has smallest id in symbol table.
         //   2. arcs of a FstState are sorted by ilabels.
-        return this->arcs[this->states[s].offset].ilabel == kFstEps;
+        return this->arcs[this->states[s].offset].ilabel == kFstEpsilon;
     }
 
 
