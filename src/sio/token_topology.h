@@ -26,7 +26,7 @@ Error BuildTokenTopology(const Tokenizer& tokenizer, Fst* topo) {
             if (t == tokenizer.bos) continue;
             if (t == tokenizer.eos) continue;
 
-            topo->AddArc(topo->start_state, cur_state,         t,           t      ); // Entering
+            topo->AddArc(topo->start_state, cur_state,         t,           t          ); // Entering
             topo->AddArc(cur_state,         cur_state,         t,           kFstEpsilon); // Self-loop
             topo->AddArc(cur_state,         topo->start_state, kFstEpsilon, kFstEpsilon); // Leaving
             cur_state++;
@@ -34,7 +34,7 @@ Error BuildTokenTopology(const Tokenizer& tokenizer, Fst* topo) {
 
         // 1c: "InputEnd" represents the end of input sequence (follows K2Fsa convention)
         topo->final_state = cur_state;
-        topo->AddArc(topo->start_state, topo->final_state, kFstInputEnd, tokenizer.eos);
+        topo->AddArc(topo->start_state, topo->final_state, kFstFinalSymbol, tokenizer.eos);
         topo->num_arcs = topo->arcs.size();
 
         // 1d: Sort all arcs, first by source state, then by ilabel

@@ -21,7 +21,7 @@ enum FstSpecialSymbol {
     kFstEpsilon = -32768,
     kFstRho,
     kFstPhi,
-    kFstInputEnd = -1 // This conforms to K2 Fsa
+    kFstFinalSymbol = -1 // This conforms to K2 Fsa
 };
 
 

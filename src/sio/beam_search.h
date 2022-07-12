@@ -462,7 +462,7 @@ private:
         for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.state_handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
-                if (arc.ilabel != kFstEpsilon && arc.ilabel != kFstInputEnd) {
+                if (arc.ilabel != kFstEpsilon && arc.ilabel != kFstFinalSymbol) {
                     f32 am_score = scores[arc.ilabel] + score_offset;
                     if (src.best_score + arc.score + am_score < score_min_) {
                         continue;
@@ -522,7 +522,7 @@ private:
         for (const TokenSet& src : lattice_.back()) {
             for (auto aiter = graph_->GetArcIterator(HandleToState(src.state_handle)); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
-                if (arc.ilabel == kFstInputEnd) {
+                if (arc.ilabel == kFstFinalSymbol) {
                     TokenSet& dst = frontier_[FindOrAddTokenSet(cur_time_, ComposeStateHandle(0, arc.dst))];
                     TokenPassing(src, arc, &dst);
                 }
