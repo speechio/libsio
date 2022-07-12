@@ -58,6 +58,14 @@ public:
 }; // class LanguageModel
 
 
+enum class LmType : int {
+    UndefinedLm,
+    PrefixTreeLm,
+    KenLm,
+    FstLm
+};
+
+
 struct Context {
     str name;
     str tags;

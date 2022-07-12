@@ -16,14 +16,6 @@ public:
 };
 
 
-enum class LmType : int {
-    UndefinedLm,
-    PrefixTreeLm,
-    KenLm,
-    FstLm
-};
-
-
 // PrefixTreeLm is used for LM-free decoding (e.g. vanilla CTC),
 // Conceptually, it is a forever-expanding prefix tree:
 // - each arc represents an emitted token
