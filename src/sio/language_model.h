@@ -12,7 +12,7 @@ namespace sio {
 // 1. expose polymorphic LM via value semantics instead of reference semantics
 // 2. centralized LoadXXXLm() uses for typical LM types
 class LanguageModel {
-    Unique<LmQueryInterface*> pimpl_;
+    Unique<LmInterface*> pimpl_;
     bool major_ = false;
 
 public:
@@ -51,8 +51,8 @@ public:
     }
 
 
-    inline f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) {
-        return pimpl_->GetScore(istate, word, ostate_ptr);
+    inline f32 GetScore(LmStateId istate, TokenId token, LmStateId* ostate_ptr) {
+        return pimpl_->GetScore(istate, token, ostate_ptr);
     }
 
 }; // class LanguageModel

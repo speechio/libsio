@@ -19,12 +19,12 @@ namespace sio {
 class KenLm {
 public:
     using State = lm::ngram::State;
-    using WordId = lm::WordIndex;
+    using WordIndex = lm::WordIndex;
 
     // This provides a fast hash function for upper-level stateful LM caches
     struct StateHasher {
         inline size_t operator()(const State &s) const noexcept {
-            return util::MurmurHashNative(s.words, sizeof(WordId) * s.Length());
+            return util::MurmurHashNative(s.words, sizeof(WordIndex) * s.Length());
         }
     };
 
@@ -43,7 +43,7 @@ private:
     //   Cons: index mapping has runtime overhead
     //
     // Decision: for sake of simplicity, choose solution B
-    vec<WordId> token_to_word_;
+    vec<WordIndex> token_to_word_;
 
     Unique<lm::base::Model*> model_;
 
@@ -71,7 +71,7 @@ public:
 
         for (TokenId t = 0; t != tokenizer.Size(); t++) {
             const str& token = tokenizer.Token(t);
-            WordId w = vocab.Index(token.c_str());
+            WordIndex w = vocab.Index(token.c_str());
 
             // all normal tokens should be included in KenLm's vocabulary
             if (w == 0) { // token mapped to unk
@@ -94,10 +94,10 @@ public:
     }
 
 
-    inline WordId GetWordIndex(const str& word) const {
-        return model_->BaseVocabulary().Index(word.c_str());
+    inline WordIndex GetWordIndex(const str& token) const {
+        return model_->BaseVocabulary().Index(token.c_str());
     }
-    inline WordId GetWordIndex(TokenId t) const {
+    inline WordIndex GetWordIndex(TokenId t) const {
         return token_to_word_[t];
     }
 
@@ -106,9 +106,9 @@ public:
     void SetStateToNull(State *s) const { model_->NullContextWrite(s); }
 
 
-    inline f32 Score(const State* istate, WordId word, State* ostate) const {
+    inline f32 Score(const State* istate, WordIndex word_index, State* ostate) const {
         // log10 -> ln conversion
-        return SIO_LN10 * model_->BaseScore(istate, word, ostate);
+        return SIO_LN10 * model_->BaseScore(istate, word_index, ostate);
     }
 
 }; // class KenLm

@@ -7,7 +7,14 @@
 namespace sio {
 
 using LmStateId = i32;
-using LmWordId = i32;
+
+class LmInterface {
+public:
+    virtual LmStateId NullState() const = 0;
+    virtual f32 GetScore(LmStateId istate, TokenId token, LmStateId* ostate_ptr) = 0;
+    virtual ~LmInterface() { }
+};
+
 
 enum class LmType : int {
     UndefinedLm,
@@ -17,31 +24,23 @@ enum class LmType : int {
 };
 
 
-class LmQueryInterface {
-public:
-    virtual LmStateId NullState() const = 0;
-    virtual f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) = 0;
-    virtual ~LmQueryInterface() { }
-};
-
-
 // PrefixTreeLm is used for LM-free decoding (e.g. vanilla CTC),
 // Conceptually, it is a forever-expanding prefix tree:
-// - each arc represents an emitted token / word
+// - each arc represents an emitted token
 // - each leaf node represents a tree-search head
 // - each path from root to leaf represents a unique decoded hypothesis
-class PrefixTreeLm : public LmQueryInterface {
+class PrefixTreeLm : public LmInterface {
 public:
     LmStateId NullState() const override {
         return 0;
     }
 
-    f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
+    f32 GetScore(LmStateId istate, TokenId token, LmStateId* ostate_ptr) override {
         // prime are picked from Kaldi's VectorHasher:
         //   https://github.com/kaldi-asr/kaldi/blob/master/istate/util/stl-utils.h#L230
         // choose unsigned, because uint has well-defined warp-around behavior by C standard
         constexpr u32 prime = 7853;
-        *ostate_ptr = static_cast<LmStateId>((u32)istate * prime + (u32)word);
+        *ostate_ptr = static_cast<LmStateId>((u32)istate * prime + (u32)token);
 
         return 0.0;
     }
@@ -54,7 +53,7 @@ public:
 //   1. maintains an indexing system via a bidirectional map: state index <-> KenLm's state
 //   2. provides index-based interface to hide actual states from outside world
 // NgramLm instance is stateful so it should not be shared by multiple threads.
-class NgramLm : public LmQueryInterface {
+class NgramLm : public LmInterface {
     // bidirectional map:
     //   state -> index via hashmap
     //   index -> state* via vector
@@ -92,14 +91,14 @@ public:
     }
 
 
-    f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
+    f32 GetScore(LmStateId istate, TokenId token, LmStateId* ostate_ptr) override {
         //SIO_CHECK(ostate_ptr != nullptr);
 
         const KenLm::State* kenlm_istate = index_to_state_[istate];
         KenLm::State kenlm_ostate;
         f32 score = kenlm_->Score(
             kenlm_istate,
-            kenlm_->GetWordIndex(word),
+            kenlm_->GetWordIndex(token),
             &kenlm_ostate
         );
 
@@ -116,10 +115,10 @@ public:
 }; // class NgramLm
 
 
-class CachedLm : public LmQueryInterface {
+class CachedLm : public LmInterface {
     struct CacheK {
         LmStateId istate = -1; // -1 won't collide with any valid LmStateId
-        LmWordId word;
+        TokenId token;
     };
 
     struct CacheV {
@@ -129,14 +128,14 @@ class CachedLm : public LmQueryInterface {
 
     using Cache = std::pair<CacheK, CacheV>;
 
-    Unique<LmQueryInterface*> lm_ = nullptr;
+    Unique<LmInterface*> lm_ = nullptr;
     f32 scale_ = 1.0;
     vec<Cache> caches_;
 
 public:
 
     // NOTE sink argument: lm ownership transfered to loaded instance
-    Error Load(Unique<LmQueryInterface*> lm, f32 scale, size_t cache_size) {
+    Error Load(Unique<LmInterface*> lm, f32 scale, size_t cache_size) {
         SIO_CHECK(lm != nullptr);
         SIO_CHECK_GT(cache_size, 0);
 
@@ -157,16 +156,16 @@ public:
     }
 
 
-    f32 GetScore(LmStateId istate, LmWordId word, LmStateId* ostate_ptr) override {
-        Cache& cache = caches_[GetCacheIndex(istate, word)];
+    f32 GetScore(LmStateId istate, TokenId token, LmStateId* ostate_ptr) override {
+        Cache& cache = caches_[GetCacheIndex(istate, token)];
         CacheK& k = cache.first;
         CacheV& v = cache.second;
 
-        if (k.istate != istate || k.word != word) { // cache miss
+        if (k.istate != istate || k.token != token) { // cache miss
             k.istate = istate;
-            k.word = word;
+            k.token = token;
 
-            v.score = scale_ * lm_->GetScore(istate, word, &v.ostate);
+            v.score = scale_ * lm_->GetScore(istate, token, &v.ostate);
         }
 
         *ostate_ptr = v.ostate;
@@ -175,9 +174,9 @@ public:
 
 private:
 
-    inline size_t GetCacheIndex(LmStateId istate, LmWordId word) {
+    inline size_t GetCacheIndex(LmStateId istate, TokenId token) {
         constexpr LmStateId p1 = 26597, p2 = 50329;
-        return static_cast<size_t>(istate * p1 + word * p2) % caches_.size();
+        return static_cast<size_t>(istate * p1 + token * p2) % caches_.size();
     }
 
 }; // class CachedLm
