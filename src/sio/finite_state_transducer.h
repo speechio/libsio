@@ -191,9 +191,10 @@ struct Fst {
         {
             this->arcs.reserve(num_arcs);
             while (std::getline(is, line)) {
+                // Fsa line format: "src    dst     label/score"
+                // Fst line format: "src    dst     ilabel:olabel/score"
                 cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
                 SIO_CHECK_EQ(cols.size(), 3);
-                //dbg(cols);
 
                 vec<str> arc_info = absl::StrSplit(cols[2], '/');
                 SIO_CHECK_EQ(arc_info.size(), 2);
