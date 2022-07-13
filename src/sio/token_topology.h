@@ -35,7 +35,6 @@ Error BuildTokenTopology(const Tokenizer& tokenizer, Fst* topo) {
         // 1c: "InputEnd" represents the end of input sequence (follows K2Fsa convention)
         topo->final_state = cur_state;
         topo->AddArc(topo->start_state, topo->final_state, kFstFinalSymbol, tokenizer.eos);
-        topo->num_arcs = topo->arcs.size();
 
         // 1d: Sort all arcs, first by source state, then by ilabel
         std::sort(topo->arcs.begin(), topo->arcs.end(), 
@@ -47,21 +46,22 @@ Error BuildTokenTopology(const Tokenizer& tokenizer, Fst* topo) {
 
     /* 2: Setup states */
     {
-        topo->num_states = topo->final_state + 1;
-        topo->states.resize(topo->num_states + 1); // + 1 sentinel
+        i64 num_states = topo->final_state + 1;
+        topo->states.reserve(num_states);
 
-        vec<int> out_degree(topo->num_states, 0);
+        vec<int> odegree(num_states, 0);
         for (const auto& arc : topo->arcs) {
-            out_degree[arc.src]++;
+            odegree[arc.src]++;
         }
 
-        // invariant: n = sum( arcs of states[0, s) )
-        int n = 0;
-        for (FstStateId s = 0; s != topo->num_states; s++) {
-            topo->states[s].offset = n;
-            n += out_degree[s];
+        // invariant: k = sum( arcs of states[0, s) )
+        int k = 0;
+        for (FstStateId s = 0; s != num_states; s++) {
+            topo->states.push_back({.offset = k, .num_arcs = odegree[s]});
+            k += odegree[s];
         }
-        topo->states.back().offset = n; // setup last sentinel state
+
+        SIO_CHECK_EQ(k, topo->arcs.size());
     }
 
     return Error::OK;

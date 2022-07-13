@@ -17,7 +17,7 @@ using FstLabel   = i32;
 using FstScore   = f32;
 
 
-enum FstSpecialSymbol {
+enum FstSymbol {
     kFstEpsilon = -32768,
     kFstRho,
     kFstPhi,
@@ -27,6 +27,7 @@ enum FstSpecialSymbol {
 
 struct FstState {
     FstArcId offset = 0;
+    i32 num_arcs = 0;
 };
 
 
@@ -57,14 +58,10 @@ public:
 struct Fst {
     str version; // TODO: make version a part of binary header
 
-    // header
-    i64 num_states = 0;
-    i64 num_arcs = 0;
     FstStateId start_state = 0;
     FstStateId final_state = 0;
 
-    // data
-    vec<FstState> states;  // one extra sentinel at the end: states.size() = num_states + 1
+    vec<FstState> states;
     vec<FstArc> arcs;
 
 
@@ -80,10 +77,10 @@ struct Fst {
 
     FstArcIterator GetArcIterator(FstStateId i) const {
         SIO_CHECK(!Empty());
-        SIO_CHECK_NE(i, this->states.size() - 1); // block external access to sentinel
+        const FstState& s = this->states[i];
         return FstArcIterator(
-            &this->arcs[this->states[i  ].offset],
-            &this->arcs[this->states[i+1].offset]
+            &this->arcs[s.offset],
+            &this->arcs[s.offset + s.num_arcs]
         );
     }
 
@@ -103,11 +100,13 @@ struct Fst {
         TODO: version handling here
         */
 
+        i64 num_states = 0;
         ExpectToken(is, binary, "<NumStates>");
-        ReadBasicType(is, binary, &this->num_states);
+        ReadBasicType(is, binary, &num_states);
 
+        i64 num_arcs = 0;
         ExpectToken(is, binary, "<NumArcs>");
-        ReadBasicType(is, binary, &this->num_arcs);
+        ReadBasicType(is, binary, &num_arcs);
 
         ExpectToken(is, binary, "<StartState>");
         ReadBasicType(is, binary, &this->start_state);
@@ -115,16 +114,15 @@ struct Fst {
 
         ExpectToken(is, binary, "<FinalState>");
         ReadBasicType(is, binary, &this->final_state);
-        SIO_CHECK_EQ(this->final_state, this->num_states - 1); // conform to K2
+        SIO_CHECK_EQ(this->final_state, num_states - 1); // K2: last state is final state
 
         ExpectToken(is, binary, "<States>");
-        auto num_states_plus_sentinel = this->num_states + 1;
-        this->states.resize(num_states_plus_sentinel);
-        is.read(reinterpret_cast<char*>(this->states.data()), num_states_plus_sentinel * sizeof(FstState));
+        this->states.resize(num_states);
+        is.read(reinterpret_cast<char*>(this->states.data()), num_states * sizeof(FstState));
 
         ExpectToken(is, binary, "<Arcs>");
-        this->arcs.resize(this->num_arcs);
-        is.read(reinterpret_cast<char*>(this->arcs.data()), this->num_arcs * sizeof(FstArc));
+        this->arcs.resize(num_arcs);
+        is.read(reinterpret_cast<char*>(this->arcs.data()), num_arcs * sizeof(FstArc));
 
         return Error::OK;
     }
@@ -146,10 +144,10 @@ struct Fst {
         */
 
         WriteToken(os, binary, "<NumStates>");
-        WriteBasicType(os, binary, this->num_states);
+        WriteBasicType(os, binary, (i64)this->states.size());
 
         WriteToken(os, binary, "<NumArcs>");
-        WriteBasicType(os, binary, this->num_arcs);
+        WriteBasicType(os, binary, (i64)this->arcs.size());
 
         WriteToken(os, binary, "<StartState>");
         WriteBasicType(os, binary, this->start_state);
@@ -158,11 +156,10 @@ struct Fst {
         WriteBasicType(os, binary, this->final_state);
 
         WriteToken(os, binary, "<States>");
-        auto num_states_plus_sentinel = this->num_states + 1;
-        os.write(reinterpret_cast<const char*>(this->states.data()), num_states_plus_sentinel * sizeof(FstState));
+        os.write(reinterpret_cast<const char*>(this->states.data()), this->states.size() * sizeof(FstState));
 
         WriteToken(os, binary, "<Arcs>");
-        os.write(reinterpret_cast<const char*>(this->arcs.data()), this->num_arcs * sizeof(FstArc));
+        os.write(reinterpret_cast<const char*>(this->arcs.data()), this->arcs.size() * sizeof(FstArc));
 
         return Error::OK;
     }
@@ -176,26 +173,23 @@ struct Fst {
         str line;
         vec<str> cols;
 
-        /* 1: Parse header */
-        {
-            // header line: num_states, num_arcs, start_state, final_state
-            std::getline(is, line);
-            cols = absl::StrSplit(line, ',', absl::SkipWhitespace());
-            SIO_CHECK_EQ(cols.size(), 4);
+        /* 1: Parse header: num_states, num_arcs, start_state, final_state */
+        std::getline(is, line);
+        cols = absl::StrSplit(line, ',', absl::SkipWhitespace());
 
-            this->num_states  = std::stoi(cols[0]);
-            this->num_arcs    = std::stoi(cols[1]);
-            this->start_state = std::stoi(cols[2]);
-            this->final_state = std::stoi(cols[3]);
+        SIO_CHECK_EQ(cols.size(), 4);
+        i64 num_states    = std::stoi(cols[0]); 
+        i64 num_arcs      = std::stoi(cols[1]);
+        this->start_state = std::stoi(cols[2]);
+        this->final_state = std::stoi(cols[3]);
 
-            // K2Fsa conformance checks
-            SIO_CHECK_EQ(this->start_state, 0);
-            SIO_CHECK_EQ(this->final_state, this->num_states - 1);
-        }
+        // K2Fsa conformance checks
+        SIO_CHECK_EQ(this->start_state, 0);
+        SIO_CHECK_EQ(this->final_state, num_states - 1);
 
         /* 2: Parse & load all arcs */
         {
-            int n = 0;
+            this->arcs.reserve(num_arcs);
             while (std::getline(is, line)) {
                 cols = absl::StrSplit(line, absl::ByAnyChar(" \t"), absl::SkipWhitespace());
                 SIO_CHECK_EQ(cols.size(), 3);
@@ -214,9 +208,8 @@ struct Fst {
                     labels.size() == 2 ? std::stoi(labels[1]) : std::stoi(labels[0]),
                     std::stof(arc_info[1])
                 );
-                n++;
             }
-            SIO_CHECK_EQ(this->num_arcs, n); // Num of arcs loaded is inconsistent with header?
+            SIO_CHECK_EQ(this->arcs.size(), num_arcs); // must be consistent with header
 
             /* Sort all arcs, first by source state, then by ilabel */
             std::sort(this->arcs.begin(), this->arcs.end(), 
@@ -228,22 +221,21 @@ struct Fst {
 
         /* 3: Setup states */
         {
-            this->states.resize(this->num_states + 1); // + 1 sentinel
-            vec<int> out_degree(this->num_states, 0);
+            this->states.reserve(num_states);
 
+            vec<int> odegree(num_states, 0);
             for (const auto& arc : this->arcs) {
-                out_degree[arc.src]++;
+                odegree[arc.src]++;
             }
 
-            // invariant: n = sum( arcs of states[0, s) )
-            int n = 0;
-            for (FstStateId s = 0; s != this->num_states; s++) {
-                this->states[s].offset = n;
-                n += out_degree[s];
+            // invariant: k = sum( arcs of states[0, s) )
+            int k = 0;
+            for (FstStateId s = 0; s != num_states; s++) {
+                this->states.push_back({.offset = k, .num_arcs = odegree[s]});
+                k += odegree[s];
             }
 
-            // setup last sentinel state
-            this->states.back().offset = n;
+            SIO_CHECK_EQ(k, this->arcs.size()); // postcondition
         }
 
         return Error::OK;
@@ -251,12 +243,12 @@ struct Fst {
 
 
     void DumpToText(std::ostream& os) const {
-        os << this->num_states  << ","
-           << this->num_arcs    << "," 
-           << this->start_state << "," 
-           << this->final_state << "\n";
+        os << this->states.size() << ","
+           << this->arcs.size()   << "," 
+           << this->start_state   << "," 
+           << this->final_state   << "\n";
 
-        for (FstStateId s = 0; s < this->num_states; s++) {
+        for (FstStateId s = 0; s < this->states.size(); s++) {
             for (auto aiter = GetArcIterator(s); !aiter.Done(); aiter.Next()) {
                 const FstArc& arc = aiter.Value();
                 os << arc.src << "\t"
