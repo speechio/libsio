@@ -16,11 +16,8 @@ int main(int argc, char* argv[]) {
     const char* audio_list = argv[1];
     const char* config = std::getenv("SIO") ? std::getenv("SIO") : "sio.json";
 
-    struct sio_package sio = {}; // Zerolization Is Initialization(ZII) is required here
-    sio_init(config, &sio);
-
-    struct sio_stt stt = {};
-    sio_stt_init(sio, &stt);
+    void* sio = sio_init(config);
+    void* stt = sio_stt_init(sio);
 
     std::ifstream audios(audio_list);
     std::string audio;
@@ -50,8 +47,8 @@ int main(int argc, char* argv[]) {
         sio_stt_clear(stt);
     }
 
-    sio_stt_deinit(&stt);
-    sio_deinit(&sio);
+    sio_stt_deinit(stt);
+    sio_deinit(sio);
 
     return 0;
 }
